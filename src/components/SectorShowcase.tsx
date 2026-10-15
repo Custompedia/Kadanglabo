@@ -72,10 +72,6 @@ export function SectorShowcase() {
             />
           ))}
         </div>
-        <p className="sectors__desc">
-          <span className="t-label">{sectors[active].label}</span>
-          <span className="block mt-2">{sectors[active].desc}</span>
-        </p>
       </div>
     </div>
   )
