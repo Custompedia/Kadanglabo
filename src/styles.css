@@ -3179,7 +3179,18 @@
   margin-bottom: 28px;
 }
 
+.nd-more__label {
+  margin-bottom: 12px;
+  color: var(--color-mute);
+}
+
+.nd-more__contact-col {
+  display: flex;
+  flex-direction: column;
+}
+
 .nd-more__contact {
+  flex: 1;
   display: grid;
   align-content: center;
   justify-items: start;

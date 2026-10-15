@@ -29,8 +29,9 @@ function Article({ n }: { n: NewsItem }) {
   const root = useRef<HTMLDivElement>(null)
   usePageAnimations(root)
 
-  const project = n.project ? getProject(n.project) : undefined
-  const more = sortedNews.filter((x) => x.slug !== n.slug).slice(0, 2)
+  const project = getProject(n.project ?? 'la-barka-resort')
+  const others = sortedNews.filter((x) => x.slug !== n.slug)
+  const related = others.find((x) => x.type === n.type) ?? others[0]
 
   return (
     <Page title={n.title}>
@@ -105,22 +106,37 @@ function Article({ n }: { n: NewsItem }) {
             <SectionLabel>Explore more</SectionLabel>
           </div>
           <div className="nd-more__grid">
-            {more.map((m) => (
-              <NewsCard key={m.slug} n={m} />
-            ))}
-            {project ? (
+            {related && (
               <div>
-                <p className="t-label opacity-60 mb-3">Proyek relevan</p>
-                <ProjectCard p={project} sizes="(min-width: 768px) 30vw, 100vw" />
-              </div>
-            ) : (
-              <div className="nd-more__contact">
-                <p className="t-h2">Punya pertanyaan?</p>
-                <TLink to="/contact" className="btn-pill btn-pill--dark mt-6">
-                  Hubungi kami <ArrowRight className="h-[0.8em] w-auto" />
-                </TLink>
+                <p className="t-label nd-more__label">Artikel terkait</p>
+                <NewsCard n={related} />
               </div>
             )}
+            {project && (
+              <div>
+                <p className="t-label nd-more__label">Proyek relevan</p>
+                <ProjectCard p={project} sizes="(min-width: 768px) 30vw, 100vw" />
+              </div>
+            )}
+            <div className="nd-more__contact-col">
+              <p className="t-label nd-more__label">Contact</p>
+              <div className="nd-more__contact">
+                <p className="t-h2">Punya pertanyaan tentang {n.type === 'event' ? 'acara' : 'artikel'} ini?</p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <a
+                    href={waLink(`Halo Kadanglabo, saya ingin bertanya tentang: ${n.title}`)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-pill btn-pill--orange"
+                  >
+                    Chat WhatsApp
+                  </a>
+                  <TLink to="/contact" className="btn-pill btn-pill--dark">
+                    Hubungi kami <ArrowRight className="h-[0.8em] w-auto" />
+                  </TLink>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </article>

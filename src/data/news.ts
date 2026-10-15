@@ -40,6 +40,7 @@ export const news: NewsItem[] = [
       'Pengunjung dapat melihat proses kerja kami — dari sketsa, model 3D, hingga gambar kerja — serta dokumentasi proyek yang telah terbangun.',
     ],
     gallery: ['cantrik-hall', 'draw-exploded', 'labarka-path'],
+    project: 'omah-cantrik',
     info: [
       { label: 'Tanggal', value: 'Sabtu, 14 November 2026' },
       { label: 'Waktu', value: '10.00 – 15.00 WIB' },
@@ -63,6 +64,7 @@ export const news: NewsItem[] = [
       'Di bagian akhir, kami menyertakan daftar lebih dari enam puluh proyek yang telah kami kerjakan — sebagian besar di D.I. Yogyakarta dan sekitarnya.',
     ],
     gallery: ['draw-exploded', 'draw-interior', 'draw-plan'],
+    project: 'klinik-uii',
     info: [
       { label: 'Format', value: 'PDF · 51 halaman' },
       { label: 'Permintaan dokumen', value: 'kadanglabo@gmail.com', href: 'mailto' },
@@ -84,6 +86,7 @@ export const news: NewsItem[] = [
       'Enam tahun kemudian, prinsip itu terbawa ke resort di tepi Kali Progo, klinik di lingkungan kampus, hingga kawasan perumahan. Terima kasih untuk setiap klien dan mitra yang telah berjalan bersama kami.',
     ],
     gallery: ['labarka-koi', 'cantrik-hall', 'hmw-dining'],
+    project: 'la-barka-resort',
     info: [
       { label: 'Didirikan', value: 'Akhir September 2020' },
       { label: 'Tim in-house', value: '9 orang' },

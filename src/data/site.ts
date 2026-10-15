@@ -8,7 +8,7 @@ export const company = {
   vision: 'Arsitektur Untuk Semua',
   founder: 'Raditya Alvin',
   founded: 2020,
-  address: ['Jl. Kaliurang KM.9 No.11 (Ruko 3)', 'Dayu, Sinduharjo, Ngaglik', 'Sleman, Yogyakarta'],
+  address: ['Jl. Kaliurang KM.9 No.11 (Ruko 3)', 'Dayu Sinduharjo, Ngaglik', 'Sleman, Yogyakarta'],
   phone: '0821-3106-9311',
   phoneIntl: '6282131069311',
   email: 'kadanglabo@gmail.com',

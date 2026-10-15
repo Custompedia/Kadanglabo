@@ -16,7 +16,7 @@ export default function Contact() {
       <div ref={root} className="contact-page">
         <PageHero
           title="Contact"
-          sub="Kami bangga dapat bekerja sama dengan klien dari berbagai kota di Indonesia dengan lokasi kami yang berada di Daerah Istimewa Yogyakarta. Silakan mampir jika Anda sedang berada di sekitar sini atau hubungi kami — kami sangat menantikan kabar dari Anda."
+          sub="Kami bangga dapat bekerja sama dengan klien dari berbagai kota di Indonesia dengan lokasi kami yang berada di Daerah Istimewa Yogyakarta. Silakan mampir jika Anda sedang berada di sekitar sini atau hubungi kami; kami sangat menantikan kabar dari Anda."
         />
 
         <section className="contact-cols wrap" data-theme="light">

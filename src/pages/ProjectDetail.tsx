@@ -18,7 +18,7 @@ import NotFound from './NotFound'
 function Meta({ p }: { p: Project }) {
   const rows: [string, string | null | undefined][] = [
     ['Lokasi', p.location],
-    ['Sektor', `${categoryLabel[p.category]} — ${p.typology}`],
+    ['Sektor', `${categoryLabel[p.category]}, ${p.typology}`],
     ['Cakupan', p.scope.join(', ')],
     ['Klien', p.client],
     ['Luas lahan', p.landArea],

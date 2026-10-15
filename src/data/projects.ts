@@ -75,7 +75,7 @@ export const projects: Project[] = [
     title: 'La Barka Resort',
     category: 'hospitality',
     typology: 'Resort',
-    location: 'Nanggulan, Kulon Progo, D.I. Yogyakarta',
+    location: 'Nanggulan, Kulon Progo, Daerah Istimewa Yogyakarta',
     region: 'Kulon Progo',
     year: null,
     status: 'Terbangun',
@@ -87,7 +87,7 @@ export const projects: Project[] = [
     accent: '#EC6434',
     tagline: 'Bangunan dan lanskap yang menyatu di tepi Kali Progo.',
     summary:
-      'Perencanaan arsitektur Resort La Barka merupakan hasil eksplorasi desain kontekstual yang memadukan bangunan dan lanskap dalam harmoni yang menyatu dengan alam.',
+      'Perencanaan arsitektur Resort La Barka merupakan hasil eksplorasi desain kontekstual yang memadukan bangunan dan lanskap dalam harmoni yang menyatu dengan alam. Terletak di tepi Kali Progo, proyek ini menuntut sensitivitas tinggi terhadap kondisi kontur, arah aliran air, serta suasana alam yang khas dari kawasan tersebut.',
     story: [
       {
         key: 'context',
@@ -96,7 +96,7 @@ export const projects: Project[] = [
       },
       {
         key: 'challenge',
-        text: 'Proyek ini menuntut sensitivitas tinggi terhadap kondisi kontur, arah aliran air, serta suasana alam yang khas dari kawasan tersebut.',
+        text: 'Bangunan harus hadir tanpa melawan tapaknya — mengikuti kontur, memberi ruang bagi aliran air, dan menjaga suasana alam yang menjadi daya tarik utama resort.',
         img: 'labarka-garden',
       },
       {
@@ -200,7 +200,7 @@ export const projects: Project[] = [
     title: 'Klinik UII',
     category: 'commercial',
     typology: 'Fasilitas Kesehatan',
-    location: 'D.I. Yogyakarta',
+    location: 'Daerah Istimewa Yogyakarta',
     region: 'Yogyakarta',
     year: null,
     status: null,
