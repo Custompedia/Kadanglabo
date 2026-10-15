@@ -10,7 +10,8 @@ import { Img } from './Img'
  */
 export function SectorShowcase() {
   const list = useRef<HTMLDivElement>(null)
-  const [active, setActive] = useState(0)
+  const [active, setActive] = useState(0) // which image/description is shown
+  const [lit, setLit] = useState<number | null>(null) // highlighted title — only once the visitor points at one
 
   useGSAP(
     () => {
@@ -21,7 +22,12 @@ export function SectorShowcase() {
           trigger: row,
           start: 'top 62%',
           end: 'bottom 62%',
-          onToggle: (self) => self.isActive && setActive(i),
+          onToggle: (self) => {
+            if (self.isActive) {
+              setActive(i)
+              setLit(i)
+            }
+          },
         }),
       )
     },
@@ -36,9 +42,17 @@ export function SectorShowcase() {
             key={s.key}
             to={`/work#${s.key}`}
             className="sector-row"
-            data-active={i === active ? '' : undefined}
-            onMouseEnter={() => setActive(i)}
-            onFocus={() => setActive(i)}
+            data-active={i === lit ? '' : undefined}
+            onMouseEnter={() => {
+              setActive(i)
+              setLit(i)
+            }}
+            onFocus={() => {
+              setActive(i)
+              setLit(i)
+            }}
+            onMouseLeave={() => setLit(null)}
+            onBlur={() => setLit(null)}
           >
             <span className="sector-row__title">{s.title}</span>
             <span className="sector-row__meta">{s.typologies.join(' · ')}</span>
