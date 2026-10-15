@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { Page } from '../components/Page'
 import { Img } from '../components/Img'
-import { Counter, Marquee, SectionLabel } from '../components/Bits'
+import { Marquee, SectionLabel } from '../components/Bits'
 import { HomeHero } from '../components/HomeHero'
 import { SectorShowcase } from '../components/SectorShowcase'
 import { ProjectRing, type RingItem } from '../components/ProjectRing'
@@ -9,8 +9,8 @@ import { NewsCard } from '../components/NewsCard'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { TLink } from '../lib/transition'
-import { about, team } from '../data/site'
-import { archive, categoryLabel, projects } from '../data/projects'
+import { about } from '../data/site'
+import { categoryLabel, projects } from '../data/projects'
 import { sortedNews } from '../data/news'
 
 const ringItems: RingItem[] = projects.map((p) => ({
@@ -24,7 +24,6 @@ export default function Home() {
   const root = useRef<HTMLDivElement>(null)
   usePageAnimations(root)
 
-  const projectCount = Math.floor(archive.length / 10) * 10
 
   return (
     <Page>
@@ -35,58 +34,47 @@ export default function Home() {
         <section id="intro" className="intro wrap" data-theme="light">
           <SectionLabel n="01">About</SectionLabel>
           <p className="t-lead intro__lead" data-scrub>
-            {about.lead}
+            {about.lead.split(/(Desain Kontekstual|Efektifitas Workflow)/).map((part, i) =>
+              i % 2 ? (
+                <span key={i} className="intro__hl">
+                  {part}
+                </span>
+              ) : (
+                part
+              ),
+            )}
           </p>
 
           <div className="intro__grid">
-            <div className="intro__media" data-reveal>
-              <div className="intro__media-inner" data-parallax="7">
-                <Img id="labarka-koi" alt="La Barka Resort — kolam dan taman yang telah terbangun" sizes="(min-width: 768px) 62vw, 100vw" />
-              </div>
-              <span className="intro__media-tag pill pill--solid">La Barka Resort — terbangun</span>
-            </div>
             <div className="intro__text">
-              <SectionLabel>Kadanglabo spirit</SectionLabel>
-              <p className="t-body-lg mt-5" data-fade>
+              <p className="intro__ethos" data-fade>
                 {about.ethos}
               </p>
-              <TLink to="/about" className="btn-pill btn-pill--dark mt-8" data-fade>
-                Tentang kami <ArrowRight className="h-[0.8em] w-auto" />
-              </TLink>
+              <div className="intro__foot">
+                <ol className="intro__params" data-stagger="0.1">
+                  <li>
+                    <span>01</span>Desain Kontekstual
+                  </li>
+                  <li>
+                    <span>02</span>Efektifitas Workflow
+                  </li>
+                </ol>
+                <TLink to="/about" className="btn-pill btn-pill--dark" data-fade>
+                  Tentang kami <ArrowRight className="h-[0.8em] w-auto" />
+                </TLink>
+              </div>
             </div>
-          </div>
-        </section>
-
-        {/* ---------- STATS ---------- */}
-        <section className="stats wrap" data-theme="light" aria-label="Kadanglabo dalam angka">
-          <div className="stats__grid" data-stagger>
-            <div className="stat">
-              <span className="stat__num">2020</span>
-              <span className="stat__label">Didirikan di Yogyakarta, akhir September 2020</span>
-            </div>
-            <div className="stat">
-              <span className="stat__num">
-                <Counter to={projectCount} suffix="+" />
-              </span>
-              <span className="stat__label">Proyek dalam daftar karya kami</span>
-            </div>
-            <div className="stat">
-              <span className="stat__num">
-                <Counter to={team.length} />
-              </span>
-              <span className="stat__label">Tim in-house — arsitek hingga pengawas lapangan</span>
-            </div>
-            <div className="stat">
-              <span className="stat__num">
-                <Counter to={3} />
-              </span>
-              <span className="stat__label">Sektor: commercial, hospitality, residential</span>
+            <div className="intro__media" data-reveal>
+              <div className="intro__media-inner" data-parallax="7">
+                <Img id="labarka-koi" alt="La Barka Resort — kolam dan taman yang telah terbangun" sizes="(min-width: 768px) 58vw, 100vw" />
+              </div>
+              <span className="intro__media-tag pill pill--solid">La Barka Resort — terbangun</span>
             </div>
           </div>
         </section>
 
         {/* ---------- (02) SERVICES & SECTORS ---------- */}
-        <section className="brand-section" data-theme="dark">
+        <section className="brand-section" data-theme="accent">
           <div className="wrap brand-section__head">
             <div>
               <SectionLabel n="02">Core services & sectors</SectionLabel>
@@ -124,7 +112,7 @@ export default function Home() {
           </div>
         </section>
 
-        <Marquee className="band band--orange" seconds={36} theme="accent">
+        <Marquee className="band band--navy" seconds={36} theme="dark">
           <span>Desain kontekstual</span>
           <span>✦</span>
           <span>Efektifitas workflow</span>
