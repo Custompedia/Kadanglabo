@@ -1229,7 +1229,7 @@
 
 .sectors {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.55fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
   align-items: center;
   gap: clamp(24px, 4vw, 64px);
 }
@@ -1249,7 +1249,7 @@
   font-weight: 800;
   font-family: var(--font-display);
   font-stretch: 90%;
-  font-size: clamp(2.8rem, 8.6vw, 10rem);
+  font-size: clamp(2.6rem, 6.4vw, 7.4rem);
   line-height: 0.86;
   letter-spacing: -0.03em;
   text-transform: uppercase;
@@ -1275,9 +1275,7 @@
 
 .sectors__frame {
   position: relative;
-  aspect-ratio: 4 / 5;
-  max-height: 62vh;
-  margin-left: auto;
+  aspect-ratio: 5 / 4;
   overflow: hidden;
   background: rgb(27 34 56 / 0.15);
 }
