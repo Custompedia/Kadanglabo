@@ -3,8 +3,8 @@ import { gsap, useGSAP, reducedMotion } from '../lib/gsap'
 import { onPageMounted, openGate } from '../lib/gate'
 import { lockScroll } from '../lib/smooth'
 import { heroSlides, heroImageSizes } from '../data/hero'
-import { BrandMark } from './BrandMark'
-import { TAGLINE } from './Header'
+import { MARK_PIECES, MARK_RING } from '../data/brandMark'
+import { LOGO_VIEWBOX, TAGLINE_PATH, WORD_NAVY, WORD_ORANGE } from '../data/logoLockup'
 import { Img } from './Img'
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
@@ -34,7 +34,8 @@ function loaded(img: HTMLImageElement | null) {
 /**
  * First-load logo intro:
  * 1. the K mark draws itself (navy ring, then the three orange pieces),
- * 2. it slides left while the KADANGLABO wordmark wipes in on its right, tagline below,
+ * 2. it slides to its place in the official lockup while KADANGLABO wipes in on its right,
+ *    then the tagline wipes in underneath — exactly as in "LOGO KADANGLABO biru oren.png",
  * 3. the logo lifts away and the first hero photo rises from the bottom — on the home page
  *    that panel *is* the hero, so the hand-over is seamless.
  */
@@ -58,37 +59,25 @@ export function Preloader() {
       const header = document.querySelector('.site-header__bar')
       gsap.set(header, { autoAlpha: 0 })
 
-      const mark = el.querySelector<HTMLElement>('.intro-logo__mark')!
-      const word = el.querySelector<HTMLElement>('.intro-logo__word')!
+      const mark = el.querySelector<SVGGElement>('.il-mark')!
       const panel = el.querySelector<HTMLElement>('.preloader__hero')
       const heroImg = el.querySelector<HTMLImageElement>('.preloader__hero img')
 
-      // start with the mark alone in the centre of the screen
-      const shift = (word.offsetWidth + parseFloat(getComputedStyle(word).marginLeft)) / 2
-
+      // the mark starts alone in the centre of the lockup (svg units: lockup 1609 wide, mark ≈330)
       const logo = gsap
         .timeline({ delay: 0.25 })
-        .set(mark, { x: shift })
-        .fromTo(
-          '.intro-logo .bm-ring',
-          { strokeDasharray: 1, strokeDashoffset: 1 },
-          { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut' },
-          0,
-        )
+        .set(mark, { x: 1609 / 2 - 165 })
+        .fromTo('.il-ring', { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut' }, 0)
         .from(
-          '.intro-logo .bm-piece',
+          '.il-piece',
           { scale: 0, autoAlpha: 0, transformOrigin: '50% 50%', duration: 0.75, stagger: 0.12, ease: 'back.out(1.8)' },
           0.7,
         )
         .to(mark, { x: 0, duration: 0.9, ease: 'expo.inOut' }, 1.5)
-        .fromTo(
-          word,
-          { clipPath: 'inset(0% 100% 0% 0%)' },
-          { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.9, ease: 'power3.inOut' },
-          2.1, // only once the mark has (almost) cleared the space, so they never overlap
-        )
-        .from('.intro-logo__tagline', { yPercent: 110, duration: 0.8, ease: 'power3.out' }, 2.75)
-        .to({}, { duration: 0.55 }) // hold the finished logo for a beat
+        // wordmark and tagline wipe in left → right, only once the mark has cleared their space
+        .fromTo('#il-clip-word rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 2.1)
+        .fromTo('#il-clip-tag rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 2.55)
+        .to({}, { duration: 0.6 }) // hold the finished logo for a beat
 
       const exit = contextSafe(() => {
         gsap
@@ -137,13 +126,29 @@ export function Preloader() {
   return (
     <div ref={root} className="preloader" aria-hidden="true">
       <div className="intro-logo">
-        <div className="intro-logo__row">
-          <BrandMark className="intro-logo__mark" ringColor="#3C4C74" />
-          <img src="/brand/kadanglabo-wordmark.svg" alt="" className="intro-logo__word" width={1046} height={110} />
-        </div>
-        <span className="intro-logo__mask">
-          <span className="intro-logo__tagline">{TAGLINE}</span>
-        </span>
+        <svg viewBox={LOGO_VIEWBOX} className="intro-logo__svg" fillRule="evenodd">
+          <defs>
+            <clipPath id="il-clip-word">
+              <rect x="330" y="0" width="0" height="180" />
+            </clipPath>
+            <clipPath id="il-clip-tag">
+              <rect x="330" y="180" width="0" height="144" />
+            </clipPath>
+          </defs>
+          <g className="il-mark">
+            <path className="il-ring" d={MARK_RING} fill="none" stroke="#3C4C74" strokeWidth={8} strokeLinejoin="round" pathLength={1} />
+            {MARK_PIECES.map((d) => (
+              <path key={d.slice(0, 16)} className="il-piece" d={d} fill="#EC6434" />
+            ))}
+          </g>
+          <g clipPath="url(#il-clip-word)">
+            <path d={WORD_NAVY} fill="#3C4C74" />
+            <path d={WORD_ORANGE} fill="#EC6434" />
+          </g>
+          <g clipPath="url(#il-clip-tag)">
+            <path d={TAGLINE_PATH} fill="#3C4C74" />
+          </g>
+        </svg>
       </div>
 
       <div className="preloader__hero">
