@@ -29,8 +29,7 @@
   }
 
   html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-navy) var(--color-paper);
+    scrollbar-width: none; /* scrollbar hidden — scrolling still works (Lenis / wheel / touch) */
     -webkit-text-size-adjust: 100%;
     background: var(--color-paper);
   }
@@ -3595,21 +3594,13 @@
 
 /* ------------------------------------------------------------ scrollbar */
 
+/* Hidden everywhere so the layout never shifts when a scrollbar appears/disappears. */
+* {
+  scrollbar-width: none;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-paper);
-}
-
-::-webkit-scrollbar-thumb {
-  border: 2px solid var(--color-paper);
-  border-radius: 999px;
-  background: var(--color-navy);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-orange);
+  display: none;
+  width: 0;
+  height: 0;
 }
