@@ -667,6 +667,10 @@
   visibility: hidden;
 }
 
+.preloader__img--hero {
+  height: 128%; /* matches .hero__img so the hand-over is seamless */
+}
+
 .preloader__img[data-on] {
   visibility: visible;
 }
@@ -944,8 +948,9 @@
 
 .hero__img {
   width: 100%;
-  height: 100%;
+  height: 128%; /* taller than the hero so it can pan upward */
   object-fit: cover;
+  will-change: transform;
 }
 
 .hero__shade {

@@ -116,7 +116,7 @@ export function Preloader() {
           <Img
             key={id}
             id={id}
-            className="preloader__img"
+            className={`preloader__img${i === flip.length - 1 ? ' preloader__img--hero' : ''}`}
             sizes={i === flip.length - 1 ? '100vw' : '40vw'}
             priority
             style={{ backgroundColor: 'transparent' }}

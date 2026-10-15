@@ -7,7 +7,8 @@ import { heroSlides } from '../data/hero'
 import { Img } from './Img'
 import { TAGLINE } from './Header'
 
-const SLIDE = 5 // seconds per slide — also the duration of the capsule's colour fill
+const SLIDE = 6.5 // seconds per slide — the image pans up and the capsule fills over this time
+const PAN = (28 / 128) * 100 // images are 128% of the hero height; pan by the extra 28% (in % of the image)
 const N = heroSlides.length
 
 function CapsuleSet({ idx, current, filled }: { idx: number; current?: boolean; filled?: boolean }) {
@@ -32,7 +33,7 @@ export function HomeHero() {
   const [mounted, setMounted] = useState(2)
   const [leaving, setLeaving] = useState<number | null>(null)
   const curRef = useRef(0)
-  const timer = useRef<gsap.core.Tween | null>(null)
+  const timer = useRef<gsap.core.Timeline | null>(null)
   const running = useRef(false)
   const inView = useRef(true)
   const busy = useRef(false)
@@ -111,12 +112,13 @@ export function HomeHero() {
     if (!running.current || reducedMotion() || !root.current) return
     const fill = root.current.querySelector('.hero-capsule__set[data-current] .hero-capsule__fill')
     if (!fill) return
+    const img = root.current.querySelectorAll('.hero__slide')[curRef.current]?.querySelector('img')
     timer.current?.kill()
-    timer.current = gsap.fromTo(
-      fill,
-      { clipPath: 'inset(0% 100% 0% 0%)' },
-      { clipPath: 'inset(0% 0% 0% 0%)', duration: SLIDE, ease: 'none', onComplete: advance },
-    )
+    // like shed.design: the photo drifts slowly upward; when it bottoms out, the next project comes in
+    timer.current = gsap
+      .timeline({ onComplete: advance })
+      .fromTo(fill, { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: SLIDE, ease: 'none' }, 0)
+    if (img) timer.current.fromTo(img, { yPercent: 0 }, { yPercent: -PAN, duration: SLIDE, ease: 'sine.inOut' }, 0)
     if (!inView.current) timer.current.pause()
   })
 
@@ -133,7 +135,7 @@ export function HomeHero() {
       <div className="hero__media">
         {heroSlides.slice(0, mounted).map((p, k) => (
           <div key={p.slug} className="hero__slide">
-            <Img id={p.hero} alt={p.title} priority={k === 0} sizes="100vw" className="hero__img" />
+            <Img id={p.hero} alt={p.title} priority={k === 0} loading="eager" sizes="100vw" className="hero__img" />
           </div>
         ))}
         <div className="hero__shade" />
