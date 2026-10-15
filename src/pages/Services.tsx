@@ -80,7 +80,7 @@ export default function Services() {
         </section>
 
         <section className="statement wrap" data-theme="light">
-          <SectionLabel>Our specialism</SectionLabel>
+          <SectionLabel n="01">Our services</SectionLabel>
           <p className="t-lead statement__text" data-scrub>
             {about.ethos}
           </p>
@@ -108,10 +108,38 @@ export default function Services() {
           </div>
         </section>
 
+        {/* Management & maintenance */}
+        <section className="manage wrap" data-theme="light">
+          <div className="manage__img" data-reveal>
+            <Img id="draw-interior" alt="Gambar isometri interior" sizes="(min-width: 768px) 40vw, 90vw" />
+          </div>
+          <div className="manage__cols">
+            <div>
+              <SectionLabel>Perencanaan</SectionLabel>
+              <ul className="big-list big-list--lg" data-stagger>
+                {managementServices.perencanaan.map((m) => (
+                  <li key={m}>{m}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <SectionLabel>Perawatan</SectionLabel>
+              <ul className="big-list big-list--lg" data-stagger>
+                {managementServices.perawatan.map((m) => (
+                  <li key={m}>{m}</li>
+                ))}
+              </ul>
+              <p className="t-body-lg mt-6 opacity-70 max-w-[36ch]" data-fade>
+                Rehabilitasi dan restorasi untuk bangunan yang sudah ada — menjaga fungsi dan nilainya tetap hidup.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Service categories */}
         <section className="cats wrap" data-theme="light">
           <div className="cats__head">
-            <SectionLabel>Service categories</SectionLabel>
+            <SectionLabel n="02">Service categories</SectionLabel>
             <p className="t-body-lg max-w-[44ch] opacity-75" data-fade>
               Setiap kategori mencakup bangunan baru, renovasi, dan pengembangan — dikerjakan dengan alur yang sama
               dari analisa hingga deliverables.
@@ -149,7 +177,7 @@ export default function Services() {
         {/* Service detail — pinned horizontal process */}
         <section className="process" data-theme="dark">
           <div className="process__head wrap">
-            <SectionLabel>Service detail</SectionLabel>
+            <SectionLabel n="03">Service detail</SectionLabel>
             <div className="process__bar" aria-hidden="true">
               <span className="process__bar-fill" />
             </div>
@@ -184,34 +212,6 @@ export default function Services() {
           </div>
         </section>
 
-        {/* Management & maintenance */}
-        <section className="manage wrap" data-theme="light">
-          <div className="manage__img" data-reveal>
-            <Img id="draw-interior" alt="Gambar isometri interior" sizes="(min-width: 768px) 40vw, 90vw" />
-          </div>
-          <div className="manage__cols">
-            <div>
-              <SectionLabel>Perencanaan</SectionLabel>
-              <ul className="big-list big-list--lg" data-stagger>
-                {managementServices.perencanaan.map((m) => (
-                  <li key={m}>{m}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <SectionLabel>Perawatan</SectionLabel>
-              <ul className="big-list big-list--lg" data-stagger>
-                {managementServices.perawatan.map((m) => (
-                  <li key={m}>{m}</li>
-                ))}
-              </ul>
-              <p className="t-body-lg mt-6 opacity-70 max-w-[36ch]" data-fade>
-                Rehabilitasi dan restorasi untuk bangunan yang sudah ada — menjaga fungsi dan nilainya tetap hidup.
-              </p>
-            </div>
-          </div>
-        </section>
-
         <section className="mantra" data-theme="accent">
           <div className="wrap">
             <p className="t-h1 mantra__text" data-split>
@@ -223,7 +223,7 @@ export default function Services() {
 
         <section id="start" className="start wrap" data-theme="light">
           <div className="start__head">
-            <SectionLabel>Start a project</SectionLabel>
+            <SectionLabel n="04">Start a project</SectionLabel>
             <h2 className="t-display start__title" data-split>
               Konsultasi &amp; project inquiry.
             </h2>

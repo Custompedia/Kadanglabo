@@ -162,7 +162,7 @@ export default function About() {
           </div>
         </section>
 
-        <Marquee className="band band--navy" seconds={30} theme="dark">
+        <Marquee className="band band--orange" seconds={30} theme="accent">
           <span>A Collaborative Architectural Solution</span>
           <span>✦</span>
           <span>Arsitektur untuk semua</span>
