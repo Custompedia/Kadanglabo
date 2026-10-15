@@ -29,6 +29,8 @@
   }
 
   html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-navy) var(--color-paper);
     -webkit-text-size-adjust: 100%;
     background: var(--color-paper);
   }
@@ -1110,17 +1112,18 @@
   }
 }
 
-/* Bottom-right: the round white SCROLL button. */
+/* Bottom-right: rotating "SCROLL • EXPLORE" ring with an arrow. */
 .hero-scroll {
   position: absolute;
   right: var(--pad);
   bottom: var(--pad);
   z-index: 7;
-  width: clamp(62px, 5.5vw, 88px);
+  width: clamp(76px, 6.4vw, 96px);
   aspect-ratio: 1;
   padding: 0;
   background: none;
   border: 0;
+  color: #fff;
 }
 
 .hero-scroll__body {
@@ -1128,18 +1131,25 @@
   inset: 0;
   display: grid;
   place-items: center;
-  border-radius: 50%;
-  background: #fff;
-  color: var(--color-ink);
-  font-size: clamp(9.5px, 0.75vw, 12px);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  transition: transform 0.6s var(--ease-expo);
 }
 
-.hero-scroll:hover .hero-scroll__body {
-  transform: scale(1.08);
+.hero-scroll__ring {
+  position: absolute;
+  inset: 0;
+  fill: currentColor;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  animation: spin 16s linear infinite;
+}
+
+.hero-scroll__arrow {
+  font-size: 20px;
+  transition: transform 0.5s var(--ease-expo);
+}
+
+.hero-scroll:hover .hero-scroll__arrow {
+  transform: translateY(4px);
 }
 
 /* ------------------------------------------------------- home sections */
@@ -3607,11 +3617,37 @@
 
 @media (prefers-reduced-motion: reduce) {
   .marquee__track,
-  .header-ticker__track {
+  .header-ticker__track,
+  .hero-scroll__ring {
     animation: none;
   }
 
   .hero__slide + .hero__slide {
     display: none;
   }
+}
+
+/* ------------------------------------------------------------ scrollbar */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-paper);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--color-paper);
+  border-radius: 999px;
+  background: var(--color-navy);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-orange);
+}
+
+.menu__panel {
+  scrollbar-color: rgb(255 255 255 / 0.3) transparent;
 }

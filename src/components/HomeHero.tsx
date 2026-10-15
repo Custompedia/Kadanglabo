@@ -162,8 +162,18 @@ export function HomeHero() {
         </span>
       </button>
 
-      <button type="button" className="hero-scroll" onClick={() => scrollToElement('#intro', 0)}>
-        <span className="hero-scroll__body">Scroll</span>
+      <button type="button" className="hero-scroll" onClick={() => scrollToElement('#intro', 0)} aria-label="Gulir ke About">
+        <span className="hero-scroll__body">
+          <svg viewBox="0 0 100 100" className="hero-scroll__ring" aria-hidden="true">
+            <defs>
+              <path id="scroll-circle" d="M50 50 m-38 0 a38 38 0 1 1 76 0 a38 38 0 1 1 -76 0" />
+            </defs>
+            <text>
+              <textPath href="#scroll-circle" textLength="236" lengthAdjust="spacing">SCROLL • EXPLORE • SCROLL • EXPLORE •</textPath>
+            </text>
+          </svg>
+          <span className="hero-scroll__arrow" aria-hidden="true">↓</span>
+        </span>
       </button>
     </section>
   )
