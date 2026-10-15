@@ -66,9 +66,9 @@ export default function Home() {
             </div>
             <div className="intro__media" data-reveal>
               <div className="intro__media-inner" data-parallax="7">
-                <Img id="labarka-koi" alt="La Barka Resort — kolam dan taman yang telah terbangun" sizes="(min-width: 768px) 58vw, 100vw" />
+                <Img id="hmw-facade-day" alt="HMW House — fasad rumah tinggal" sizes="(min-width: 768px) 58vw, 100vw" />
               </div>
-              <span className="intro__media-tag pill pill--solid">La Barka Resort — terbangun</span>
+              <span className="intro__media-tag pill pill--solid">HMW House</span>
             </div>
           </div>
         </section>
