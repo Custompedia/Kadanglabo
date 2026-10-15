@@ -987,6 +987,10 @@
   will-change: transform;
 }
 
+.hero__tagline-m {
+  display: none;
+}
+
 .hero__word--accent {
   color: var(--color-orange);
 }
@@ -3367,6 +3371,17 @@
 
   .hero__fit {
     flex-direction: column;
+  }
+
+  .hero__tagline-m {
+    position: absolute;
+    top: calc(var(--header-h) + 45vw);
+    left: var(--pad);
+    z-index: 6;
+    display: block;
+    color: #fff;
+    font-family: var(--font-serif);
+    font-size: 19px;
   }
 
   .preloader__frame {

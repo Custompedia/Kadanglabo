@@ -3,8 +3,9 @@ import { useLocation } from 'react-router'
 import { TLink } from '../lib/transition'
 import { BrandMark } from './BrandMark'
 
-const ticker =
-  'A Collaborative Architectural Solution\u2002•\u2002Konsultan arsitektur berbasis komunitas di Yogyakarta sejak 2020\u2002•\u2002'
+// Hero tagline exactly as in the brief (slide 03), repeated like shed.design's header ticker
+export const TAGLINE = 'A Collaborative Architectural Solutions.'
+const ticker = `${TAGLINE}\u2002•\u2002`.repeat(3)
 
 function centerFor(pathname: string): { label: string; to?: string } | null {
   if (pathname === '/') return null

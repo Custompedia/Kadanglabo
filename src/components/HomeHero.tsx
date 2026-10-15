@@ -5,6 +5,7 @@ import { scrollToElement } from '../lib/smooth'
 import { useFitText } from '../lib/useFitText'
 import { heroSlides } from '../data/hero'
 import { Img } from './Img'
+import { TAGLINE } from './Header'
 
 const SLIDE = 5 // seconds per slide — also the duration of the capsule's colour fill
 const N = heroSlides.length
@@ -148,6 +149,7 @@ export function HomeHero() {
           </span>
         </span>
       </h1>
+      <p className="hero__tagline-m">{TAGLINE}</p>
 
       <button
         type="button"
