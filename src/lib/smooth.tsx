@@ -33,7 +33,7 @@ export function scrollToTop() {
 export function scrollToElement(target: HTMLElement | string, offset = -90) {
   const el = typeof target === 'string' ? document.querySelector<HTMLElement>(target) : target
   if (!el) return
-  if (lenis) lenis.scrollTo(el, { offset, duration: 1.4 })
+  if (lenis) lenis.scrollTo(el, { offset, duration: 1.4, force: true })
   else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + offset, behavior: 'smooth' })
 }
 

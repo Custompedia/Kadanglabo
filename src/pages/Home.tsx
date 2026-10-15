@@ -50,8 +50,8 @@ export default function Home() {
               <p className="t-body-lg mt-5" data-fade>
                 {about.ethos}
               </p>
-              <TLink to="/studio" className="btn-pill btn-pill--dark mt-8" data-fade>
-                Tentang studio <ArrowRight className="h-[0.8em] w-auto" />
+              <TLink to="/about" className="btn-pill btn-pill--dark mt-8" data-fade>
+                Tentang kami <ArrowRight className="h-[0.8em] w-auto" />
               </TLink>
             </div>
           </div>

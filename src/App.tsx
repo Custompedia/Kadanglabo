@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState } from 'react'
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router'
 import { SmoothScroll, scrollToElement, scrollToTop } from './lib/smooth'
 import { TransitionProvider } from './lib/transition'
 import { whenGateOpen } from './lib/gate'
@@ -12,7 +12,7 @@ import { nextProject, projects } from './data/projects'
 
 const pages = {
   home: () => import('./pages/Home'),
-  studio: () => import('./pages/Studio'),
+  about: () => import('./pages/About'),
   services: () => import('./pages/Services'),
   work: () => import('./pages/Work'),
   project: () => import('./pages/ProjectDetail'),
@@ -23,7 +23,7 @@ const pages = {
 }
 
 const Home = lazy(pages.home)
-const Studio = lazy(pages.studio)
+const About = lazy(pages.about)
 const Services = lazy(pages.services)
 const Work = lazy(pages.work)
 const ProjectDetail = lazy(pages.project)
@@ -85,7 +85,8 @@ function Layout() {
       <Suspense fallback={<div className="page-fallback" />}>
         <Routes location={location} key={`page:${location.pathname}`}>
           <Route path="/" element={<Home />} />
-          <Route path="/studio" element={<Studio />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/studio" element={<Navigate to="/about" replace />} />
           <Route path="/services" element={<Services />} />
           <Route path="/work" element={<Work />} />
           <Route path="/work/:slug" element={<ProjectDetail />} />

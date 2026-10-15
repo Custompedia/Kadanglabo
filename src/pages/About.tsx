@@ -32,7 +32,7 @@ function CollabDiagram() {
   )
 }
 
-export default function Studio() {
+export default function About() {
   const root = useRef<HTMLDivElement>(null)
 
   usePageAnimations(root, () => {
@@ -46,7 +46,7 @@ export default function Studio() {
   })
 
   return (
-    <Page title="Studio">
+    <Page title="About">
       <div ref={root}>
         <PageHero
           title={
@@ -191,7 +191,7 @@ export default function Studio() {
         </section>
 
         {/* Team */}
-        <section className="team wrap" data-theme="light">
+        <section id="team" className="team wrap" data-theme="light">
           <div className="team__head">
             <SectionLabel>Tim in-house</SectionLabel>
             <h2 className="t-h1 mt-6" data-split>

@@ -11,9 +11,9 @@ function centerFor(pathname: string): { label: string; to?: string } | null {
   if (pathname.startsWith('/work/')) return { label: '← Back to work', to: '/work' }
   if (pathname.startsWith('/news/')) return { label: '← Back to news', to: '/news' }
   const map: Record<string, string> = {
-    '/studio': 'About us',
+    '/about': 'About us',
     '/services': 'Our services',
-    '/work': 'Featured projects',
+    '/work': 'Selected projects',
     '/news': 'News & events',
     '/contact': 'Work with us',
   }

@@ -58,7 +58,9 @@ export function Menu({ open, onClose }: Props) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
-  const isCurrent = (to: string) => (to === '/' ? pathname === '/' : pathname.startsWith(to))
+  // anchor links (e.g. /about#team) never count as the current page
+  const isCurrent = (to: string) => !to.includes('#') && (to === '/' ? pathname === '/' : pathname.startsWith(to))
+  const samePage = (to: string) => to.split('#')[0] === pathname
 
   return (
     <div ref={root} id="site-menu" className="menu" aria-hidden={!open} inert={!open}>
@@ -74,7 +76,7 @@ export function Menu({ open, onClose }: Props) {
                 onMouseEnter={() => setActive(i)}
                 onFocus={() => setActive(i)}
                 onClick={() => {
-                  if (isCurrent(item.to) && pathname === item.to) onClose()
+                  if (samePage(item.to)) onClose()
                 }}
               >
                 <span className="menu__num">({String(i + 1).padStart(2, '0')})</span>

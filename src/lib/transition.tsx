@@ -91,7 +91,8 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         if (url.search !== location.search) {
           navigate(target, { preventScrollReset: true })
         }
-        if (url.hash) scrollToElement(url.hash)
+        // wait a tick: a closing menu unlocks Lenis, and unlocking resets any scroll already in flight
+        if (url.hash) window.setTimeout(() => scrollToElement(url.hash), 40)
         else if (url.search === location.search) {
           const lenis = getLenis()
           if (lenis) lenis.scrollTo(0, { duration: 1.2 })
