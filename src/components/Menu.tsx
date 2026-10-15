@@ -15,6 +15,7 @@ export function Menu({ open, onClose }: Props) {
   const root = useRef<HTMLDivElement>(null)
   const tl = useRef<gsap.core.Timeline | null>(null)
   const first = useRef(true)
+  const snap = useRef(false) // close instantly (route changed behind the transition curtain)
   const [hover, setHover] = useState<string | null>(null)
   const { pathname } = useLocation()
 
@@ -43,11 +44,19 @@ export function Menu({ open, onClose }: Props) {
     } else {
       lockScroll(false)
       setHover(null)
-      t.timeScale(1.7).reverse()
+      if (snap.current) {
+        // navigating: the curtain already covers the screen, so drop the menu without animating it
+        snap.current = false
+        t.pause(0)
+        gsap.set(root.current, { visibility: 'hidden' })
+      } else {
+        t.timeScale(1.7).reverse()
+      }
     }
   }, [open])
 
   useEffect(() => {
+    snap.current = open
     onClose()
   }, [pathname, onClose])
 
