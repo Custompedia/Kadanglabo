@@ -55,7 +55,6 @@ export function SectorShowcase() {
             onBlur={() => setLit(null)}
           >
             <span className="sector-row__title">{s.title}</span>
-            <span className="sector-row__meta">{s.typologies.join(' · ')}</span>
           </TLink>
         ))}
       </div>

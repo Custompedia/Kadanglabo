@@ -1236,7 +1236,7 @@
 
 .sector-row {
   display: block;
-  padding: 10px 0 20px;
+  padding: 14px 0 10px;
   border-top: 1px solid rgb(255 255 255 / 0.55);
 }
 
@@ -1249,7 +1249,7 @@
   font-weight: 800;
   font-family: var(--font-display);
   font-stretch: 90%;
-  font-size: clamp(2.6rem, 6.4vw, 7.4rem);
+  font-size: clamp(2.8rem, 8.6vw, 10rem);
   line-height: 0.86;
   letter-spacing: -0.03em;
   text-transform: uppercase;
@@ -1258,14 +1258,6 @@
 
 .sector-row[data-active] .sector-row__title {
   color: var(--color-navy-deep);
-}
-
-.sector-row__meta {
-  display: block;
-  margin-top: 12px;
-  font-family: var(--font-serif);
-  font-size: clamp(1rem, 1.3vw, 1.25rem);
-  opacity: 0.75;
 }
 
 .sectors__media {
@@ -3620,3 +3612,7 @@
   width: 0;
   height: 0;
 }
+  .sector-row__title {
+    font-size: 13vw;
+  }
+
