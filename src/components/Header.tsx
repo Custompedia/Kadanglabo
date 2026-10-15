@@ -76,7 +76,7 @@ export function Header({ menuOpen, onToggleMenu }: Props) {
   return (
     <header
       className="site-header"
-      data-tone={menuOpen ? 'dark' : tone}
+      data-tone={menuOpen ? 'accent' : tone}
       data-hidden={hidden && !menuOpen ? '' : undefined}
       data-solid={solid && !menuOpen ? '' : undefined}
       data-line={pathname === '/' && !solid && !menuOpen ? '' : undefined}
@@ -92,7 +92,9 @@ export function Header({ menuOpen, onToggleMenu }: Props) {
         </TLink>
 
         <div className="site-header__center">
-          {center === null ? (
+          {menuOpen ? (
+            <span className="pill">Mau ke mana?</span>
+          ) : center === null ? (
             <div className="header-ticker" aria-hidden="true">
               <div className="header-ticker__track">
                 <span>{ticker}</span>
