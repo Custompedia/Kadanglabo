@@ -1,0 +1,52 @@
+{
+  "generator": "built-in image_gen / GPT Image",
+  "purpose": "Faithful reconstruction of the five home hero images.",
+  "export": {
+    "method": "GPT Image detail restoration followed by Lanczos3 resizing and WebP export. Exported 3840px assets are upscaled; the generated masters are not native 4K.",
+    "widths": [
+      640,
+      1280,
+      1920,
+      2560,
+      3840
+    ],
+    "webpQuality": 88
+  },
+  "images": [
+    {
+      "key": "balecatur-front",
+      "source": "public/img/balecatur-front-1672.webp",
+      "master": "assets/hero/balecatur-front-gpt.png",
+      "exports": "public/img/balecatur-front-hd-{width}.webp",
+      "prompt": "Use case: precise-object-edit.\nAsset type: full-screen architectural portfolio hero image, high-resolution restoration.\nInput image: the provided image is the EDIT TARGET, not loose inspiration.\nPrimary request: reconstruct this exact Bale Catur Villa & Resto architectural visualization at ultra-high definition. Output a single high-resolution landscape image, ideally 3840 pixels wide, retaining the exact original aspect ratio 1672:940. This is fidelity-first super-resolution, not a redesign.\nConstraints: keep the camera position, perspective, framing, silhouette and geometry of every building, roof slope, facade panel, window mullion, door, stairs, ramp, brick sign wall, garden, tree, palm, car and person exactly as in the input. Keep all subjects in their existing positions and proportions. Preserve the sunset sky, warm interior lights, wet street reflections, exposure and original colors. Sign text must remain exactly \"BALE CATUR\" on the first line and \"VILLA & RESTO\" on the second line, in its existing location and lettering.\nChange only the definition: resolve existing material textures, foliage, glass, brick, roof and paving details, remove compression artifacts and jagged edges, retaining a natural architectural render finish.\nAvoid: new objects, removed objects, invented architecture, moved trees, altered facade design, different lighting, oversharpening halos, saturation changes, a new crop, added text or watermark."
+    },
+    {
+      "key": "labarka-bird",
+      "source": "public/img/labarka-bird-1698.webp",
+      "master": "assets/hero/labarka-bird-gpt.png",
+      "exports": "public/img/labarka-bird-hd-{width}.webp",
+      "prompt": "Use case: precise-object-edit.\nAsset type: full-screen architectural portfolio hero image; high-resolution restoration.\nInput image: provided image is the EDIT TARGET, not loose inspiration.\nPrimary request: reconstruct this exact image at ultra-high definition, ideally 3840 pixels wide. Output one landscape image keeping original aspect ratio 1698:926. This is fidelity-first super-resolution, not a redesign.\nScene invariants: La Barka Resort aerial architectural render: preserve every gabled cabin, its exact placement, number, roof angle, multi-level hillside layout, right-side restaurant terrace, retaining walls, upper parking lot with existing cars, surrounding trees and forested hills, lower riverside paving, people, river and two white water birds. Keep the identical aerial camera, warm soft daylight, river reflections and depth of field.\nChange ONLY image definition: recover fine existing textures in materials, foliage, glass, stone, paving and roof; clean compression artifacts and jagged edges. Preserve the original architectural visualization finish, all object positions, color balance, exposure, framing, crop, geometry, perspective and lighting exactly.\nAvoid: changing architecture, changing object counts, adding/removing objects or people, relocating trees, altered text, new crop, camera changes, lighting changes, saturation shifts, exaggerated texture, oversharpening halos, watermark."
+    },
+    {
+      "key": "klinik-hero",
+      "source": "public/img/klinik-hero-1920.webp",
+      "master": "assets/hero/klinik-hero-gpt.png",
+      "exports": "public/img/klinik-hero-hd-{width}.webp",
+      "prompt": "Use case: precise-object-edit.\nAsset type: full-screen architectural portfolio hero image; high-resolution restoration.\nInput image: provided image is the EDIT TARGET, not loose inspiration.\nPrimary request: reconstruct this exact image at ultra-high definition, ideally 3840 pixels wide. Output one landscape image keeping original aspect ratio 1920:1085. This is fidelity-first super-resolution, not a redesign.\nScene invariants: Klinik UII exterior architectural render: preserve the exact two-storey modern clinic, thin vertical facade fins and their rhythm, glass panels, white concrete volumes, entrance, columns, accessibility ramp and railings, front sign wall, trees, curb, parked white car and partial car at right edge. Keep sky, daylight and all shadows identical. Preserve existing sign locations and lettering exactly: \"KLINIK\", \"UNIVERSITAS ISLAM\", \"INDONESIA\", \"IGD\", \"24 JAM\" and the tiny \"WELCOME\" sign.\nChange ONLY image definition: recover fine existing textures in materials, foliage, glass, stone, paving and roof; clean compression artifacts and jagged edges. Preserve the original architectural visualization finish, all object positions, color balance, exposure, framing, crop, geometry, perspective and lighting exactly.\nAvoid: changing architecture, changing object counts, adding/removing objects or people, relocating trees, altered text, new crop, camera changes, lighting changes, saturation shifts, exaggerated texture, oversharpening halos, watermark."
+    },
+    {
+      "key": "hmw-facade",
+      "source": "public/img/hmw-facade-1672.webp",
+      "master": "assets/hero/hmw-facade-gpt.png",
+      "exports": "public/img/hmw-facade-hd-{width}.webp",
+      "prompt": "Use case: precise-object-edit.\nAsset type: full-screen architectural portfolio hero image; high-resolution restoration.\nInput image: provided image is the EDIT TARGET, not loose inspiration.\nPrimary request: reconstruct this exact image at ultra-high definition, ideally 3840 pixels wide. Output one landscape image keeping original aspect ratio 1672:941. This is fidelity-first super-resolution, not a redesign.\nScene invariants: HMW House front architectural render: preserve the exact square two-storey facade, the three pale vertical upper facade sections, brown vertical fins across upper right, black canopy with slats, vine-covered ledge, five tall dark framed mesh/glass lower gate sections, visible parked car behind gate, right ribbed wall and planted bed, trees and palms framing both edges, wet reflective road, sunset sky and warm accent lights. Preserve the frontal camera, dimensions, facade rhythm and exact building silhouette.\nChange ONLY image definition: recover fine existing textures in materials, foliage, glass, stone, paving and roof; clean compression artifacts and jagged edges. Preserve the original architectural visualization finish, all object positions, color balance, exposure, framing, crop, geometry, perspective and lighting exactly.\nAvoid: changing architecture, changing object counts, adding/removing objects or people, relocating trees, altered text, new crop, camera changes, lighting changes, saturation shifts, exaggerated texture, oversharpening halos, watermark."
+    },
+    {
+      "key": "firlatata-front",
+      "source": "public/img/firlatata-front-1672.webp",
+      "master": "assets/hero/firlatata-front-gpt.png",
+      "exports": "public/img/firlatata-front-hd-{width}.webp",
+      "prompt": "Use case: precise-object-edit.\nAsset type: full-screen architectural portfolio hero image; high-resolution restoration.\nInput image: provided image is the EDIT TARGET, not loose inspiration.\nPrimary request: reconstruct this exact image at ultra-high definition, ideally 3840 pixels wide. Output one landscape image keeping original aspect ratio 1672:941. This is fidelity-first super-resolution, not a redesign.\nScene invariants: Firlatata residential architectural render: preserve the exact four front gabled townhouses, roof profiles, off-white blank facade panels and adjacent wood strips and tall glazing, central access alley, visible buildings beyond, gate lattice and exact \"03\" numbers, center distant \"OS\" / \"RESIDENCE\" sign, central parked dark car and partial white SUV at right, trees, birds in sky, grass foreground and wet street. Keep the exact frontal eye-level camera, warm daytime lighting, shadows, palette and every facade proportion.\nChange ONLY image definition: recover fine existing textures in materials, foliage, glass, stone, paving and roof; clean compression artifacts and jagged edges. Preserve the original architectural visualization finish, all object positions, color balance, exposure, framing, crop, geometry, perspective and lighting exactly.\nAvoid: changing architecture, changing object counts, adding/removing objects or people, relocating trees, altered text, new crop, camera changes, lighting changes, saturation shifts, exaggerated texture, oversharpening halos, watermark."
+    }
+  ]
+}

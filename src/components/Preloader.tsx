@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { gsap, useGSAP, reducedMotion } from '../lib/gsap'
 import { onPageMounted, openGate } from '../lib/gate'
 import { lockScroll } from '../lib/smooth'
-import { heroSlides, preloaderFlip } from '../data/hero'
+import { heroSlides, preloaderFlip, heroImageSizes } from '../data/hero'
 import { Img } from './Img'
 
 const STEP = 0.32 // seconds between images; each one wipes in from the top over the previous
@@ -124,7 +124,7 @@ export function Preloader() {
             key={id}
             id={id}
             className={`preloader__img${i === flip.length - 1 ? ' preloader__img--hero' : ''}`}
-            sizes={i === flip.length - 1 ? '100vw' : '40vw'}
+            sizes={i === flip.length - 1 ? heroImageSizes(id) : '40vw'}
             priority
             style={{ backgroundColor: 'transparent', zIndex: i, clipPath: i === 0 ? undefined : 'inset(0% 0% 100% 0%)' }}
           />

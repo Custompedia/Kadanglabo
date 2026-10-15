@@ -3,11 +3,12 @@ import { gsap, ScrollTrigger, useGSAP, reducedMotion } from '../lib/gsap'
 import { whenGateOpen } from '../lib/gate'
 import { scrollToElement } from '../lib/smooth'
 import { useFitText } from '../lib/useFitText'
-import { heroSlides } from '../data/hero'
+import { heroSlides, heroImageSizes } from '../data/hero'
 import { Img } from './Img'
 import { TAGLINE } from './Header'
 
 const SLIDE = 6.5 // seconds per slide — the image pans up and the capsule fills over this time
+const WIPE = 1.4 // seconds for the next slide to wipe in (the old one keeps drifting underneath)
 const PAN = (28 / 128) * 100 // images are 128% of the hero height; pan by the extra 28% (in % of the image)
 const N = heroSlides.length
 
@@ -33,7 +34,8 @@ export function HomeHero() {
   const [mounted, setMounted] = useState(2)
   const [leaving, setLeaving] = useState<number | null>(null)
   const curRef = useRef(0)
-  const timer = useRef<gsap.core.Timeline | null>(null)
+  const timer = useRef<gsap.core.Tween | null>(null)
+  const pans = useRef<gsap.core.Tween[]>([])
   const running = useRef(false)
   const inView = useRef(true)
   const busy = useRef(false)
@@ -58,8 +60,8 @@ export function HomeHero() {
         end: 'bottom top',
         onToggle: (self) => {
           inView.current = self.isActive
-          if (self.isActive) timer.current?.resume()
-          else timer.current?.pause()
+          if (self.isActive) [timer.current, ...pans.current].forEach((t) => t?.resume())
+          else [timer.current, ...pans.current].forEach((t) => t?.pause())
         },
       })
 
@@ -81,6 +83,25 @@ export function HomeHero() {
     { scope: root },
   )
 
+  /** Continuous, linear drift from the bottom of the photo to its top — it never stops mid-transition. */
+  const pan = contextSafe((img: Element | null | undefined) => {
+    if (!img || reducedMotion()) return
+    const t = gsap.fromTo(
+      img,
+      { yPercent: 0 },
+      {
+        yPercent: PAN,
+        duration: SLIDE + WIPE,
+        ease: 'none',
+        onComplete: () => {
+          pans.current = pans.current.filter((x) => x !== t)
+        },
+      },
+    )
+    pans.current.push(t)
+    if (!inView.current) t.pause()
+  })
+
   const advance = contextSafe(() => {
     if (busy.current || !root.current) return
     const slides = Array.from(root.current.querySelectorAll<HTMLElement>('.hero__slide'))
@@ -91,13 +112,15 @@ export function HomeHero() {
     if (!from || !to) return
     busy.current = true
     timer.current?.kill()
+    const img = to.querySelector('img')
     gsap.set(to, { zIndex: 3, visibility: 'visible', clipPath: 'inset(0% 0% 100% 0%)' })
-    gsap.set(to.querySelector('img'), { yPercent: 0 })
     gsap.set(from, { zIndex: 2 })
+    pan(img) // the new photo is already moving while it wipes in
+    gsap.fromTo(img, { scale: 1.08 }, { scale: 1, duration: WIPE + 0.6, ease: 'power2.out' })
     gsap.to(to, {
       clipPath: 'inset(0% 0% 0% 0%)',
-      duration: 0.85,
-      ease: 'expo.out',
+      duration: WIPE,
+      ease: 'power2.inOut',
       onComplete: () => {
         gsap.set(from, { visibility: 'hidden', zIndex: 1 })
         busy.current = false
@@ -113,13 +136,14 @@ export function HomeHero() {
     if (!running.current || reducedMotion() || !root.current) return
     const fill = root.current.querySelector('.hero-capsule__set[data-current] .hero-capsule__fill')
     if (!fill) return
-    const img = root.current.querySelectorAll('.hero__slide')[curRef.current]?.querySelector('img')
     timer.current?.kill()
-    // like shed.design: each photo starts at its bottom and drifts slowly to the top, then the next project comes in
-    timer.current = gsap
-      .timeline({ onComplete: advance })
-      .fromTo(fill, { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: SLIDE, ease: 'none' }, 0)
-    if (img) timer.current.fromTo(img, { yPercent: 0 }, { yPercent: PAN, duration: SLIDE, ease: 'sine.inOut' }, 0)
+    // first slide: start its drift here (later slides start theirs in advance())
+    if (!pans.current.length) pan(root.current.querySelectorAll('.hero__slide')[curRef.current]?.querySelector('img'))
+    timer.current = gsap.fromTo(
+      fill,
+      { clipPath: 'inset(0% 100% 0% 0%)' },
+      { clipPath: 'inset(0% 0% 0% 0%)', duration: SLIDE, ease: 'none', onComplete: advance },
+    )
     if (!inView.current) timer.current.pause()
   })
 
@@ -136,7 +160,7 @@ export function HomeHero() {
       <div className="hero__media">
         {heroSlides.slice(0, mounted).map((p, k) => (
           <div key={p.slug} className="hero__slide">
-            <Img id={p.hero} alt={p.title} priority={k === 0} loading="eager" sizes="100vw" className="hero__img" />
+            <Img id={p.hero} alt={p.title} priority={k === 0} loading="eager" sizes={heroImageSizes(p.hero)} className="hero__img" />
           </div>
         ))}
         <div className="hero__shade" />
