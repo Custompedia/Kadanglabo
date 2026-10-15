@@ -32,15 +32,15 @@ export const news: NewsItem[] = [
     date: '2026-11-14',
     excerpt:
       'Sehari membuka pintu studio di Jl. Kaliurang — bawa denah, foto lahan, atau sekadar pertanyaan tentang rumah dan usaha Anda.',
-    cover: 'cantrik-lounge',
+    cover: 'balecatur-lobby',
     context:
       'Banyak calon klien datang dengan pertanyaan yang sama: harus mulai dari mana? Open Studio adalah cara kami menjawabnya secara langsung — santai, tatap muka, dan tanpa jargon.',
     body: [
       'Tim arsitek, drafter, dan pengawas lapangan Kadanglabo akan hadir di studio untuk berdiskusi tentang rencana pembangunan, renovasi, maupun pengembangan lahan.',
       'Pengunjung dapat melihat proses kerja kami — dari sketsa, model 3D, hingga gambar kerja — serta dokumentasi proyek yang telah terbangun.',
     ],
-    gallery: ['cantrik-hall', 'draw-exploded', 'labarka-path'],
-    project: 'omah-cantrik',
+    gallery: ['hmw-kitchen', 'draw-exploded', 'labarka-path'],
+    project: 'la-barka-resort',
     info: [
       { label: 'Tanggal', value: 'Sabtu, 14 November 2026' },
       { label: 'Waktu', value: '10.00 – 15.00 WIB' },
@@ -85,7 +85,7 @@ export const news: NewsItem[] = [
       'Sejak awal, kami percaya proyek yang baik lahir dari kolaborasi — klien, perencana, dan pelaksana yang bekerja dalam satu arah. Dua parameter keberhasilan kami tetap sama: Desain Kontekstual dan Efektifitas Workflow.',
       'Enam tahun kemudian, prinsip itu terbawa ke resort di tepi Kali Progo, klinik di lingkungan kampus, hingga kawasan perumahan. Terima kasih untuk setiap klien dan mitra yang telah berjalan bersama kami.',
     ],
-    gallery: ['labarka-koi', 'cantrik-hall', 'hmw-dining'],
+    gallery: ['labarka-koi', 'balecatur-pool2', 'hmw-dining'],
     project: 'la-barka-resort',
     info: [
       { label: 'Didirikan', value: 'Akhir September 2020' },
@@ -111,25 +111,7 @@ export const news: NewsItem[] = [
     info: [{ label: 'Proyek', value: 'Klinik UII' }],
     project: 'klinik-uii',
   },
-  {
-    slug: 'omah-cantrik-terbangun',
-    type: 'news',
-    tag: 'Proyek',
-    title: 'Omah Cantrik: dari gambar menjadi ruang yang hidup',
-    date: '2026-07-14',
-    excerpt:
-      'Rangka kayu, dinding roster, dan halaman kerikil — catatan dari salah satu proyek kami yang kini telah terbangun dan digunakan.',
-    cover: 'cantrik-hall',
-    context:
-      'Setiap proyek yang kami desain harus terbangun. Omah Cantrik adalah salah satu buktinya: berkembang bertahap dari bangunan utama, homestay, hingga taman.',
-    body: [
-      'Material dipilih karena jujur dan mudah dirawat. Ruang semi-terbuka disusun di antara taman sehingga udara dan cahaya mengalir bebas.',
-      'Kini ruang berkumpul, bar, dan taman Omah Cantrik digunakan sehari-hari — persis seperti yang dibayangkan sejak gambar pertama.',
-    ],
-    gallery: ['cantrik-pergola', 'cantrik-garden', 'cantrik-bar'],
-    info: [{ label: 'Proyek', value: 'Omah Cantrik' }],
-    project: 'omah-cantrik',
-  },
+
   {
     slug: 'talk-desain-kontekstual',
     type: 'event',

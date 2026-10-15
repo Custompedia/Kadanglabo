@@ -28,7 +28,7 @@ export const nav: { to: string; label: string; img: ImgKey }[] = [
   { to: '/about#team', label: 'Team', img: 'team-raditya' },
   { to: '/services', label: 'Services', img: 'klinik-plaza' },
   { to: '/work', label: 'Our Work', img: 'labarka-bird' },
-  { to: '/news', label: 'News & Events', img: 'cantrik-lounge' },
+  { to: '/news', label: 'News & Events', img: 'labarka-pond' },
   { to: '/contact', label: 'Contact', img: 'hmw-facade' },
 ]
 

@@ -10,7 +10,7 @@ import { gsap } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { about, disciplines, managementServices, process, sectors } from '../data/site'
 
-const collage: ImgKey[] = ['labarka-path', 'klinik-corridor', 'draw-interior', 'balecatur-lobby', 'hmw-dining', 'cantrik-breeze', 'firlatata-living']
+const collage: ImgKey[] = ['labarka-path', 'klinik-corridor', 'draw-interior', 'balecatur-lobby', 'hmw-dining', 'balecatur-bed', 'firlatata-living']
 
 export default function Services() {
   const root = useRef<HTMLDivElement>(null)

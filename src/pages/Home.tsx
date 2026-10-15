@@ -41,9 +41,9 @@ export default function Home() {
           <div className="intro__grid">
             <div className="intro__media" data-reveal>
               <div className="intro__media-inner" data-parallax="7">
-                <Img id="cantrik-hall" alt="Omah Cantrik — ruang berkumpul yang telah terbangun" sizes="(min-width: 768px) 62vw, 100vw" />
+                <Img id="labarka-koi" alt="La Barka Resort — kolam dan taman yang telah terbangun" sizes="(min-width: 768px) 62vw, 100vw" />
               </div>
-              <span className="intro__media-tag pill pill--solid">Omah Cantrik — terbangun</span>
+              <span className="intro__media-tag pill pill--solid">La Barka Resort — terbangun</span>
             </div>
             <div className="intro__text">
               <SectionLabel>Kadanglabo spirit</SectionLabel>

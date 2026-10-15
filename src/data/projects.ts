@@ -421,59 +421,7 @@ export const projects: Project[] = [
       { t: 'pair', imgs: ['giripeni-living', 'giripeni-bed'] },
     ],
   },
-  {
-    slug: 'omah-cantrik',
-    title: 'Omah Cantrik',
-    category: 'hospitality',
-    typology: 'Homestay & Taman',
-    location: null,
-    region: null,
-    year: null,
-    status: 'Terbangun',
-    scope: ['Arsitektur', 'Landscape'],
-    color: '#1B2238',
-    accent: '#EC6434',
-    tagline: 'Dari gambar menjadi ruang yang hidup.',
-    summary:
-      'Omah Cantrik tumbuh bertahap — bangunan utama, homestay, hingga tamannya. Rangka kayu, dinding roster, dan halaman kerikil dibiarkan jujur dan menyatu dengan vegetasi tropis.',
-    story: [
-      {
-        key: 'context',
-        text: 'Proyek yang berkembang dalam beberapa tahap: Omah Cantrik, Homestay Omah Cantrik, dan Taman Omah Cantrik.',
-        img: 'cantrik-sign',
-      },
-      {
-        key: 'concept',
-        text: 'Material yang jujur dan mudah dirawat — rangka kayu, dinding roster, dan lantai kerikil — membiarkan cahaya dan udara mengalir.',
-        img: 'cantrik-pergola',
-      },
-      {
-        key: 'development',
-        text: 'Ruang-ruang semi-terbuka disusun di antara taman sehingga batas dalam dan luar terasa cair.',
-        img: 'cantrik-walkway',
-      },
-      {
-        key: 'outcome',
-        text: 'Telah terbangun dan digunakan — bukti etos kami bahwa setiap desain harus terbangun.',
-        img: 'cantrik-hall',
-      },
-    ],
-    hero: 'cantrik-sign',
-    cover: 'cantrik-lounge',
-    gallery: [
-      { t: 'pair', imgs: ['cantrik-pergola', 'cantrik-lounge'] },
-      {
-        t: 'text',
-        label: 'Terbangun',
-        body: 'Foto-foto di halaman ini adalah kondisi terbangun — bukan render. Ruang berkumpul, bar, tangga, dan taman yang kini hidup sehari-hari.',
-      },
-      { t: 'pair', imgs: ['cantrik-hall', 'cantrik-garden'] },
-      { t: 'pair', imgs: ['cantrik-entrance', 'cantrik-breeze'] },
-      { t: 'quote', text: 'Setiap proyek yang kami desain harus terbangun.', cite: 'Etos Kadanglabo' },
-      { t: 'pair', imgs: ['cantrik-bar', 'cantrik-stairs'] },
-      { t: 'offset', img: 'cantrik-night', side: 'right' },
-    ],
-  },
+
   {
     slug: 'hamzah-batik-malioboro',
     title: 'Hamzah Batik Malioboro',
@@ -642,8 +590,6 @@ export interface ArchiveEntry {
 /* Daftar proyek dari "KADANGLABO PROJECT LIST" (Company Profile 2026).
  * Kategori & wilayah disimpulkan dari nama proyek — mohon dikoreksi bila perlu. */
 const listOnly: [string, Category, string | null][] = [
-  ['Homestay Omah Cantrik', 'hospitality', null],
-  ['Taman Omah Cantrik', 'hospitality', null],
   ['AK Ruko Klaten', 'commercial', 'Klaten'],
   ['AH House', 'residential', null],
   ['IBAIA Coffee Point', 'commercial', null],

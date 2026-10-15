@@ -8,14 +8,13 @@ export const heroSlides = [
   'klinik-uii',
   'hmw-house',
   'perum-firlatata',
-  'omah-cantrik',
 ].map((slug) => getProject(slug)!)
 
 /** Images the preloader flips through before growing into the hero (shed.design-style intro). */
 export const preloaderFlip: ImgKey[] = [
   'labarka-river',
   'klinik-plaza',
-  'cantrik-pergola',
+  'labarka-gables',
   'hmw-dining',
   'balecatur-pool',
   'giripeni-aerial',
