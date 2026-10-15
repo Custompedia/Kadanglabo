@@ -28,16 +28,28 @@ npm run build     # type-check + build ke dist/
 npm run preview   # cek hasil build di http://localhost:4173
 ```
 
-Deploy: folder ini siap untuk Vercel (`vercel.json` sudah berisi rewrite SPA + cache gambar). Set *Root Directory* ke `website`.
+Deploy: folder ini siap untuk Vercel (`vercel.json` sudah berisi rewrite SPA + cache gambar).
+
+## Git (lokal, belum di-push)
+
+Folder `website/` adalah repo git lokal — belum ada remote, jadi tidak ada yang terkirim ke GitHub.
+
+```bash
+git log --oneline            # daftar titik simpan (commit)
+git status                   # file yang berubah sejak commit terakhir
+git restore .                # buang SEMUA perubahan yang belum di-commit
+git revert <hash>            # batalkan satu commit (aman, riwayat tetap)
+git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudahnya hilang)
+```
 
 ## Halaman (mengikuti brief Canva)
 
 | Route | Isi |
 | --- | --- |
-| `/` | Hero "KADANGLABO", Introduction, angka studio, Core services & sectors, Selected work (ring 3D), filosofi, Latest updates |
-| `/studio` | About: overview, kolaborasi klien–perencana–pelaksana, 2 parameter keberhasilan, visi/misi/goals, filosofi, Tim in-house |
-| `/services` | Overview layanan, kategori (Commercial / Hospitality / Residential), Service detail (Pain points → Analisa → Proses kreatif → Deliverables), perencanaan & perawatan, **Start a project** |
-| `/work` | Introduction & selected projects + **Project archive** (filter Kategori · Lokasi · Tahun · Status, tampilan Featured / Index) |
+| `/` | Hero "KADANGLABO" (gaya shed.design), (01) About, angka studio, (02) Core services & sectors, (03) Selected work (ring 3D, ref. CLOU), (04) filosofi, (05) Latest updates |
+| `/about` (`/about#team`) | About: copy persis dari brief, kolaborasi klien–perencana–pelaksana, 2 parameter keberhasilan, visi/misi/goals, filosofi, **Team** (menu sendiri, ref. Coeval). `/studio` dialihkan ke sini |
+| `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail (Pain points → Analisa → Proses kreatif → Deliverables) → (04) Start a project |
+| `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Peta proyek 3D** (ref. Sobha) → **Project archive** (filter Category · Location · Year · Status) |
 | `/work/:slug` | Halaman proyek: hero warna, header image, info, Context → Challenge → Concept → Development → Outcome, galeri, related projects, Next up |
 | `/news`, `/news/:slug` | News & Events, detail: Konteks · Isi utama · Visual · Informasi lanjutan · Explore more |
 | `/contact` | Alamat, kontak, peta ilustrasi (Google Maps dimuat saat diklik), form inquiry → WhatsApp |
@@ -47,7 +59,8 @@ Deploy: folder ini siap untuk Vercel (`vercel.json` sudah berisi rewrite SPA + c
 Semua teks ada di `src/data/`:
 
 - `site.ts` — profil, alamat/kontak, visi-misi, tim, sektor, proses layanan.
-- `projects.ts` — proyek unggulan (`projects`) dan daftar arsip (`listOnly`, dari *Project List* company profile).
+- `projects.ts` — proyek unggulan (`projects`), daftar arsip (`listOnly`, dari *Project List* company profile), dan area peta/filter lokasi (`areas`).
+- `indonesiaMap.ts` — garis pantai peta proyek (dibuat oleh `scripts/build-map.mjs` dari Natural Earth, public domain).
 - `news.ts` — berita & event.
 
 Menambah/mengganti gambar:
@@ -60,16 +73,16 @@ Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src
 
 ## Yang perlu dilengkapi sebelum publish
 
-1. **Ejaan copy dari brief dipakai apa adanya**: teks About (Home + halaman Studio) dan skema Services
+1. **Ejaan copy dari brief dipakai apa adanya**: teks About (Home + halaman About) dan skema Services
    persis seperti brief, termasuk "memilki", "di desain", dan "Efektifitas Workflow" (istilah ini diseragamkan
    di seluruh website). Konfirmasi ke klien apakah mau dibakukan (memiliki, didesain, Efektivitas) — cukup ubah
    `about` di `src/data/site.ts`.
-1. **News & Events masih contoh** (`src/data/news.ts`) — terutama agenda *Open Studio* dan *Talk*: ganti dengan berita/acara asli.
-2. **Tahun & status proyek** belum ada di materi → `year: null` / sebagian `status: null`. Filter *Tahun* di Our Work otomatis muncul begitu data tahun diisi.
-3. **Lokasi yang disimpulkan dari nama proyek** (ditandai komentar di `projects.ts`, mis. Bale Catur, Giripeni, Villa Berbah) dan kategori di daftar arsip — mohon dikonfirmasi.
-4. Deskripsi singkat proyek dengan satu gambar (Hamzah Batik, Muji Rukost, Villa Berbah, Ivanna, Tiara, Kavling Bangunjiwo) ditulis dari render — sebaiknya direview klien.
-5. Gambar **HMW House (interior)** dan **Wira House** di Google Drive dikunci owner ("only owner and editors can download"). HMW memakai gambar dari company profile; Wira House baru tampil di Index. Setelah akses dibuka, tambahkan dengan `npm run img`.
-6. Akun media sosial (Instagram dsb.) belum dicantumkan karena tidak ditemukan sumber resminya.
+2. **News & Events masih contoh** (`src/data/news.ts`) — terutama agenda *Open Studio* dan *Talk*: ganti dengan berita/acara asli.
+3. **Tahun & status proyek** belum ada di materi → `year: null` / sebagian `status: null`. Filter *Tahun* di Our Work otomatis muncul begitu data tahun diisi.
+4. **Lokasi yang disimpulkan dari nama proyek** (ditandai komentar di `projects.ts`, mis. Bale Catur, Giripeni, Villa Berbah) dan kategori di daftar arsip — mohon dikonfirmasi.
+5. Deskripsi singkat proyek dengan satu gambar (Hamzah Batik, Muji Rukost, Villa Berbah, Ivanna, Tiara, Kavling Bangunjiwo) ditulis dari render — sebaiknya direview klien.
+6. Gambar **HMW House (interior)** dan **Wira House** di Google Drive dikunci owner ("only owner and editors can download"). HMW memakai gambar dari company profile; Wira House baru tampil di arsip. Setelah akses dibuka, tambahkan dengan `npm run img`.
+7. Akun media sosial (Instagram dsb.) belum dicantumkan karena tidak ditemukan sumber resminya.
 
 ## Struktur singkat
 
@@ -77,8 +90,9 @@ Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src
 src/
   App.tsx              router, layout, footer CTA per halaman
   lib/                 gsap, smooth scroll, transisi halaman (curtain), helper animasi
-  components/          Header, Menu, Footer, Preloader, ProjectRing (3D), SectorShowcase, InquiryForm, StudioMap, …
-  pages/               Home, Studio, Services, Work, ProjectDetail, News, NewsDetail, Contact
+  components/          Header, Menu, Footer, Preloader, HomeHero, ProjectRing (3D), ProjectMap (peta 3D), SectorShowcase, InquiryForm, StudioMap, …
+  pages/               Home, About, Services, Work, ProjectDetail, News, NewsDetail, Contact
+scripts/               optimize-image.mjs (npm run img), build-map.mjs (peta)
   data/                konten + images.json (manifest gambar)
 public/
   img/                 gambar WebP hasil optimasi
