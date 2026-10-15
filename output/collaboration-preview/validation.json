@@ -1,0 +1,149 @@
+{
+  "reports": [
+    {
+      "viewport": "desktop",
+      "bounds": {
+        "width": 660,
+        "height": 660
+      },
+      "images": [
+        {
+          "src": "http://127.0.0.1:5174/img/collab-planner-768.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "src": "http://127.0.0.1:5174/img/collab-client-768.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "src": "http://127.0.0.1:5174/img/collab-builder-768.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "src": "http://127.0.0.1:5174/img/collab-together-768.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "labels": [
+        {
+          "text": "Perencana\n\nDesain yang siap dibangun",
+          "inside": true
+        },
+        {
+          "text": "Klien\n\nKebutuhan, tujuan & anggaran",
+          "inside": true
+        },
+        {
+          "text": "Pelaksana\n\nPelaksanaan di lapangan",
+          "inside": true
+        },
+        {
+          "text": "Kolaborasi\n\nSatu meja. Satu tujuan.",
+          "inside": true
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "bounds": {
+        "width": 370,
+        "height": 485.625
+      },
+      "images": [
+        {
+          "src": "http://127.0.0.1:5174/img/collab-planner-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "src": "http://127.0.0.1:5174/img/collab-client-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "src": "http://127.0.0.1:5174/img/collab-builder-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "src": "http://127.0.0.1:5174/img/collab-together-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "labels": [
+        {
+          "text": "Perencana\n\nDesain yang siap dibangun",
+          "inside": true
+        },
+        {
+          "text": "Klien\n\nKebutuhan, tujuan & anggaran",
+          "inside": true
+        },
+        {
+          "text": "Pelaksana\n\nPelaksanaan di lapangan",
+          "inside": true
+        },
+        {
+          "text": "Kolaborasi\n\nSatu meja. Satu tujuan.",
+          "inside": true
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "viewport": "small-mobile",
+      "bounds": {
+        "width": 300,
+        "height": 393.75
+      },
+      "images": [
+        {
+          "src": "http://127.0.0.1:5174/img/collab-planner-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "src": "http://127.0.0.1:5174/img/collab-client-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "src": "http://127.0.0.1:5174/img/collab-builder-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "src": "http://127.0.0.1:5174/img/collab-together-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "labels": [
+        {
+          "text": "Perencana\n\nDesain yang siap dibangun",
+          "inside": true
+        },
+        {
+          "text": "Klien\n\nKebutuhan, tujuan & anggaran",
+          "inside": true
+        },
+        {
+          "text": "Pelaksana\n\nPelaksanaan di lapangan",
+          "inside": true
+        },
+        {
+          "text": "Kolaborasi\n\nSatu meja. Satu tujuan.",
+          "inside": true
+        }
+      ],
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

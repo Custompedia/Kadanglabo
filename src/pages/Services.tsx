@@ -11,11 +11,12 @@ import { TLink } from '../lib/transition'
 import { about, disciplines, managementServices, process, sectors } from '../data/site'
 
 const collage: ImgKey[] = ['labarka-path', 'klinik-corridor', 'draw-interior', 'balecatur-lobby', 'hmw-dining', 'balecatur-bed', 'firlatata-living']
+const processVisuals: ImgKey[] = ['process-brief', 'process-analysis', 'process-creative', 'process-deliverables']
 
 export default function Services() {
   const root = useRef<HTMLDivElement>(null)
 
-  usePageAnimations(root, (el) => {
+  usePageAnimations(root, () => {
     gsap.fromTo(
       '.collage__track',
       { xPercent: 0 },
@@ -25,34 +26,6 @@ export default function Services() {
         scrollTrigger: { trigger: '.collage', start: 'top bottom', end: 'bottom top', scrub: true },
       },
     )
-
-    const mm = gsap.matchMedia()
-    mm.add('(min-width: 900px)', () => {
-      const track = el.querySelector<HTMLElement>('.process__track')
-      if (!track) return
-      const distance = () => track.scrollWidth - window.innerWidth
-      gsap.to(track, {
-        x: () => -distance(),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.process',
-          start: 'top top',
-          end: () => `+=${distance()}`,
-          pin: true,
-          scrub: 1,
-          invalidateOnRefresh: true,
-        },
-      })
-      gsap.fromTo(
-        '.process__bar-fill',
-        { scaleX: 0 },
-        {
-          scaleX: 1,
-          ease: 'none',
-          scrollTrigger: { trigger: '.process', start: 'top top', end: () => `+=${distance()}`, scrub: true },
-        },
-      )
-    })
   })
 
   return (
@@ -156,41 +129,41 @@ export default function Services() {
           ))}
         </section>
 
-        {/* Service detail — pinned horizontal process */}
-        <section className="process" data-theme="dark">
-          <div className="process__head wrap">
-            <SectionLabel n="03">Service detail</SectionLabel>
-            <div className="process__bar" aria-hidden="true">
-              <span className="process__bar-fill" />
+        {/* Service detail — four stages, read in ordinary vertical scroll order. */}
+        <section className="process" data-theme="dark" aria-labelledby="process-title">
+          <div className="process__inner wrap">
+            <div className="process__head">
+              <SectionLabel n="03">Service detail</SectionLabel>
+              <span className="process__rule" aria-hidden="true" />
             </div>
-          </div>
-          <div className="process__track">
             <div className="process__intro">
-              <h2 className="t-display process__title">
-                Dari pain
-                <br />
-                points ke
-                <br />
-                bangunan.
+              <h2 id="process-title" className="t-display process__title" data-split>
+                Dari kebutuhan{' '}<br />ke bangunan.
               </h2>
-              <p className="t-body-lg max-w-[34ch] opacity-75">
+              <p className="t-body-lg process__description" data-fade>
                 Empat tahap yang kami jalani bersama setiap klien — transparan, terukur, dan selalu berujung di
                 lapangan.
               </p>
             </div>
-            {process.map((step, i) => (
-              <article key={step.title} className="step">
-                <span className="step__num">0{i + 1}</span>
-                <h3 className="step__title">{step.title}</h3>
-                <p className="step__lead">{step.lead}</p>
-                <ul className="step__points">
-                  {step.points.map((pt) => (
-                    <li key={pt}>{pt}</li>
-                  ))}
-                </ul>
-                {i < process.length - 1 && <span className="step__arrow" aria-hidden="true">→</span>}
-              </article>
-            ))}
+            <ol className="process__grid">
+              {process.map((step, i) => (
+                <li key={step.title} className="step" data-fade>
+                  <div className="step__body">
+                    <span className="step__num" aria-hidden="true">0{i + 1}</span>
+                    <h3 className="step__title">{step.title}</h3>
+                    <p className="step__lead">{step.lead}</p>
+                  </div>
+                  <div className="step__media">
+                    <Img id={processVisuals[i]} alt="" sizes="(min-width: 768px) 22vw, 40vw" style={{ backgroundColor: 'transparent' }} />
+                  </div>
+                  <ul className="step__points">
+                    {step.points.map((pt) => (
+                      <li key={pt}>{pt}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 

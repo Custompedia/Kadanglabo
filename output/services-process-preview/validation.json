@@ -1,0 +1,215 @@
+{
+  "reports": [
+    {
+      "viewport": "desktop",
+      "columns": 2,
+      "pinned": false,
+      "title": "Dari kebutuhanke bangunan.",
+      "width": 1440,
+      "stages": [
+        {
+          "title": "Pain Points / Goals",
+          "x": 11,
+          "y": 212,
+          "width": 673.203125,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-brief-768.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Analisa",
+          "x": 756,
+          "y": 212,
+          "width": 673.203125,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-analysis-768.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Proses Kreatif",
+          "x": 11,
+          "y": 641,
+          "width": 673.203125,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-creative-768.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Deliverables",
+          "x": 756,
+          "y": 641,
+          "width": 673.203125,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-deliverables-768.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "overflow": false,
+      "oldTrack": false
+    },
+    {
+      "viewport": "tablet",
+      "columns": 2,
+      "pinned": false,
+      "title": "Dari kebutuhanke bangunan.",
+      "width": 768,
+      "stages": [
+        {
+          "title": "Pain Points / Goals",
+          "x": 10,
+          "y": 254,
+          "width": 354.796875,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-brief-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Analisa",
+          "x": 403,
+          "y": 254,
+          "width": 354.8125,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-analysis-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Proses Kreatif",
+          "x": 10,
+          "y": 632,
+          "width": 354.796875,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-creative-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Deliverables",
+          "x": 403,
+          "y": 632,
+          "width": 354.8125,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-deliverables-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "overflow": false,
+      "oldTrack": false
+    },
+    {
+      "viewport": "mobile",
+      "columns": 1,
+      "pinned": false,
+      "title": "Dari kebutuhanke bangunan.",
+      "width": 390,
+      "stages": [
+        {
+          "title": "Pain Points / Goals",
+          "x": 10,
+          "y": -224,
+          "width": 370,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-brief-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Analisa",
+          "x": 10,
+          "y": 170,
+          "width": 370,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-analysis-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Proses Kreatif",
+          "x": 10,
+          "y": 541,
+          "width": 370,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-creative-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Deliverables",
+          "x": 10,
+          "y": 934,
+          "width": 370,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-deliverables-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "overflow": false,
+      "oldTrack": false
+    },
+    {
+      "viewport": "small-mobile",
+      "columns": 1,
+      "pinned": false,
+      "title": "Dari kebutuhanke bangunan.",
+      "width": 320,
+      "stages": [
+        {
+          "title": "Pain Points / Goals",
+          "x": 10,
+          "y": -334,
+          "width": 300,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-brief-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Analisa",
+          "x": 10,
+          "y": 108,
+          "width": 300,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-analysis-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Proses Kreatif",
+          "x": 10,
+          "y": 502,
+          "width": 300,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-creative-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "title": "Deliverables",
+          "x": 10,
+          "y": 919,
+          "width": 300,
+          "points": 3,
+          "src": "http://127.0.0.1:5174/img/process-deliverables-384.webp",
+          "loaded": true,
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "overflow": false,
+      "oldTrack": false
+    },
+    {
+      "viewport": "desktop-normal-motion",
+      "verticalScrollDelta": 570,
+      "horizontalScrollDelta": 0,
+      "lastStageVisible": true
+    }
+  ],
+  "errors": []
+}

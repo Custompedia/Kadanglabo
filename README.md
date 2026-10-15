@@ -48,7 +48,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 | --- | --- |
 | `/` | Hero "KADANGLABO" (gaya shed.design), (01) About, angka studio, (02) Core services & sectors, (03) Selected work (ring 3D, ref. CLOU), (04) filosofi, (05) Latest updates |
 | `/about` team`) #team`) | About: copy persis dari brief, kolaborasi klien–perencana–pelaksana, 2 parameter keberhasilan, visi/misi/goals, filosofi, **Team** (menu sendiri, ref. Coeval). `/studio` dialihkan ke sini |
-| `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail (Pain points → Analisa → Proses kreatif → Deliverables) → (04) Start a project |
+| `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail — empat tahap berilustrasi dalam grid 2×2, satu kolom di mobile, scroll vertikal → (04) Start a project |
 | `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Peta proyek 3D** (ref. Sobha) → **Project archive** (filter Category · Location · Year · Status) |
 | `/work/:slug` | Halaman proyek: hero warna, header image, info, Context → Challenge → Concept → Development → Outcome, galeri, related projects, Next up |
 | `/news`, `/news/:slug` | News & Events, detail: Konteks · Isi utama · Visual · Informasi lanjutan · Explore more |
@@ -70,6 +70,14 @@ npm run img -- <key> "<path/ke/gambar.png>"
 ```
 
 Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src/data/images.json`. Pakai key tersebut di `projects.ts` (mis. `hero`, `cover`, `gallery`) atau `<Img id="key" />`.
+
+Ilustrasi transparan kolaborasi dan proses layanan memiliki master PNG serta prompt GPT Image di
+`assets/collaboration/` dan `assets/services-process/`. Untuk mengekspor WebP responsif sambil menjaga alpha:
+
+```bash
+node scripts/optimize-collaboration-images.mjs
+node scripts/optimize-collaboration-images.mjs services-process
+```
 
 ## Yang perlu dilengkapi sebelum publish
 

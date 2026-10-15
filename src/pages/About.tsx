@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img } from '../components/Img'
+import { CollabDiagram } from '../components/CollabDiagram'
 import { Marquee, SectionLabel } from '../components/Bits'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
@@ -9,40 +10,18 @@ import { gsap } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { about, company, disciplines, goals, mission, parametersDetail, team, vision } from '../data/site'
 
-function CollabDiagram() {
-  return (
-    <svg viewBox="0 0 640 560" className="collab__svg" role="img" aria-label="Klien, perencana, dan pelaksana bertemu dalam satu kolaborasi">
-      <g className="collab__c collab__c--plan">
-        <circle cx="320" cy="200" r="150" />
-        <text x="320" y="120" textAnchor="middle">Perencana</text>
-      </g>
-      <g className="collab__c collab__c--client">
-        <circle cx="240" cy="335" r="150" />
-        <text x="175" y="395" textAnchor="middle">Klien</text>
-      </g>
-      <g className="collab__c collab__c--build">
-        <circle cx="400" cy="335" r="150" />
-        <text x="465" y="395" textAnchor="middle">Pelaksana</text>
-      </g>
-      <g className="collab__center">
-        <circle cx="320" cy="292" r="44" />
-        <text x="320" y="297" textAnchor="middle">Kolaborasi</text>
-      </g>
-    </svg>
-  )
-}
-
 export default function About() {
   const root = useRef<HTMLDivElement>(null)
 
   usePageAnimations(root, () => {
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: '.collab__svg', start: 'top 85%', end: 'center 45%', scrub: 1 },
+      scrollTrigger: { trigger: '.collab__visual', start: 'top 85%', end: 'center 45%', scrub: 1 },
     })
-    tl.fromTo('.collab__c--plan', { y: -120 }, { y: 0, ease: 'none' }, 0)
-      .fromTo('.collab__c--client', { x: -150, y: 50 }, { x: 0, y: 0, ease: 'none' }, 0)
-      .fromTo('.collab__c--build', { x: 150, y: 50 }, { x: 0, y: 0, ease: 'none' }, 0)
-      .fromTo('.collab__center', { autoAlpha: 0, scale: 0.4, transformOrigin: '50% 50%' }, { autoAlpha: 1, scale: 1, ease: 'none' }, 0.55)
+    tl.fromTo('.collab__node--plan', { y: -35, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: 'none' }, 0)
+      .fromTo('.collab__node--client', { x: -35, y: 20, autoAlpha: 0 }, { x: 0, y: 0, autoAlpha: 1, ease: 'none' }, 0)
+      .fromTo('.collab__node--build', { x: 35, y: 20, autoAlpha: 0 }, { x: 0, y: 0, autoAlpha: 1, ease: 'none' }, 0)
+      .fromTo('.collab__connections', { autoAlpha: 0 }, { autoAlpha: 1, ease: 'none' }, 0.35)
+      .fromTo('.collab__node--together', { autoAlpha: 0, scale: 0.88 }, { autoAlpha: 1, scale: 1, ease: 'none' }, 0.55)
   })
 
   return (
