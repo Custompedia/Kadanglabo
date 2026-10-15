@@ -1397,15 +1397,7 @@
 }
 
 .philo__drawing,
-.manage__img {
-  justify-self: end;
-  width: 100%;
-  max-width: 520px;
-  background: var(--color-paper);
-}
-
-.philo__drawing img,
-.manage__img img {
+.philo__drawing img {
   width: 100%;
   height: auto;
   background: transparent !important;
@@ -1866,6 +1858,44 @@
   margin-top: 24px;
 }
 
+.overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+  gap: clamp(32px, 5vw, 80px);
+  padding-block: 40px var(--sec);
+  border-top: 1px solid var(--line);
+}
+
+.overview__intro {
+  max-width: 15ch;
+}
+
+.overview__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.overview__label {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--color-mute);
+}
+
+.overview__list li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: clamp(1.05rem, 1.35vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.overview__note {
+  margin-top: 14px;
+  color: var(--color-mute);
+  font-size: 14px;
+}
+
 .statement {
   padding-bottom: var(--sec);
 }
@@ -1873,18 +1903,6 @@
 .statement__text {
   max-width: 1180px;
   margin-top: 28px;
-}
-
-.three-cols {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) repeat(2, minmax(0, 1fr));
-  gap: 32px;
-  padding-block: 40px var(--sec);
-  border-top: 1px solid var(--line);
-}
-
-.three-cols__intro {
-  max-width: 15ch;
 }
 
 .big-list {
@@ -2064,24 +2082,6 @@
   right: 0;
   color: var(--color-orange);
   font-size: 22px;
-}
-
-.manage {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-  align-items: center;
-  gap: 48px;
-  padding-block: var(--sec);
-}
-
-.manage__img {
-  justify-self: start;
-}
-
-.manage__cols {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 32px;
 }
 
 .mantra {
@@ -3322,7 +3322,8 @@
 @media (max-width: 899px) {
   .work-group,
   .work-map__head,
-  .pmap {
+  .pmap,
+  .overview {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -3420,9 +3421,6 @@
   .vmg__cols,
   .philo-dark__grid,
   .cta-block,
-  .three-cols,
-  .manage,
-  .manage__cols,
   .start,
   .contact-cols,
   .p-story,
@@ -3505,6 +3503,10 @@
 
   .menu__link {
     padding-block: 0.25em 0.12em;
+  }
+
+  .overview__grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pin__name {

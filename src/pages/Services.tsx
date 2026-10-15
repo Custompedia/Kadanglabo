@@ -86,52 +86,36 @@ export default function Services() {
           </p>
         </section>
 
-        <section className="three-cols wrap" data-theme="light">
-          <p className="three-cols__intro t-h2" data-fade>
+        {/* Overview: everything the studio does, in one grid */}
+        <section className="overview wrap" data-theme="light">
+          <p className="overview__intro t-h2" data-fade>
             Perencanaan, desain, dan manajemen pelaksanaan — dalam satu pintu.
           </p>
-          <div>
-            <p className="t-label opacity-60">Disiplin</p>
-            <ul className="big-list" data-stagger="0.05">
-              {disciplines.map((d) => (
-                <li key={d}>{d}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="t-label opacity-60">Tipologi</p>
-            <ul className="big-list" data-stagger="0.05">
-              {sectors.flatMap((s) => s.typologies).map((t) => (
-                <li key={t}>{t}</li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* Management & maintenance */}
-        <section className="manage wrap" data-theme="light">
-          <div className="manage__img" data-reveal>
-            <Img id="draw-interior" alt="Gambar isometri interior" sizes="(min-width: 768px) 40vw, 90vw" />
-          </div>
-          <div className="manage__cols">
-            <div>
-              <SectionLabel>Perencanaan</SectionLabel>
-              <ul className="big-list big-list--lg" data-stagger>
+          <div className="overview__grid" data-stagger="0.08">
+            <div className="overview__col">
+              <p className="t-label overview__label">Disiplin desain</p>
+              <ul className="overview__list">
+                {disciplines.map((d) => (
+                  <li key={d}>{d}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="overview__col">
+              <p className="t-label overview__label">Perencanaan</p>
+              <ul className="overview__list">
                 {managementServices.perencanaan.map((m) => (
                   <li key={m}>{m}</li>
                 ))}
               </ul>
             </div>
-            <div>
-              <SectionLabel>Perawatan</SectionLabel>
-              <ul className="big-list big-list--lg" data-stagger>
+            <div className="overview__col">
+              <p className="t-label overview__label">Perawatan</p>
+              <ul className="overview__list">
                 {managementServices.perawatan.map((m) => (
                   <li key={m}>{m}</li>
                 ))}
               </ul>
-              <p className="t-body-lg mt-6 opacity-70 max-w-[36ch]" data-fade>
-                Rehabilitasi dan restorasi untuk bangunan yang sudah ada — menjaga fungsi dan nilainya tetap hidup.
-              </p>
+              <p className="overview__note">Untuk bangunan yang sudah ada — menjaga fungsi dan nilainya tetap hidup.</p>
             </div>
           </div>
         </section>
@@ -153,9 +137,7 @@ export default function Services() {
                   {s.label}
                 </h3>
                 <p className="cat__tags" data-fade>
-                  <span className="pill">New building</span>
-                  <span className="pill">Renovation</span>
-                  <span className="pill">Development</span>
+                  <span className="pill">New Building &amp; Renovation / Development</span>
                 </p>
                 <p className="t-body-lg cat__desc" data-fade>
                   {s.desc}
