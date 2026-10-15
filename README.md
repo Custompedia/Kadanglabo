@@ -47,7 +47,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 | Route | Isi |
 | --- | --- |
 | `/` | Hero "KADANGLABO" (gaya shed.design), (01) About, angka studio, (02) Core services & sectors, (03) Selected work (ring 3D, ref. CLOU), (04) filosofi, (05) Latest updates |
-| `/about` (`/about#team`) | About: copy persis dari brief, kolaborasi klien–perencana–pelaksana, 2 parameter keberhasilan, visi/misi/goals, filosofi, **Team** (menu sendiri, ref. Coeval). `/studio` dialihkan ke sini |
+| `/about` team`) #team`) | About: copy persis dari brief, kolaborasi klien–perencana–pelaksana, 2 parameter keberhasilan, visi/misi/goals, filosofi, **Team** (menu sendiri, ref. Coeval). `/studio` dialihkan ke sini |
 | `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail (Pain points → Analisa → Proses kreatif → Deliverables) → (04) Start a project |
 | `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Peta proyek 3D** (ref. Sobha) → **Project archive** (filter Category · Location · Year · Status) |
 | `/work/:slug` | Halaman proyek: hero warna, header image, info, Context → Challenge → Concept → Development → Outcome, galeri, related projects, Next up |
