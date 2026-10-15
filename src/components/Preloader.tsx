@@ -5,7 +5,7 @@ import { lockScroll } from '../lib/smooth'
 import { heroSlides, preloaderFlip } from '../data/hero'
 import { Img } from './Img'
 
-const STEP = 0.14 // seconds each image stays in the flipbook
+const STEP = 0.32 // seconds between images; each one wipes in from the top over the previous
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
@@ -58,15 +58,22 @@ export function Preloader() {
       const header = document.querySelector('.site-header__bar')
       gsap.set(header, { autoAlpha: 0 })
 
-      const show = (i: number) => imgs.forEach((img, j) => img.toggleAttribute('data-on', j === i))
 
       const flipbook = contextSafe(
         () =>
           new Promise<void>((resolve) => {
             const tl = gsap.timeline({ onComplete: resolve })
             tl.set(frame, { visibility: 'visible' })
-            imgs.forEach((_, i) => tl.call(show, [i], i * STEP))
-            tl.to({}, { duration: STEP * 1.5 })
+            imgs.forEach((img, i) => {
+              if (i === 0) return // the first image is already showing
+              tl.fromTo(
+                img,
+                { clipPath: 'inset(0% 0% 100% 0%)' },
+                { clipPath: 'inset(0% 0% 0% 0%)', duration: STEP * 1.25, ease: 'power3.inOut' },
+                i * STEP,
+              )
+            })
+            tl.to({}, { duration: STEP * 0.8 })
           }),
       )
 
@@ -119,8 +126,7 @@ export function Preloader() {
             className={`preloader__img${i === flip.length - 1 ? ' preloader__img--hero' : ''}`}
             sizes={i === flip.length - 1 ? '100vw' : '40vw'}
             priority
-            style={{ backgroundColor: 'transparent' }}
-            data-on={i === 0 ? '' : undefined}
+            style={{ backgroundColor: 'transparent', zIndex: i, clipPath: i === 0 ? undefined : 'inset(0% 0% 100% 0%)' }}
           />
         ))}
         <div className="hero__shade preloader__shade" />
