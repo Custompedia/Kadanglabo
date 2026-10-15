@@ -33,7 +33,7 @@ function loaded(img: HTMLImageElement | null) {
 
 /**
  * First-load logo intro:
- * 1. the K mark draws itself (navy ring, then the three orange pieces),
+ * 1. the K mark pops in (navy half-ring, then the three orange pieces, same spring),
  * 2. it slides to its place in the official lockup while KADANGLABO wipes in on its right,
  *    then the tagline wipes in underneath — exactly as in "LOGO KADANGLABO biru oren.png",
  * 3. the logo lifts away and the first hero photo rises from the bottom — on the home page
@@ -67,16 +67,21 @@ export function Preloader() {
       const logo = gsap
         .timeline({ delay: 0.25 })
         .set(mark, { x: 1609 / 2 - 165 })
-        .fromTo('.il-ring', { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut' }, 0)
+        // the navy half-ring pops in exactly like the orange pieces, then the pieces follow
+        .from(
+          '.il-ring',
+          { scale: 0, autoAlpha: 0, transformOrigin: '50% 50%', duration: 0.75, ease: 'back.out(1.8)' },
+          0,
+        )
         .from(
           '.il-piece',
           { scale: 0, autoAlpha: 0, transformOrigin: '50% 50%', duration: 0.75, stagger: 0.12, ease: 'back.out(1.8)' },
-          0.7,
+          0.3,
         )
-        .to(mark, { x: 0, duration: 0.9, ease: 'expo.inOut' }, 1.5)
+        .to(mark, { x: 0, duration: 0.9, ease: 'expo.inOut' }, 1.3)
         // wordmark and tagline wipe in left → right, only once the mark has cleared their space
-        .fromTo('#il-clip-word rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 2.1)
-        .fromTo('#il-clip-tag rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 2.55)
+        .fromTo('#il-clip-word rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 1.9)
+        .fromTo('#il-clip-tag rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 2.35)
         .to({}, { duration: 0.6 }) // hold the finished logo for a beat
 
       const exit = contextSafe(() => {
