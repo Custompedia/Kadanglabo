@@ -34,7 +34,7 @@ export function SectorShowcase() {
         {sectors.map((s, i) => (
           <TLink
             key={s.key}
-            to={`/work?category=${s.key}`}
+            to={`/work#${s.key}`}
             className="sector-row"
             data-active={i === active ? '' : undefined}
             onMouseEnter={() => setActive(i)}

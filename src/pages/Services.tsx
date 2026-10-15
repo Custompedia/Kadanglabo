@@ -135,7 +135,7 @@ export default function Services() {
                 <p className="cat__typos" data-fade>
                   {s.typologies.join(' · ')}
                 </p>
-                <TLink to={`/work?category=${s.key}`} className="link-line t-label mt-6 inline-block" data-fade>
+                <TLink to={`/work#${s.key}`} className="link-line t-label mt-6 inline-block" data-fade>
                   Lihat proyek {s.title.toLowerCase()} →
                 </TLink>
               </div>
