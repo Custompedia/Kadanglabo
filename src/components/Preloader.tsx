@@ -99,7 +99,13 @@ export function Preloader() {
             lockScroll(false)
             openGate()
           }, 1.2)
-          .to(header, { autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 1.2)
+          .set(header, { autoAlpha: 1 }, 1.2)
+          // home: the hero intro animates the header items; elsewhere ease them in here
+          .from(
+            isHome ? [] : document.querySelectorAll('.site-header__bar > *:not(.site-header__line)'),
+            { yPercent: -60, autoAlpha: 0, duration: 1.1, stagger: 0.08, ease: 'power3.out' },
+            1.3,
+          )
           // home: the panel already shows the first hero slide, so simply drop the overlay;
           // other pages: fade the overlay away to reveal the page
           .to(el, { autoAlpha: 0, duration: isHome ? 0.01 : 0.6, ease: 'power2.out' }, isHome ? 1.5 : 1.25)

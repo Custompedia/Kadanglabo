@@ -69,14 +69,17 @@ export function HomeHero() {
         if (reducedMotion()) return
         const line = document.querySelector('.site-header__line')
         const controls = el.querySelectorAll('.hero-capsule, .hero-scroll')
-        const tl = gsap.timeline()
-        tl.from(el.querySelectorAll('.hero__word'), { yPercent: 105, duration: 1, stagger: 0.2, ease: 'power4.out' }, 0)
-        if (line) tl.fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: 1.4, ease: 'expo.out' }, 0)
-        tl.from(controls, { scale: 0.3, autoAlpha: 0, duration: 0.8, stagger: 0.08, ease: 'back.out(1.6)' }, 0.5)
+        const header = document.querySelectorAll('.site-header__bar > *:not(.site-header__line)')
+        // one calm sequence: letters rise in a wave → header settles in → controls fade up
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+        tl.from(el.querySelectorAll('.hero__char'), { yPercent: 105, duration: 1.3, stagger: 0.05 }, 0.1)
+        if (line) tl.fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: 1.6, ease: 'power2.inOut' }, 0.2)
+        tl.from(header, { yPercent: -60, autoAlpha: 0, duration: 1.1, stagger: 0.08 }, 0.45)
+        tl.from(controls, { y: 24, autoAlpha: 0, duration: 1.1, stagger: 0.1 }, 0.9)
           .add(() => {
             running.current = true
             startTimer()
-          }, 0.95)
+          }, 1.2)
       })
       return whenGateOpen(intro)
     },
@@ -169,10 +172,22 @@ export function HomeHero() {
       <h1 className="hero__title" aria-label="Kadanglabo — A Collaborative Architectural Solution">
         <span ref={fit} className="hero__fit" aria-hidden="true">
           <span className="hero__mask">
-            <span className="hero__word">Kadang</span>
+            <span className="hero__word">
+              {'Kadang'.split('').map((c, i) => (
+                <span key={i} className="hero__char">
+                  {c}
+                </span>
+              ))}
+            </span>
           </span>
           <span className="hero__mask">
-            <span className="hero__word hero__word--accent">Labo</span>
+            <span className="hero__word hero__word--accent">
+              {'Labo'.split('').map((c, i) => (
+                <span key={i} className="hero__char">
+                  {c}
+                </span>
+              ))}
+            </span>
           </span>
         </span>
       </h1>

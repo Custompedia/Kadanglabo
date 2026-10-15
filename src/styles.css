@@ -1000,6 +1000,11 @@
   color: var(--color-orange);
 }
 
+.hero__char {
+  display: inline-block;
+  will-change: transform;
+}
+
 /* Bottom-left: the next project in a capsule; its colour fills left→right as the slide timer.
    (GSAP animates the button itself, so hover effects live on the inner body — never transition a
    transform that GSAP also tweens.) */
