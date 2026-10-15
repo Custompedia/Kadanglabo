@@ -92,6 +92,7 @@ export function HomeHero() {
     busy.current = true
     timer.current?.kill()
     gsap.set(to, { zIndex: 3, visibility: 'visible', clipPath: 'inset(0% 0% 100% 0%)' })
+    gsap.set(to.querySelector('img'), { yPercent: 0 })
     gsap.set(from, { zIndex: 2 })
     gsap.to(to, {
       clipPath: 'inset(0% 0% 0% 0%)',
@@ -114,11 +115,11 @@ export function HomeHero() {
     if (!fill) return
     const img = root.current.querySelectorAll('.hero__slide')[curRef.current]?.querySelector('img')
     timer.current?.kill()
-    // like shed.design: the photo drifts slowly upward; when it bottoms out, the next project comes in
+    // like shed.design: each photo starts at its bottom and drifts slowly to the top, then the next project comes in
     timer.current = gsap
       .timeline({ onComplete: advance })
       .fromTo(fill, { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: SLIDE, ease: 'none' }, 0)
-    if (img) timer.current.fromTo(img, { yPercent: 0 }, { yPercent: -PAN, duration: SLIDE, ease: 'sine.inOut' }, 0)
+    if (img) timer.current.fromTo(img, { yPercent: 0 }, { yPercent: PAN, duration: SLIDE, ease: 'sine.inOut' }, 0)
     if (!inView.current) timer.current.pause()
   })
 

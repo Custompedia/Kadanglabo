@@ -666,7 +666,8 @@
 }
 
 .preloader__img--hero {
-  height: 128%; /* matches .hero__img so the hand-over is seamless */
+  top: -28%; /* matches .hero__img so the hand-over is seamless */
+  height: 128%;
 }
 
 .preloader__shade {
@@ -943,7 +944,10 @@
 
 .hero__img {
   width: 100%;
-  height: 128%; /* taller than the hero so it can pan upward */
+  position: absolute;
+  top: -28%; /* 128% tall and bottom-aligned: each slide starts at the bottom of the photo */
+  left: 0;
+  height: 128%;
   object-fit: cover;
   will-change: transform;
 }
