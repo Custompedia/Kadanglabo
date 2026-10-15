@@ -27,14 +27,3 @@ export function heroImageSizes(id: ImgKey) {
   const ratio = w / h
   return `max(100vw, ${(ratio * 128).toFixed(2)}svh, ${(ratio * 1.28 * 560).toFixed(2)}px)`
 }
-
-/** Images the preloader flips through before growing into the hero (shed.design-style intro). */
-export const preloaderFlip: ImgKey[] = [
-  'labarka-river',
-  'klinik-plaza',
-  'labarka-gables',
-  'hmw-dining',
-  'balecatur-pool',
-  'giripeni-aerial',
-  'firlatata-front',
-]

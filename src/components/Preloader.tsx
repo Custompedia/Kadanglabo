@@ -2,10 +2,10 @@ import { useRef, useState } from 'react'
 import { gsap, useGSAP, reducedMotion } from '../lib/gsap'
 import { onPageMounted, openGate } from '../lib/gate'
 import { lockScroll } from '../lib/smooth'
-import { heroSlides, preloaderFlip, heroImageSizes } from '../data/hero'
+import { heroSlides, heroImageSizes } from '../data/hero'
+import { BrandMark } from './BrandMark'
+import { TAGLINE } from './Header'
 import { Img } from './Img'
-
-const STEP = 0.32 // seconds between images; each one wipes in from the top over the previous
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
@@ -19,7 +19,8 @@ function firstPageReady() {
   })
 }
 
-function loaded(img: HTMLImageElement) {
+function loaded(img: HTMLImageElement | null) {
+  if (!img) return Promise.resolve()
   const ready =
     img.complete && img.naturalWidth
       ? Promise.resolve()
@@ -27,19 +28,21 @@ function loaded(img: HTMLImageElement) {
           img.addEventListener('load', () => r(), { once: true })
           img.addEventListener('error', () => r(), { once: true })
         })
-  // decoded too, so the flipbook never shows a grey placeholder frame
   return ready.then(() => img.decode?.().catch(() => {}))
 }
 
 /**
- * First-load intro after shed.design: a small viewport-shaped frame flips through project images,
- * then grows to fill the screen. On the home page it lands exactly on the first hero slide.
+ * First-load logo intro:
+ * 1. the K mark draws itself (navy ring, then the three orange pieces),
+ * 2. it slides left while the KADANGLABO wordmark wipes in on its right, tagline below,
+ * 3. the logo lifts away and the first hero photo rises from the bottom — on the home page
+ *    that panel *is* the hero, so the hand-over is seamless.
  */
 export function Preloader() {
   const root = useRef<HTMLDivElement>(null)
   const [gone, setGone] = useState(false)
   const [isHome] = useState(() => window.location.pathname === '/')
-  const flip = [...preloaderFlip, heroSlides[0].hero]
+  const heroId = heroSlides[0].hero
 
   useGSAP(
     (_ctx, contextSafe) => {
@@ -52,32 +55,42 @@ export function Preloader() {
       }
       let cancelled = false
       lockScroll(true)
-      const frame = el.querySelector<HTMLElement>('.preloader__frame')!
-      const shade = el.querySelector<HTMLElement>('.preloader__shade')
-      const imgs = Array.from(el.querySelectorAll<HTMLImageElement>('.preloader__img'))
       const header = document.querySelector('.site-header__bar')
       gsap.set(header, { autoAlpha: 0 })
 
+      const mark = el.querySelector<HTMLElement>('.intro-logo__mark')!
+      const word = el.querySelector<HTMLElement>('.intro-logo__word')!
+      const panel = el.querySelector<HTMLElement>('.preloader__hero')
+      const heroImg = el.querySelector<HTMLImageElement>('.preloader__hero img')
 
-      const flipbook = contextSafe(
-        () =>
-          new Promise<void>((resolve) => {
-            const tl = gsap.timeline({ onComplete: resolve })
-            tl.set(frame, { visibility: 'visible' })
-            imgs.forEach((img, i) => {
-              if (i === 0) return // the first image is already showing
-              tl.fromTo(
-                img,
-                { clipPath: 'inset(0% 0% 100% 0%)' },
-                { clipPath: 'inset(0% 0% 0% 0%)', duration: STEP * 1.25, ease: 'power3.inOut' },
-                i * STEP,
-              )
-            })
-            tl.to({}, { duration: STEP * 0.8 })
-          }),
-      )
+      // start with the mark alone in the centre of the screen
+      const shift = (word.offsetWidth + parseFloat(getComputedStyle(word).marginLeft)) / 2
 
-      const expand = contextSafe(() => {
+      const logo = gsap
+        .timeline({ delay: 0.25 })
+        .set(mark, { x: shift })
+        .fromTo(
+          '.intro-logo .bm-ring',
+          { strokeDasharray: 1, strokeDashoffset: 1 },
+          { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut' },
+          0,
+        )
+        .from(
+          '.intro-logo .bm-piece',
+          { scale: 0, autoAlpha: 0, transformOrigin: '50% 50%', duration: 0.75, stagger: 0.12, ease: 'back.out(1.8)' },
+          0.7,
+        )
+        .to(mark, { x: 0, duration: 0.9, ease: 'expo.inOut' }, 1.5)
+        .fromTo(
+          word,
+          { clipPath: 'inset(0% 100% 0% 0%)' },
+          { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.9, ease: 'power3.inOut' },
+          2.1, // only once the mark has (almost) cleared the space, so they never overlap
+        )
+        .from('.intro-logo__tagline', { yPercent: 110, duration: 0.8, ease: 'power3.out' }, 2.75)
+        .to({}, { duration: 0.55 }) // hold the finished logo for a beat
+
+      const exit = contextSafe(() => {
         gsap
           .timeline({
             onComplete: () => {
@@ -85,25 +98,30 @@ export function Preloader() {
               setGone(true)
             },
           })
-          .to(frame, { scale: 1, duration: 1.1, ease: 'expo.inOut' })
-          .to(shade, { opacity: isHome ? 1 : 0, duration: 0.6, ease: 'power2.out' }, 0.5)
+          .to('.intro-logo', { yPercent: -40, autoAlpha: 0, duration: 0.7, ease: 'power3.in' }, 0)
+          .fromTo(
+            panel,
+            { clipPath: 'inset(100% 0% 0% 0%)' },
+            { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'expo.inOut' },
+            0.35,
+          )
+          .fromTo(heroImg, { scale: 1.15 }, { scale: 1, duration: 1.6, ease: 'power3.out' }, 0.35)
           .add(() => {
             lockScroll(false)
             openGate()
-          }, isHome ? 0.95 : 0.75)
-          .to(header, { autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 0.95)
-          // home: the frame now *is* the hero, so just drop the overlay; elsewhere fade it away
-          .to(el, { autoAlpha: 0, duration: isHome ? 0.01 : 0.55, ease: 'power2.out' }, isHome ? 1.12 : 1.1)
+          }, 1.2)
+          .to(header, { autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 1.2)
+          // home: the panel already shows the first hero slide, so simply drop the overlay;
+          // other pages: fade the overlay away to reveal the page
+          .to(el, { autoAlpha: 0, duration: isHome ? 0.01 : 0.6, ease: 'power2.out' }, isHome ? 1.5 : 1.25)
       })
 
-      // like shed.design: stay on the blank page until every frame (and the hero image) is decoded,
-      // then flip through them and grow straight into the hero
       const run = async () => {
-        await Promise.race([Promise.all([...imgs.map(loaded), document.fonts?.ready, firstPageReady()]), wait(4500)])
-        if (cancelled) return
-        await flipbook()
-        if (cancelled) return
-        expand()
+        await Promise.all([
+          logo.then(),
+          Promise.race([Promise.all([loaded(heroImg), document.fonts?.ready, firstPageReady()]), wait(5000)]),
+        ])
+        if (!cancelled) exit()
       }
       run()
 
@@ -118,18 +136,27 @@ export function Preloader() {
 
   return (
     <div ref={root} className="preloader" aria-hidden="true">
-      <div className="preloader__frame">
-        {flip.map((id, i) => (
+      <div className="intro-logo">
+        <div className="intro-logo__row">
+          <BrandMark className="intro-logo__mark" ringColor="#3C4C74" />
+          <img src="/brand/kadanglabo-wordmark.svg" alt="" className="intro-logo__word" width={1046} height={110} />
+        </div>
+        <span className="intro-logo__mask">
+          <span className="intro-logo__tagline">{TAGLINE}</span>
+        </span>
+      </div>
+
+      <div className="preloader__hero">
+        {isHome && (
           <Img
-            key={id}
-            id={id}
-            className={`preloader__img${i === flip.length - 1 ? ' preloader__img--hero' : ''}`}
-            sizes={i === flip.length - 1 ? heroImageSizes(id) : '40vw'}
+            id={heroId}
+            className="preloader__img--hero"
+            sizes={heroImageSizes(heroId)}
             priority
-            style={{ backgroundColor: 'transparent', zIndex: i, clipPath: i === 0 ? undefined : 'inset(0% 0% 100% 0%)' }}
+            style={{ backgroundColor: 'transparent' }}
           />
-        ))}
-        <div className="hero__shade preloader__shade" />
+        )}
+        <div className="hero__shade" />
       </div>
     </div>
   )
