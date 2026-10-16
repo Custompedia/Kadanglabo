@@ -610,6 +610,64 @@
   transform-origin: left;
 }
 
+.menu__foot {
+  display: none;
+}
+
+/* Phones and portrait tablets: the links are limited by the width ("NEWS & EVENTS"), so stretching
+   them over the full height left big empty bands. Stack them from the top instead and put the
+   studio's contacts in the space below. */
+@media (max-width: 767px), (orientation: portrait) and (max-width: 1024px) {
+  .menu__nav {
+    padding-top: 12px;
+  }
+
+  .menu__link {
+    flex: none;
+    padding-block: 12px 8px;
+  }
+
+  .menu__foot {
+    display: grid;
+    justify-items: start;
+    gap: 4px;
+    margin-top: auto;
+    padding-top: 36px;
+    color: #fff;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .menu__foot-label {
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .menu__social {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .menu__social a {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--color-navy-deep);
+  }
+
+  .menu__social svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 /* ------------------------------------------------- curtain / preloader */
 
 .curtain {

@@ -3,7 +3,8 @@ import { useLocation } from 'react-router'
 import { gsap, useGSAP } from '../lib/gsap'
 import { lockScroll } from '../lib/smooth'
 import { TLink } from '../lib/transition'
-import { nav } from '../data/site'
+import { company, nav, waLink } from '../data/site'
+import { Instagram, Mail, WhatsApp } from './Icons'
 
 type Props = { open: boolean; onClose: () => void }
 
@@ -27,6 +28,7 @@ export function Menu({ open, onClose }: Props) {
         .fromTo('.menu__panel', { yPercent: 100 }, { yPercent: 0, duration: 0.9, ease: 'expo.inOut' })
         .fromTo('.menu__link-text', { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.06, ease: 'expo.out' }, 0.45)
         .fromTo('.menu__rule', { scaleX: 0 }, { scaleX: 1, duration: 1.1, stagger: 0.06, ease: 'expo.out' }, 0.45)
+        .fromTo('.menu__foot', { y: 16, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.8, ease: 'power3.out' }, 0.75)
     },
     { scope: root },
   )
@@ -95,6 +97,23 @@ export function Menu({ open, onClose }: Props) {
               <span className="menu__rule" aria-hidden="true" />
             </TLink>
           ))}
+          {/* phones / portrait tablets only (see styles.css): the studio's contacts under the links */}
+          <div className="menu__foot">
+            <p className="menu__foot-label">Kontak studio</p>
+            <a href={`tel:+${company.phoneIntl}`}>{company.phone}</a>
+            <a href={`mailto:${company.email}`}>{company.email}</a>
+            <div className="menu__social">
+              <a href={company.instagram} target="_blank" rel="noreferrer" aria-label="Instagram @kadanglabo">
+                <Instagram />
+              </a>
+              <a href={waLink('Halo Kadanglabo, saya ingin konsultasi proyek.')} target="_blank" rel="noreferrer" aria-label="WhatsApp">
+                <WhatsApp />
+              </a>
+              <a href={`mailto:${company.email}`} aria-label="Email">
+                <Mail />
+              </a>
+            </div>
+          </div>
         </nav>
       </div>
     </div>
