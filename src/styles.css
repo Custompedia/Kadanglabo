@@ -1238,7 +1238,7 @@
   z-index: 6;
   display: grid;
   place-items: center;
-  width: clamp(64px, 8vw, 128px);
+  width: clamp(48px, 4.4vw, 72px);
   aspect-ratio: 1;
   border-radius: 50%;
   background: #fff;
@@ -1256,7 +1256,7 @@
 }
 
 .reel__btn svg {
-  width: 34%;
+  width: 38%;
   height: auto;
 }
 
