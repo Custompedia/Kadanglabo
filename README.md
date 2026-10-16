@@ -48,7 +48,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 | --- | --- |
 | `/` | Sesuai urutan brief: Hero "KADANGLABO" (gaya shed.design) → (01) About → Kadanglabo spirit (showreel kiri, etos kanan — layout "Shed spirit") → (02) Core services & sectors → (03) Our work: mosaik foto per kategori yang bergerak saat scroll (ref. Coeval) + tombol "Lihat detail Our Work" → (04) Latest updates → footer "See work" |
 | `/about` (`/about#team`) | About (tanpa section biru): copy persis dari brief, kolaborasi klien, perencana, dan pelaksana (teks rata tengah), 2 parameter keberhasilan (foto + teks), Vision di atas foto full-bleed, Mission & Our goals (kartu bernomor, hover oranye), tim in-house dengan Direktur Utama ditonjolkan (`#team`, tidak lagi di navbar). `/studio` dialihkan ke sini |
-| `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail — empat tahap berilustrasi dalam grid 2×2, satu kolom di mobile, scroll vertikal → (04) Start a project |
+| `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail: empat tahap dalam kartu yang bergeser ke samping saat di-scroll (desktop) / di-swipe (mobile), tanpa ilustrasi → (04) Start a project |
 | `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Peta proyek 3D** (ref. Sobha) → **Project archive** (filter Category · Location · Year · Status) |
 | `/work/:slug` | Halaman proyek: hero warna, header image, info, Context → Challenge → Concept → Development → Outcome, galeri, related projects, Next up |
 | `/news`, `/news/:slug` | News & Events, detail: Konteks · Isi utama · Visual · Informasi lanjutan · Explore more |
@@ -70,13 +70,6 @@ npm run img -- <key> "<path/ke/gambar.png>"
 ```
 
 Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src/data/images.json`. Pakai key tersebut di `projects.ts` (mis. `hero`, `cover`, `gallery`) atau `<Img id="key" />`.
-
-Ilustrasi transparan proses layanan memiliki master PNG serta prompt GPT Image di
-`assets/services-process/`. Untuk mengekspor WebP responsif sambil menjaga alpha:
-
-```bash
-node scripts/optimize-collaboration-images.mjs services-process
-```
 
 ## Yang perlu dilengkapi sebelum publish
 

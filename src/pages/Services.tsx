@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img, type ImgKey } from '../components/Img'
@@ -10,13 +10,13 @@ import { gsap } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { about, disciplines, managementServices, process, sectors } from '../data/site'
 
-const collage: ImgKey[] = ['labarka-path', 'klinik-corridor', 'draw-interior', 'balecatur-lobby', 'hmw-dining', 'balecatur-bed', 'firlatata-living']
-const processVisuals: ImgKey[] = ['process-brief', 'process-analysis', 'process-creative', 'process-deliverables']
+const WIDE = '(min-width: 900px)' // Service detail travels sideways from here up (see .process in styles.css)
+const collage: ImgKey[] = ['labarka-path', 'klinik-corridor', 'labarka-balcony', 'balecatur-lobby', 'hmw-dining', 'balecatur-bed', 'firlatata-living']
 
 export default function Services() {
   const root = useRef<HTMLDivElement>(null)
 
-  usePageAnimations(root, () => {
+  usePageAnimations(root, (page) => {
     gsap.fromTo(
       '.collage__track',
       { xPercent: 0 },
@@ -26,7 +26,62 @@ export default function Services() {
         scrollTrigger: { trigger: '.collage', start: 'top bottom', end: 'bottom top', scrub: true },
       },
     )
+
+    // Service detail, wide screens: the stage holds still while the intro and the four cards travel sideways.
+    // Built once; the CSS media query switches the layout, so crossing the breakpoint only re-measures
+    // (creating triggers during a breakpoint change would make ScrollTrigger lose the scroll position).
+    const section = page.querySelector<HTMLElement>('.process')!
+    const stage = section.querySelector<HTMLElement>('.process__stage')!
+    const track = section.querySelector<HTMLElement>('.process__track')!
+    const bar = section.querySelector<HTMLElement>('.process__progress span')!
+    const slots = gsap.utils.toArray<HTMLElement>('.step', section)
+    const cards = slots.map((slot) => slot.querySelector<HTMLElement>('.step__card')!)
+    const setX = cards.map((card) => gsap.quickSetter(card, 'x', 'px'))
+    const wide = window.matchMedia(WIDE)
+    section.dataset.motion = ''
+    let travel = 0
+    let geo: [number, number][] = []
+    const fit = () => {
+      travel = wide.matches ? Math.max(0, track.offsetWidth - stage.clientWidth + 2 * parseFloat(getComputedStyle(stage).paddingLeft)) : 0
+      section.style.height = wide.matches ? `${stage.offsetHeight + travel}px` : '' // one pixel of scroll per pixel of travel
+      geo = slots.map((slot) => [slot.offsetLeft, slot.offsetWidth])
+      if (!wide.matches) gsap.set(cards, { clearProps: 'x' })
+    }
+    fit()
+    gsap.to(track, {
+      x: () => -travel,
+      ease: 'none',
+      scrollTrigger: { trigger: section, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true, onRefreshInit: fit },
+      onUpdate() {
+        if (!wide.matches) return
+        bar.style.transform = `scaleX(${this.progress()})`
+        // each card enters a little behind its slot and closes up by the time it is fully on screen
+        const x = gsap.getProperty(track, 'x') as number
+        geo.forEach(([left, width], i) => setX[i](120 * (1 - gsap.utils.clamp(0, 1, (stage.clientWidth - left - x) / width))))
+      },
+    })
   })
+
+  // Swipe rail (narrow screens, reduced motion): the bar under the cards follows the swipe
+  useEffect(() => {
+    const section = root.current?.querySelector<HTMLElement>('.process')
+    const rail = section?.querySelector<HTMLElement>('.process__cards')
+    const bar = section?.querySelector<HTMLElement>('.process__progress span')
+    if (!section || !rail || !bar) return
+    const wide = window.matchMedia(WIDE)
+    const update = () => {
+      if (wide.matches && section.hasAttribute('data-motion')) return
+      const max = rail.scrollWidth - rail.clientWidth
+      bar.style.transform = `scaleX(${max > 0 ? Math.max(0.25, rail.scrollLeft / max) : 1})`
+    }
+    update()
+    rail.addEventListener('scroll', update, { passive: true })
+    wide.addEventListener('change', update)
+    return () => {
+      rail.removeEventListener('scroll', update)
+      wide.removeEventListener('change', update)
+    }
+  }, [])
 
   return (
     <Page title="Services">
@@ -129,41 +184,45 @@ export default function Services() {
           ))}
         </section>
 
-        {/* Service detail — four stages, read in ordinary vertical scroll order. */}
-        <section className="process" data-theme="dark" aria-labelledby="process-title">
-          <div className="process__inner wrap">
-            <div className="process__head">
-              <SectionLabel n="03">Service detail</SectionLabel>
-              <span className="process__rule" aria-hidden="true" />
+        {/* Service detail: four stages on cards that travel sideways while you scroll (swipe on touch screens) */}
+        <section className="process" data-theme="light" aria-labelledby="process-title">
+          <div className="process__stage">
+            <div className="process__track">
+              <div className="process__intro">
+                <SectionLabel n="03">Service detail</SectionLabel>
+                <h2 id="process-title" className="t-display process__title" data-split>
+                  Dari kebutuhan <br />
+                  ke bangunan.
+                </h2>
+                <p className="t-body-lg process__description" data-fade>
+                  Empat tahap yang kami jalani bersama setiap klien: transparan, terukur, dan selalu berujung di
+                  lapangan.
+                </p>
+              </div>
+              <ol className="process__cards">
+                {process.map((step, i) => (
+                  <li key={step.title} className="step">
+                    <div className="step__card">
+                      <span className="step__num" aria-hidden="true">
+                        0{i + 1}
+                      </span>
+                      <div>
+                        <h3 className="step__title">{step.title}</h3>
+                        <p className="step__lead">{step.lead}</p>
+                        <ul className="step__points">
+                          {step.points.map((pt) => (
+                            <li key={pt}>{pt}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
             </div>
-            <div className="process__intro">
-              <h2 id="process-title" className="t-display process__title" data-split>
-                Dari kebutuhan{' '}<br />ke bangunan.
-              </h2>
-              <p className="t-body-lg process__description" data-fade>
-                Empat tahap yang kami jalani bersama setiap klien: transparan, terukur, dan selalu berujung di
-                lapangan.
-              </p>
+            <div className="process__progress wrap" aria-hidden="true">
+              <span />
             </div>
-            <ol className="process__grid">
-              {process.map((step, i) => (
-                <li key={step.title} className="step" data-fade>
-                  <div className="step__body">
-                    <span className="step__num" aria-hidden="true">0{i + 1}</span>
-                    <h3 className="step__title">{step.title}</h3>
-                    <p className="step__lead">{step.lead}</p>
-                  </div>
-                  <div className="step__media">
-                    <Img id={processVisuals[i]} alt="" sizes="(min-width: 768px) 22vw, 40vw" style={{ backgroundColor: 'transparent' }} />
-                  </div>
-                  <ul className="step__points">
-                    {step.points.map((pt) => (
-                      <li key={pt}>{pt}</li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ol>
           </div>
         </section>
 
