@@ -24,6 +24,8 @@
 @layer base {
   :root {
     --pad: clamp(16px, 2.5vw, 48px); /* page gutter: content never sits against the screen edge */
+    /* past 1920px the content keeps the 1920 layout, centred; backgrounds and full-bleed photos still fill the screen */
+    --gutter: max(var(--pad), calc((100vw - 1920px) / 2 + var(--pad)));
     --header-h: 52px;
     --sec: clamp(88px, 11vw, 168px);
     --line: rgb(21 21 21 / 0.14);
@@ -72,7 +74,7 @@
 
 @layer components {
   .wrap {
-    padding-inline: var(--pad);
+    padding-inline: var(--gutter);
   }
 
   .t-display {
@@ -404,9 +406,9 @@
 /* Hairline under the header while it sits on the home hero (as on shed.design). */
 .site-header__line {
   position: absolute;
-  right: var(--pad);
+  right: var(--gutter);
   bottom: 0;
-  left: var(--pad);
+  left: var(--gutter);
   height: 1px;
   background: currentColor;
   transform-origin: left;
@@ -586,7 +588,7 @@
   font-weight: 800;
   font-stretch: 90%;
   /* as large as the 6 links allow: by height (6 rows) or by width ("NEWS & EVENTS" ≈ 6.8em) */
-  font-size: min(calc((100vw - 2 * var(--pad)) / 6.9), calc((100svh - var(--header-h) - 28px) / 6 / 0.9));
+  font-size: min(calc((100vw - 2 * var(--gutter)) / 6.9), calc((100svh - var(--header-h) - 28px) / 6 / 0.9));
   line-height: 0.86;
   letter-spacing: -0.035em;
   text-transform: uppercase;
@@ -991,7 +993,7 @@
   right: 0;
   left: 0;
   z-index: 6;
-  padding-inline: var(--pad);
+  padding-inline: var(--gutter);
   font-family: var(--font-display);
   font-weight: 800;
   font-stretch: 90%;
@@ -1035,7 +1037,7 @@
 .hero-capsule {
   position: absolute;
   bottom: var(--pad);
-  left: var(--pad);
+  left: var(--gutter);
   z-index: 7;
   width: clamp(96px, 8.75vw, 150px);
   aspect-ratio: 126 / 77;
@@ -1100,7 +1102,7 @@
 /* Bottom-right: rotating "SCROLL • EXPLORE" ring with an arrow. */
 .hero-scroll {
   position: absolute;
-  right: var(--pad);
+  right: var(--gutter);
   bottom: var(--pad);
   z-index: 7;
   width: clamp(76px, 6.4vw, 96px);
@@ -1320,7 +1322,7 @@
 }
 
 .brand-section__head {
-  max-width: 560px;
+  max-width: calc(560px + 2 * (var(--gutter) - var(--pad))); /* 560px plus any extra gutter on very wide screens */
   margin-bottom: clamp(32px, 4vw, 56px);
 }
 
@@ -1399,7 +1401,7 @@
 /* ---- (03) Our work: Coeval-style mosaic that drifts up while the category title changes ---- */
 .wm {
   --cols: 8;
-  --u: calc((100vw - 2 * var(--pad)) / var(--cols));
+  --u: calc((100vw - 2 * var(--gutter)) / var(--cols));
   --bh: max(118svh, calc(8 * var(--u)));
   position: relative;
   height: 350svh; /* ≈ one screen of scrolling per screen of mosaic travel */
@@ -1417,8 +1419,8 @@
 .wm__pattern {
   position: absolute;
   top: 0;
-  right: var(--pad);
-  left: var(--pad);
+  right: var(--gutter);
+  left: var(--gutter);
   will-change: transform;
 }
 
@@ -1464,7 +1466,7 @@
 .wm__label {
   position: absolute;
   top: calc(var(--header-h) + 18px);
-  left: var(--pad);
+  left: var(--gutter);
   background: var(--color-paper);
 }
 
@@ -1537,7 +1539,7 @@
 .wm__hint {
   position: absolute;
   bottom: var(--pad);
-  left: var(--pad);
+  left: var(--gutter);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1709,7 +1711,7 @@
 
 .wide-media {
   padding-bottom: var(--sec);
-  padding-inline: var(--pad);
+  padding-inline: var(--gutter);
 }
 
 .wide-media__frame {
@@ -2137,7 +2139,7 @@
   align-items: flex-start;
   gap: 16px;
   width: max-content;
-  padding-left: var(--pad);
+  padding-left: var(--gutter);
 }
 
 .collage__item {
@@ -2310,7 +2312,7 @@
   align-content: start;
   justify-items: start;
   gap: 24px;
-  padding-inline: var(--pad);
+  padding-inline: var(--gutter);
 }
 
 .process__title {
@@ -2327,11 +2329,11 @@
   display: flex;
   gap: 12px;
   margin-top: 36px;
-  padding-inline: var(--pad);
+  padding-inline: var(--gutter);
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
-  scroll-padding-inline: var(--pad);
+  scroll-padding-inline: var(--gutter);
   scrollbar-width: none;
   list-style: none;
 }
@@ -2450,7 +2452,7 @@
     justify-content: center;
     height: 100svh;
     min-height: 600px;
-    padding-inline: var(--pad);
+    padding-inline: var(--gutter);
     overflow: hidden;
   }
 
@@ -3576,7 +3578,7 @@ button.news-search__btn:hover {
 .nd-hero {
   display: grid;
   justify-items: start;
-  max-width: 1280px;
+  max-width: calc(1280px + 2 * (var(--gutter) - var(--pad)));
   padding-top: calc(var(--header-h) + clamp(48px, 7vw, 110px));
   padding-bottom: 44px;
 }
@@ -3913,7 +3915,7 @@ button.news-search__btn:hover {
   .hero__tagline-m {
     position: absolute;
     top: calc(var(--header-h) + 45vw);
-    left: var(--pad);
+    left: var(--gutter);
     z-index: 6;
     display: block;
     color: #fff;

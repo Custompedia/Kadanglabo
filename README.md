@@ -76,8 +76,9 @@ Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src
 - **Foto hero**: master 1672px, jadi ukuran terbesar 2560 (WebP q80, ekspor ulang: `node scripts/optimize-hero-images.mjs`). Slide kedua baru dipasang setelah intro; showreel memuat render satu langkah di depan.
 - **Muatan Home pertama kali** ±1.6 MB (sebelumnya 2.7 MB di laptop, 3.5 MB di ponsel).
 - **Lighthouse** (lokal, build produksi): Home desktop Performance 95 · Accessibility 95 · Best Practices 100 · SEO 100. Di simulasi ponsel lambat, skor performa dibatasi intro logo pada kunjungan pertama (LCP diukur setelah intro).
-- **Audit responsif**: 24 rute × 14 ukuran layar (320-2560px), tanpa overflow horizontal, teks terpotong, atau animasi yang tertinggal tersembunyi.
-- Kontras yang masih ditandai Lighthouse berasal dari palet brand (teks oranye di atas krem, teks putih di atas oranye) dan efek teks yang menyala saat di-scroll; dipertahankan sesuai desain.
+- **Audit responsif**: 24 rute × 15 ukuran layar (320-3840px), tanpa overflow horizontal, teks terpotong, atau animasi yang tertinggal tersembunyi.
+- **Layar lebar (>1920px)**: isi tetap memakai tata letak 1920 dan diletakkan di tengah (`--gutter` di `styles.css`); latar section dan foto full-bleed tetap memenuhi layar.
+- **Kontras WCAG 2.1 AA** (axe-core: 0 pelanggaran di 24 rute, HP & desktop). Skala oranye satu hue: `--color-orange` #EC6434 (logo, dekoratif, teks gelap di atasnya), `--color-orange-deep` #D34614 (latar dengan teks putih, teks oranye besar), `--color-orange-text` #B33B11 (teks oranye kecil). Teks yang "menyala" saat scroll mulai dari 62% agar tetap terbaca.
 
 ## Yang perlu dilengkapi sebelum publish
 
