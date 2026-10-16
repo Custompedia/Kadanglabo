@@ -3219,17 +3219,24 @@
 
 /* ------------------------------------------------------------------ news */
 
-/* articles left, search / filters / extras right; one column below 1024px (filters, cards, extras) */
+/* row 1: heading | search, both bottom-aligned so their hairlines run on one line;
+   below: articles left, filters and extras right. One column below 1024px (search, filters, cards, extras) */
 .news {
   display: grid;
   grid-template-columns: minmax(0, 1fr) clamp(280px, 26vw, 380px);
   grid-template-areas:
+    'head search'
     'main filters'
     'main extras';
-  grid-template-rows: auto 1fr;
-  column-gap: clamp(32px, 4vw, 72px);
+  grid-template-rows: auto auto 1fr;
+  gap: 28px clamp(32px, 4vw, 72px);
   align-items: start;
   padding-bottom: var(--sec);
+}
+
+.news-search {
+  grid-area: search;
+  align-self: end;
 }
 
 .news__filters {
@@ -3246,7 +3253,7 @@
   display: grid;
   grid-area: extras;
   gap: 28px;
-  margin-top: 40px;
+  margin-top: 12px;
 }
 
 .news-side__label {
@@ -3326,10 +3333,11 @@ button.news-search__btn:hover {
 .news__head {
   display: flex;
   flex-wrap: wrap;
+  grid-area: head;
+  align-self: end;
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px 24px;
-  margin-bottom: 28px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--line-strong);
 }
@@ -3478,18 +3486,20 @@ button.news-search__btn:hover {
   .news {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
+      'search'
       'filters'
+      'head'
       'main'
       'extras';
     grid-template-rows: none;
   }
 
   .news__filters {
-    margin-bottom: 48px;
+    margin-bottom: 20px;
   }
 
   .news__extras {
-    margin-top: 64px;
+    margin-top: 36px;
   }
 
   .news-latest {

@@ -91,33 +91,34 @@ export default function News() {
         />
 
         <section className="news wrap" data-theme="light">
-          {/* Search + filters: right column on desktop, above the cards on small screens */}
-          <div className="news__filters" data-fade>
-            <form role="search" className="news-search" onSubmit={(e) => e.preventDefault()}>
-              <label htmlFor="news-q" className="news-side__label">
-                Cari artikel
-              </label>
-              <div className="news-search__box">
-                <input
-                  id="news-q"
-                  type="search"
-                  value={q}
-                  placeholder="Mis. talk, open studio, Klinik UII"
-                  autoComplete="off"
-                  onChange={(e) => update({ q: e.target.value })}
-                />
-                {q ? (
-                  <button type="button" className="news-search__btn" aria-label="Hapus pencarian" onClick={() => update({ q: '' })}>
-                    <Plus className="news-search__clear" />
-                  </button>
-                ) : (
-                  <span className="news-search__btn" aria-hidden="true">
-                    <Search className="news-search__icon" />
-                  </span>
-                )}
-              </div>
-            </form>
+          {/* Search + filters: right column on desktop, above the cards on small screens.
+              The search shares the first row with the heading, so both hairlines run on one line. */}
+          <form role="search" className="news-search" onSubmit={(e) => e.preventDefault()} data-fade>
+            <label htmlFor="news-q" className="news-side__label">
+              Cari artikel
+            </label>
+            <div className="news-search__box">
+              <input
+                id="news-q"
+                type="search"
+                value={q}
+                placeholder="Mis. talk, open studio, Klinik UII"
+                autoComplete="off"
+                onChange={(e) => update({ q: e.target.value })}
+              />
+              {q ? (
+                <button type="button" className="news-search__btn" aria-label="Hapus pencarian" onClick={() => update({ q: '' })}>
+                  <Plus className="news-search__clear" />
+                </button>
+              ) : (
+                <span className="news-search__btn" aria-hidden="true">
+                  <Search className="news-search__icon" />
+                </span>
+              )}
+            </div>
+          </form>
 
+          <div className="news__filters" data-fade>
             <div className="news-side__block">
               <p className="news-side__label">Kategori</p>
               <div className="news-side__chips" role="group" aria-label="Kategori">
@@ -145,19 +146,19 @@ export default function News() {
             </div>
           </div>
 
-          <div className="news__main">
-            <div className="news__head">
-              <h2 className="news__title">{heading}</h2>
-              <p className="news__count" aria-live="polite">
-                <b>{items.length}</b> artikel
-                {filtered && (
-                  <button type="button" className="link-line t-label news__reset" onClick={reset}>
-                    Reset
-                  </button>
-                )}
-              </p>
-            </div>
+          <div className="news__head">
+            <h2 className="news__title">{heading}</h2>
+            <p className="news__count" aria-live="polite">
+              <b>{items.length}</b> artikel
+              {filtered && (
+                <button type="button" className="link-line t-label news__reset" onClick={reset}>
+                  Reset
+                </button>
+              )}
+            </p>
+          </div>
 
+          <div className="news__main">
             <div ref={grid} className="news__list" data-stagger="0.06">
               {items.map((n) => (
                 <NewsCard key={n.slug} n={n} />
