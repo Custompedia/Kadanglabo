@@ -553,12 +553,15 @@
 .menu__nav {
   display: flex;
   flex-direction: column;
+  min-height: calc(100svh - var(--header-h)); /* the links fill the whole panel */
   padding-bottom: 24px;
 }
 
 .menu__link {
   position: relative;
-  display: block;
+  display: flex;
+  flex: 1 0 auto; /* rows share any leftover height evenly; text sits on its hairline */
+  align-items: flex-end;
   padding-top: 0.06em;
 }
 
@@ -572,7 +575,8 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-stretch: 90%;
-  font-size: min(11.5vw, calc((100svh - var(--header-h) - 40px) / 7 / 0.86));
+  /* as large as the 6 links allow: by height (6 rows) or by width ("NEWS & EVENTS" ≈ 6.8em) */
+  font-size: min(calc((100vw - 2 * var(--pad)) / 6.9), calc((100svh - var(--header-h) - 28px) / 6 / 0.9));
   line-height: 0.86;
   letter-spacing: -0.035em;
   text-transform: uppercase;
@@ -3794,14 +3798,6 @@
 
   .inquiry__fields {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .menu__link-text {
-    font-size: 13vw;
-  }
-
-  .menu__link {
-    padding-block: 0.25em 0.12em;
   }
 
   .overview__grid {
