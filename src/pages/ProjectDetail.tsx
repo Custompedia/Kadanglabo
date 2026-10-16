@@ -223,7 +223,9 @@ function ProjectView({ p }: { p: Project }) {
         <section className="related wrap" data-theme="light">
           <div className="related__head">
             <SectionLabel>Related projects</SectionLabel>
-            <p className="t-body-lg opacity-70">Proyek lain dengan tipologi atau pendekatan serupa.</p>
+            <p className="t-serif related__note" data-fade>
+              Proyek lain dengan tipologi atau pendekatan serupa.
+            </p>
           </div>
           <div className="related__grid" data-stagger>
             {related.map((r) => (
