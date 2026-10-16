@@ -4,7 +4,6 @@ import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img } from '../components/Img'
 import { ProjectCard, SectionLabel } from '../components/Bits'
-import { ProjectMap, type AreaStat } from '../components/ProjectMap'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger, finePointer, reducedMotion } from '../lib/gsap'
 import { scrollToElement } from '../lib/smooth'
@@ -25,7 +24,7 @@ import {
 
 /*
  * Our Work — follows the brief's skema in order:
- * Introduction & Selected projects (Category a/b/c) → Peta proyek → Project Archive (Filter · Category · Location · Year · Status).
+ * Introduction & Selected projects (Category a/b/c) → Project Archive (Filter · Category · Location · Year · Status).
  */
 
 type Filters = { category: string; location: string; year: string; status: string }
@@ -40,7 +39,7 @@ const matches = (f: Filters) => (e: ArchiveEntry) =>
   (f.year === 'all' || String(e.year) === f.year) &&
   (f.status === 'all' || e.status === f.status)
 
-const areaStats: AreaStat[] = areas
+const areaStats = areas
   .map((a) => ({ ...a, count: archive.filter((e) => areaOf(e.region) === a.key).length }))
   .filter((a) => a.count > 0)
 
@@ -71,7 +70,7 @@ export default function Work() {
     setParams(p, { replace: true, preventScrollReset: true })
   }
   const set = (key: keyof Filters, value: string) => apply({ ...f, [key]: value })
-  /** jump from the groups / map into the archive with a fresh filter */
+  /** jump from a category group into the archive with a fresh filter */
   const showInArchive = (next: Partial<Filters>) => {
     apply({ ...EMPTY, ...next })
     scrollToElement('#arsip', -60)
@@ -137,9 +136,6 @@ export default function Work() {
                 {LETTERS[i]}. {categoryTitle[c]}
               </a>
             ))}
-            <a href="#peta" className="chip-btn" onClick={(e) => jump(e, '#peta')}>
-              Peta proyek
-            </a>
             <a href="#arsip" className="chip-btn" onClick={(e) => jump(e, '#arsip')}>
               Arsip proyek
             </a>
@@ -192,24 +188,6 @@ export default function Work() {
             </section>
           )
         })}
-
-        {/* Peta proyek (Sobha Privy Collection reference) */}
-        <section id="peta" className="work-map" data-theme="dark">
-          <div className="wrap work-map__head">
-            <div>
-              <SectionLabel>Peta proyek</SectionLabel>
-              <h2 className="t-h1 work-map__title" data-split>
-                Dari Yogyakarta ke berbagai kota di Indonesia.
-              </h2>
-            </div>
-            <p className="t-body-lg work-map__sub" data-fade>
-              Lokasi proyek yang tercatat dalam daftar karya kami. Pilih titik di peta untuk melihat proyeknya di arsip.
-            </p>
-          </div>
-          <div className="wrap">
-            <ProjectMap areas={areaStats} active={f.location} onSelect={(key) => showInArchive({ location: key })} />
-          </div>
-        </section>
 
         {/* Project archive */}
         <section id="arsip" className="archive wrap" data-theme="light">

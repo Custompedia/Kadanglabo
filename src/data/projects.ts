@@ -552,26 +552,22 @@ export const relatedProjects = (p: Project, n = 3) => {
   return [...same, ...others].slice(0, n)
 }
 
-/* ---------- Area (peta proyek & filter Lokasi) ---------- */
+/* ---------- Area (filter Lokasi di arsip) ---------- */
 
 export interface Area {
   key: string
   label: string
-  lon: number
-  lat: number
   /** wilayah (kabupaten/kota) yang masuk area ini */
   regions: string[]
-  /** sisi label pin di peta, supaya label yang berdekatan tidak bertumpuk */
-  align: 'left' | 'right' | 'center'
 }
 
 export const areas: Area[] = [
-  { key: 'diy', label: 'D.I. Yogyakarta', lon: 110.37, lat: -7.8, regions: ['Yogyakarta', 'Sleman', 'Bantul', 'Kulon Progo'], align: 'left' },
-  { key: 'klaten', label: 'Klaten', lon: 110.6, lat: -7.71, regions: ['Klaten'], align: 'right' },
-  { key: 'jepara', label: 'Jepara', lon: 110.67, lat: -6.59, regions: ['Jepara'], align: 'right' },
-  { key: 'surabaya', label: 'Surabaya', lon: 112.75, lat: -7.25, regions: ['Surabaya'], align: 'center' },
-  { key: 'bali', label: 'Bali', lon: 115.22, lat: -8.65, regions: ['Bali'], align: 'center' },
-  { key: 'palembang', label: 'Palembang', lon: 104.76, lat: -2.99, regions: ['Palembang'], align: 'center' },
+  { key: 'diy', label: 'D.I. Yogyakarta', regions: ['Yogyakarta', 'Sleman', 'Bantul', 'Kulon Progo'] },
+  { key: 'klaten', label: 'Klaten', regions: ['Klaten'] },
+  { key: 'jepara', label: 'Jepara', regions: ['Jepara'] },
+  { key: 'surabaya', label: 'Surabaya', regions: ['Surabaya'] },
+  { key: 'bali', label: 'Bali', regions: ['Bali'] },
+  { key: 'palembang', label: 'Palembang', regions: ['Palembang'] },
 ]
 
 export const areaOf = (region: string | null) => (region ? (areas.find((a) => a.regions.includes(region))?.key ?? null) : null)

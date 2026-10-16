@@ -49,7 +49,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 | `/` | Sesuai urutan brief: Hero "KADANGLABO" (gaya shed.design) → (01) About → Kadanglabo spirit (showreel kiri, etos kanan — layout "Shed spirit") → (02) Core services & sectors → (03) Our work: mosaik foto per kategori yang bergerak saat scroll (ref. Coeval) + tombol "Lihat detail Our Work" → (04) Latest updates → footer "See work" |
 | `/about` (`/about#team`) | About (tanpa section biru): copy persis dari brief, kolaborasi klien, perencana, dan pelaksana (teks rata tengah), 2 parameter keberhasilan (foto + teks), Vision di atas foto full-bleed, Mission & Our goals (kartu bernomor, hover oranye), tim in-house dengan Direktur Utama ditonjolkan (`#team`, tidak lagi di navbar). `/studio` dialihkan ke sini |
 | `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail: empat tahap dalam kartu yang bergeser ke samping saat di-scroll (desktop) / di-swipe (mobile), tanpa ilustrasi → (04) Start a project |
-| `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Peta proyek 3D** (ref. Sobha) → **Project archive** (filter Category · Location · Year · Status) |
+| `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Project archive** (filter Category · Location · Year · Status) |
 | `/work/:slug` | Halaman proyek: hero warna, header image, info, Context → Challenge → Concept → Development → Outcome, galeri, related projects, Next up |
 | `/news`, `/news/:slug` | News & Events, detail: Konteks · Isi utama · Visual · Informasi lanjutan · Explore more |
 | `/contact` | Alamat, kontak, peta ilustrasi (Google Maps dimuat saat diklik), form inquiry → WhatsApp |
@@ -59,8 +59,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 Semua teks ada di `src/data/`:
 
 - `site.ts` — profil, alamat/kontak, visi-misi, tim, sektor, proses layanan.
-- `projects.ts` — proyek unggulan (`projects`), daftar arsip (`listOnly`, dari *Project List* company profile), dan area peta/filter lokasi (`areas`).
-- `indonesiaMap.ts` — garis pantai peta proyek (dibuat oleh `scripts/build-map.mjs` dari Natural Earth, public domain).
+- `projects.ts` — proyek unggulan (`projects`), daftar arsip (`listOnly`, dari *Project List* company profile), dan area untuk filter Lokasi (`areas`).
 - `news.ts` — berita & event.
 
 Menambah/mengganti gambar:
@@ -93,9 +92,9 @@ Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src
 src/
   App.tsx              router, layout, footer CTA per halaman
   lib/                 gsap, smooth scroll, transisi halaman (curtain), helper animasi
-  components/          Header, Menu, Footer, Preloader, HomeHero, WorkMosaic, ProjectMap (peta 3D), SectorShowcase, InquiryForm, StudioMap, …
+  components/          Header, Menu, Footer, Preloader, HomeHero, WorkMosaic, SectorShowcase, InquiryForm, StudioMap, …
   pages/               Home, About, Services, Work, ProjectDetail, News, NewsDetail, Contact
-scripts/               optimize-image.mjs (npm run img), build-map.mjs (peta)
+scripts/               optimize-image.mjs (npm run img)
   data/                konten + images.json (manifest gambar)
 public/
   img/                 gambar WebP hasil optimasi
