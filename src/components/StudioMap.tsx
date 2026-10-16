@@ -20,7 +20,7 @@ export function StudioMap() {
           referrerPolicy="no-referrer-when-downgrade"
         />
       ) : (
-        <svg viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" className="studio-map__svg" role="img" aria-label="Peta skematis lokasi studio Kadanglabo di Jl. Kaliurang KM 9, Sleman">
+        <svg viewBox="186 0 828 620" preserveAspectRatio="xMidYMid slice" className="studio-map__svg" role="img" aria-label="Peta skematis lokasi studio Kadanglabo di Jl. Kaliurang KM 9, Sleman">
           <defs>
             <pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse">
               <circle cx="2" cy="2" r="1.3" fill="currentColor" opacity="0.35" />
@@ -46,7 +46,7 @@ export function StudioMap() {
           </g>
           {/* Ring Road Utara */}
           <path d="M0 560 C300 548 600 575 900 556 S1100 548 1200 552" className="studio-map__road studio-map__road--ring" />
-          <text x="70" y="540" className="studio-map__label">RING ROAD UTARA</text>
+          <text x="206" y="536" className="studio-map__label studio-map__opt">RING ROAD UTARA</text>
           {/* Jl. Kaliurang (south → north) */}
           <path id="kaliurang" d="M560 620 C575 470 590 360 600 250 S628 70 640 0" className="studio-map__road" />
           <text className="studio-map__label" dy="-16">
@@ -58,15 +58,15 @@ export function StudioMap() {
           ].map((m) => (
             <g key={m.t}>
               <circle cx={m.y === 470 ? 576 : 619} cy={m.y} r="6" className="studio-map__km" />
-              <text x={(m.y === 470 ? 576 : 619) + 16} y={m.y + 5} className="studio-map__small">{m.t}</text>
+              <text x={(m.y === 470 ? 576 : 619) + 16} y={m.y + 5} className="studio-map__small studio-map__opt">{m.t}</text>
             </g>
           ))}
-          <text x="890" y="455" className="studio-map__area">SINDUHARJO</text>
-          <text x="890" y="482" className="studio-map__small">NGAGLIK · SLEMAN</text>
-          <text x="650" y="40" className="studio-map__small">↑ KALIURANG / MERAPI</text>
-          <text x="595" y="605" className="studio-map__small">↓ UGM / KOTA</text>
+          <text x="728" y="472" className="studio-map__area">SINDUHARJO</text>
+          <text x="728" y="500" className="studio-map__small studio-map__opt">NGAGLIK · SLEMAN</text>
+          <text x="652" y="44" className="studio-map__small studio-map__opt">↑ KALIURANG / MERAPI</text>
+          <text x="590" y="604" className="studio-map__small studio-map__opt">↓ UGM / KOTA</text>
           {/* compass */}
-          <g transform="translate(1120 70)">
+          <g transform="translate(970 66)">
             <circle r="26" className="studio-map__compass" />
             <path d="M0 -18 L7 6 L0 1 L-7 6Z" className="studio-map__needle" />
             <text y="44" textAnchor="middle" className="studio-map__small">U</text>
@@ -80,10 +80,10 @@ export function StudioMap() {
                 <path key={d.slice(0, 12)} d={d} fill="#EC6434" />
               ))}
             </svg>
-            <text x="64" y="-6" className="studio-map__pin-label">KADANGLABO STUDIO</text>
-            <text x="64" y="18" className="studio-map__small">KM 9 No.11 · Ruko 3</text>
+            <text x="62" y="-2" className="studio-map__pin-label">KADANGLABO</text>
+            <text x="62" y="24" className="studio-map__small studio-map__opt">STUDIO · KM 9 No.11 · RUKO 3</text>
           </g>
-          <text x="1180" y="606" textAnchor="end" className="studio-map__note">Peta skematis, bukan skala</text>
+          <text x="206" y="604" className="studio-map__note studio-map__opt">Peta skematis, bukan skala</text>
         </svg>
       )}
       {!live && (

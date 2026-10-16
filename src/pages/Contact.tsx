@@ -19,49 +19,55 @@ export default function Contact() {
           sub="Kami bangga dapat bekerja sama dengan klien dari berbagai kota di Indonesia dengan lokasi kami yang berada di Daerah Istimewa Yogyakarta. Silakan mampir jika Anda sedang berada di sekitar sini atau hubungi kami; kami sangat menantikan kabar dari Anda."
         />
 
-        <section className="contact-cols wrap" data-theme="light">
-          <div className="contact-col" data-fade>
+        {/* same two-column grid as "Start a project" below: visual on the left, field-style details on the right */}
+        <section className="find wrap" data-theme="light">
+          <div className="find__media">
             <SectionLabel>How to find us</SectionLabel>
-            <address className="contact-big not-italic">
-              Kadanglabo Studio
-              <br />
-              {company.address.map((l) => (
-                <span key={l} className="block">
-                  {l}
-                </span>
-              ))}
-            </address>
-            <a href={mapsLink} target="_blank" rel="noreferrer" className="link-line t-label mt-5 inline-block">
-              Petunjuk arah ↗
-            </a>
+            <div className="find__map" data-fade>
+              <StudioMap />
+            </div>
           </div>
-          <div className="contact-col" data-fade data-delay="0.1">
-            <SectionLabel>How to talk to us</SectionLabel>
-            <p className="contact-big">
-              <span className="block opacity-60 text-[0.55em] font-medium uppercase tracking-wide">Telepon / WhatsApp</span>
-              <a href={`tel:+${company.phoneIntl}`} className="link-line">
-                {company.phone}
+          <div className="find__info">
+            <dl className="find__list" data-stagger="0.08">
+              <div className="find__item find__item--wide">
+                <dt className="field__label">Alamat studio</dt>
+                <dd>
+                  <strong>Kadanglabo Studio</strong>
+                  <br />
+                  {company.address.join(', ')}
+                </dd>
+              </div>
+              <div className="find__item">
+                <dt className="field__label">Telepon / WhatsApp</dt>
+                <dd>
+                  <a href={`tel:+${company.phoneIntl}`} className="link-line">
+                    {company.phone}
+                  </a>
+                </dd>
+              </div>
+              <div className="find__item">
+                <dt className="field__label">Email</dt>
+                <dd>
+                  <a href={`mailto:${company.email}`} className="link-line">
+                    {company.email}
+                  </a>
+                </dd>
+              </div>
+            </dl>
+            <div className="find__actions" data-fade>
+              <a
+                href={waLink('Halo Kadanglabo, saya ingin konsultasi proyek.')}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-pill btn-pill--orange"
+              >
+                Chat WhatsApp
               </a>
-            </p>
-            <p className="contact-big">
-              <span className="block opacity-60 text-[0.55em] font-medium uppercase tracking-wide">Email</span>
-              <a href={`mailto:${company.email}`} className="link-line break-all">
-                {company.email}
+              <a href={mapsLink} target="_blank" rel="noreferrer" className="btn-pill btn-pill--ghost">
+                Petunjuk arah ↗
               </a>
-            </p>
-            <a
-              href={waLink('Halo Kadanglabo, saya ingin konsultasi proyek.')}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-pill btn-pill--orange mt-6"
-            >
-              Chat WhatsApp
-            </a>
+            </div>
           </div>
-        </section>
-
-        <section className="wrap contact-map" data-theme="light" data-fade>
-          <StudioMap />
         </section>
 
         <section id="start" className="start wrap" data-theme="light">

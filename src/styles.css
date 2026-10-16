@@ -3425,26 +3425,78 @@
   color: var(--color-navy);
 }
 
-.contact-cols {
+/* "How to find us": same grid as .start below; map left, field-style details right */
+.find {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 32px;
-  padding-top: 26px;
-  padding-bottom: clamp(48px, 6vw, 84px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: clamp(32px, 6vw, 96px);
+  padding-block: 26px clamp(56px, 7vw, 110px);
   border-top: 1px solid var(--line);
 }
 
-.contact-big {
-  margin-top: 20px;
-  color: var(--color-navy);
-  font-size: clamp(1.4rem, 2.4vw, 2.35rem);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+.find__media {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: 18px;
 }
 
-.contact-map {
-  padding-bottom: var(--sec);
+.find__map {
+  width: 100%;
+}
+
+.find__info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.find__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px 24px;
+}
+
+.find__item {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.find__item--wide {
+  grid-column: 1 / -1;
+}
+
+.find__item dd {
+  padding: 8px 0 12px;
+  border-bottom: 1px solid var(--line-strong);
+  font-size: clamp(1.05rem, 1.35vw, 1.3rem);
+  font-weight: 500;
+  line-height: 1.38;
+  overflow-wrap: break-word;
+}
+
+.find__item a {
+  white-space: nowrap; /* never split a phone number or an email address */
+}
+
+.find__item dd strong {
+  font-weight: 700;
+}
+
+.find__item a:hover {
+  color: var(--color-orange);
+}
+
+.find__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.contact-page .start {
+  padding-top: clamp(56px, 7vw, 110px);
 }
 
 .studio-map {
@@ -3452,6 +3504,7 @@
   overflow: hidden;
   color: var(--color-navy);
   background: var(--color-sand);
+  container-type: inline-size; /* label sizes follow the map's own width (see @container below) */
 }
 
 .studio-map__svg,
@@ -3459,7 +3512,7 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1200 / 620;
+  aspect-ratio: 4 / 3;
   border: 0;
 }
 
@@ -3488,21 +3541,21 @@
 
 .studio-map__label {
   fill: currentColor;
-  font-size: 13px;
+  font-size: 17px;
   font-weight: 750;
   letter-spacing: 0.14em;
 }
 
 .studio-map__small {
   fill: currentColor;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 650;
   letter-spacing: 0.12em;
 }
 
 .studio-map__area {
   fill: currentColor;
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 800;
   letter-spacing: 0.1em;
   opacity: 0.5;
@@ -3530,24 +3583,24 @@
 
 .studio-map__pin-label {
   fill: currentColor;
-  font-size: 18px;
+  font-size: 30px;
   font-weight: 800;
   letter-spacing: 0.06em;
 }
 
 .studio-map__note {
   fill: currentColor;
-  font-size: 11px;
+  font-size: 13px;
   opacity: 0.6;
 }
 
 .studio-map__btn {
   position: absolute;
-  top: 26%;
-  left: 30%;
+  top: 12px;
+  left: 12px;
   display: grid;
   place-items: center;
-  width: clamp(72px, 8vw, 104px);
+  width: clamp(60px, 5vw, 80px);
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--color-navy);
@@ -3569,13 +3622,47 @@
 
 .studio-map__actions {
   position: absolute;
-  right: 14px;
-  bottom: 14px;
+  right: 12px;
+  bottom: 12px;
+}
+
+/* small maps (phones, the 2-column layout on tablets): fewer, larger labels */
+@container (max-width: 560px) {
+  .studio-map__opt {
+    display: none;
+  }
+
+  .studio-map__label {
+    font-size: 24px;
+  }
+
+  .studio-map__area {
+    font-size: 30px;
+  }
+
+  .studio-map__pin-label {
+    font-size: 36px;
+  }
+
+  .studio-map__btn {
+    width: 56px;
+    font-size: 9.5px;
+  }
+
+  .studio-map__actions .btn-pill {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 10.5px;
+  }
 }
 
 /* ------------------------------------------------------------ responsive */
 
 @media (max-width: 899px) {
+  .find__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .work-group,
   .work-map__head,
   .pmap,
@@ -3650,16 +3737,6 @@
     font-size: 14vw;
   }
 
-  .studio-map__btn {
-    top: 14px;
-    left: 14px;
-  }
-
-  .studio-map__actions .btn-pill {
-    height: 32px;
-    padding: 0 12px;
-    font-size: 10.5px;
-  }
 
 
   .spirit,
@@ -3673,7 +3750,7 @@
   .philo-dark__grid,
   .cta-block,
   .start,
-  .contact-cols,
+  .find,
   .p-story,
   .g-text,
   .news-card--large {
@@ -3803,10 +3880,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .studio-map__svg,
-  .studio-map__frame {
-    aspect-ratio: 4 / 3;
-  }
 }
 
 /* ------------------------------------------------------- reduced motion */
