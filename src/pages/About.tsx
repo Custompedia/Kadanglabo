@@ -17,6 +17,19 @@ export default function About() {
     const st = { trigger: '.vision', start: 'top bottom', end: 'top 25%', scrub: true }
     gsap.fromTo('.vision__frame', { clipPath: 'inset(0% 6% 0% 6%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: st })
     gsap.fromTo('.vision__img', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: st })
+
+    // Mission / goals: each card rises in as an orange block that then lifts away to show the card,
+    // the number slides up and the text follows; one card after another
+    gsap.utils.toArray<HTMLElement>('.vmg__cards').forEach((list) => {
+      const tl = gsap.timeline({ scrollTrigger: { trigger: list, start: 'top 85%', once: true } })
+      list.querySelectorAll<HTMLElement>('.vmg-card').forEach((card, i) => {
+        const at = i * 0.18
+        tl.fromTo(card, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.9, ease: 'expo.inOut' }, at)
+          .fromTo(card.querySelector('.vmg-card__wipe'), { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.9, ease: 'expo.inOut' }, at + 0.6)
+          .from(card.querySelector('.vmg-card__num > span'), { yPercent: 110, duration: 0.9, ease: 'power4.out' }, at + 0.95)
+          .from(card.querySelector('.vmg-card__text'), { y: 26, autoAlpha: 0, duration: 0.9, ease: 'power3.out' }, at + 1)
+      })
+    })
   })
 
   return (
@@ -127,20 +140,28 @@ export default function About() {
           </div>
         </section>
 
-        {/* Mission / goals */}
+        {/* Mission / goals: title over a hairline, cards stepping down from left to right */}
         <section className="vmg wrap" data-theme="light">
           {[
-            { label: 'Mission', items: mission },
-            { label: 'Our goals', items: goals },
+            { label: 'Mission', unit: 'misi', items: mission },
+            { label: 'Our goals', unit: 'tujuan', items: goals },
           ].map((g) => (
             <div key={g.label} className="vmg__row">
-              <h3 className="t-h1 vmg__title" data-split>
-                {g.label}
-              </h3>
-              <ol className="vmg__cards" data-stagger="0.1" style={{ '--n': g.items.length } as CSSProperties}>
+              <div className="vmg__head">
+                <h3 className="t-h1" data-split>
+                  {g.label}
+                </h3>
+                <span className="t-serif vmg__count" data-fade>
+                  {g.items.length} {g.unit}
+                </span>
+              </div>
+              <ol className="vmg__cards" style={{ '--n': g.items.length } as CSSProperties}>
                 {g.items.map((t, i) => (
                   <li key={t} className="vmg-card">
-                    <span className="vmg-card__num">0{i + 1}</span>
+                    <span className="vmg-card__wipe" aria-hidden="true" />
+                    <span className="vmg-card__num">
+                      <span>0{i + 1}</span>
+                    </span>
                     <p className="vmg-card__text">{t}</p>
                   </li>
                 ))}

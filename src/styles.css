@@ -1867,29 +1867,47 @@
   text-wrap: balance;
 }
 
+/* Mission / goals: title over a hairline, cards step down from left to right (entrance in About.tsx) */
 .vmg {
   display: grid;
-  gap: clamp(56px, 7vw, 104px);
+  gap: clamp(72px, 8vw, 120px);
   padding-block: var(--sec);
 }
 
-.vmg__row {
-  display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(0, 2.2fr);
-  gap: clamp(24px, 5vw, 96px);
+.vmg__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line-strong);
 }
 
-.vmg__title {
-  margin-top: -0.08em;
+.vmg__count {
+  color: var(--color-mute);
+  font-size: clamp(17px, 1.4vw, 21px);
+  white-space: nowrap;
 }
 
 .vmg__cards {
+  --step: clamp(28px, 4.5vw, 72px);
   display: grid;
   grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  align-items: start;
   gap: 12px;
+  margin-top: 28px;
+}
+
+.vmg-card:nth-child(2) {
+  margin-top: var(--step);
+}
+
+.vmg-card:nth-child(3) {
+  margin-top: calc(2 * var(--step));
 }
 
 .vmg-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1902,15 +1920,31 @@
     color 0.5s var(--ease-expo);
 }
 
+/* orange layer for the entrance; stays clipped away unless the animation runs */
+.vmg-card__wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--color-orange);
+  clip-path: inset(0% 0% 100% 0%);
+  pointer-events: none;
+}
+
 .vmg-card__num {
+  display: block;
+  overflow: hidden;
   color: var(--color-orange);
   font-weight: 800;
   font-family: var(--font-display);
   font-stretch: 90%;
   font-size: clamp(2.6rem, 4.2vw, 4.4rem);
-  line-height: 0.85;
+  line-height: 0.9;
   letter-spacing: -0.03em;
   transition: color 0.5s var(--ease-expo);
+}
+
+.vmg-card__num > span {
+  display: inline-block;
 }
 
 .vmg-card__text {
@@ -1931,13 +1965,6 @@
   color: #fff;
 }
 
-@media (max-width: 899px) {
-  .vmg__row {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
-  }
-}
-
 @media (max-width: 639px) {
   .params__grid,
   .vmg__cards {
@@ -1947,6 +1974,10 @@
   .vmg-card {
     min-height: 0;
     gap: 28px;
+  }
+
+  .vmg-card:nth-child(n) {
+    margin-top: 0;
   }
 }
 
