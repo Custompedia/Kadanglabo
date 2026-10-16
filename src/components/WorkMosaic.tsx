@@ -202,7 +202,8 @@ export function WorkMosaic() {
           </p>
           <h2 className="wm__titles">
             {groups.map((g) => (
-              <span key={g.key} className="wm__title" aria-label={g.title}>
+              <span key={g.key} className="wm__title">
+                <span className="sr-only">{g.title}</span>
                 {g.title.split('').map((c, i) => (
                   <span key={i} className="wm__char" aria-hidden="true">
                     {c}

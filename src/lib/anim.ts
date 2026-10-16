@@ -21,6 +21,7 @@ export function attachReveals(root: HTMLElement) {
       type: 'lines',
       mask: 'lines',
       linesClass: 'split-line',
+      aria: 'none', // line / word wrappers read naturally; no aria-label on paragraphs (not allowed there)
       autoSplit: true,
       onSplit: (self) =>
         gsap.from(self.lines, {
@@ -83,6 +84,7 @@ export function attachReveals(root: HTMLElement) {
   root.querySelectorAll<HTMLElement>('[data-scrub]').forEach((el) => {
     SplitText.create(el, {
       type: 'words',
+      aria: 'none',
       autoSplit: true,
       onSplit: (self) =>
         gsap.fromTo(
