@@ -50,7 +50,7 @@ export function Footer({ cta }: { cta: FooterCtaProps }) {
           <img src="/brand/kadanglabo-logo.svg" alt="Kadanglabo" width={1400} height={324} className="footer__logo" />
           <p className="t-serif footer__motto">A Collaborative Architectural Solution.</p>
         </div>
-        <div>
+        <div className="footer__studio">
           <p className="t-label footer__label">Studio</p>
           <address className="not-italic footer__text">
             {company.address.map((l) => (

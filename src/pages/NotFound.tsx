@@ -10,7 +10,7 @@ export default function NotFound() {
   return (
     <Page title="404">
       <div ref={root}>
-        <PageHero title="404" sub="Halaman yang Anda cari belum terbangun, atau sudah pindah alamat.">
+        <PageHero className="page-hero--full" title="404" sub="Halaman yang Anda cari belum terbangun, atau sudah pindah alamat.">
           <TLink to="/" className="btn-pill btn-pill--dark btn-pill--lg mt-10" data-fade="now" data-delay="0.6">
             Kembali ke beranda
           </TLink>

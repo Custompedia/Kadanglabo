@@ -176,7 +176,7 @@ function ProjectView({ p }: { p: Project }) {
         {p.story && (
           <section className="p-story wrap" data-theme="light">
             <div className="p-story__list">
-              <SectionLabel className="pill--wrap">{p.story.map((s) => storyLabel[s.key]).join(' → ')}</SectionLabel>
+              <SectionLabel className="pill--wrap">{p.story.map((s) => storyLabel[s.key]).join(' → ')}</SectionLabel>
               <div className="acc-group">
                 {p.story.map((s, i) => (
                   <div key={s.key} className="acc" data-open={open === i ? '' : undefined}>

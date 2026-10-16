@@ -23,7 +23,8 @@
 
 @layer base {
   :root {
-    --pad: clamp(16px, 2.5vw, 48px); /* page gutter: content never sits against the screen edge */
+    /* page gutter: content never sits against the screen edge, nor under a phone's notch in landscape */
+    --pad: max(clamp(16px, 2.5vw, 48px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
     /* past 1920px the content keeps the 1920 layout, centred; backgrounds and full-bleed photos still fill the screen */
     --gutter: max(var(--pad), calc((100vw - 1920px) / 2 + var(--pad)));
     --header-h: 52px;
@@ -35,6 +36,7 @@
   html {
     scrollbar-width: none; /* scrollbar hidden — scrolling still works (Lenis / wheel / touch) */
     -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent; /* no grey box flashing over links and cards on touch */
     background: var(--color-paper);
   }
 
@@ -164,12 +166,17 @@
     opacity: 1;
   }
 
+  /* a long label that may wrap (the project story chain): a rounded tag with balanced lines once it
+     breaks; on one line the radius still makes a full capsule */
   .pill--wrap {
     height: auto;
     min-height: 22px;
     padding-block: 5px;
+    padding-inline: 12px;
+    border-radius: 12px;
     line-height: 1.35;
     white-space: normal;
+    text-wrap: balance;
   }
 
   /* tag on a photo: a solid tint instead of a backdrop blur, so card grids stay cheap to scroll */
@@ -186,10 +193,12 @@
       color 0.3s;
   }
 
-  .pill--link:hover {
-    background: var(--color-orange-deep);
-    border-color: var(--color-orange-deep);
-    color: #fff;
+  @media (hover: hover) {
+    .pill--link:hover {
+      background: var(--color-orange-deep);
+      border-color: var(--color-orange-deep);
+      color: #fff;
+    }
   }
 
   .btn-pill {
@@ -221,17 +230,19 @@
     border-color: currentColor;
   }
 
-  .btn-pill--ghost:hover {
-    background: var(--color-ink);
-    border-color: var(--color-ink);
-    color: var(--color-paper);
-  }
+  @media (hover: hover) {
+    .btn-pill--ghost:hover {
+      background: var(--color-ink);
+      border-color: var(--color-ink);
+      color: var(--color-paper);
+    }
 
-  [data-theme='dark'] .btn-pill--ghost:hover,
-  .site-header[data-tone='dark'] .btn-pill--ghost:hover {
-    background: #fff;
-    border-color: #fff;
-    color: var(--color-ink);
+    [data-theme='dark'] .btn-pill--ghost:hover,
+    .site-header[data-tone='dark'] .btn-pill--ghost:hover {
+      background: #fff;
+      border-color: #fff;
+      color: var(--color-ink);
+    }
   }
 
   .btn-pill--dark {
@@ -239,10 +250,12 @@
     color: var(--color-paper);
   }
 
-  .btn-pill--dark:hover,
-  .btn-pill--navy:hover {
-    background: var(--color-orange-deep);
-    color: #fff;
+  @media (hover: hover) {
+    .btn-pill--dark:hover,
+    .btn-pill--navy:hover {
+      background: var(--color-orange-deep);
+      color: #fff;
+    }
   }
 
   .btn-pill--orange {
@@ -250,8 +263,10 @@
     color: #fff;
   }
 
-  .btn-pill--orange:hover {
-    background: var(--color-ink);
+  @media (hover: hover) {
+    .btn-pill--orange:hover {
+      background: var(--color-ink);
+    }
   }
 
   .btn-pill--navy {
@@ -268,9 +283,14 @@
     transition: background-size 0.6s var(--ease-expo);
   }
 
-  .link-line:hover,
   .link-line:focus-visible {
     background-size: 100% 1px;
+  }
+
+  @media (hover: hover) {
+    .link-line:hover {
+      background-size: 100% 1px;
+    }
   }
 
   .chip-btn {
@@ -289,8 +309,10 @@
       border-color 0.3s;
   }
 
-  .chip-btn:hover {
-    border-color: var(--color-ink);
+  @media (hover: hover) {
+    .chip-btn:hover {
+      border-color: var(--color-ink);
+    }
   }
 
   .chip-btn[aria-pressed='true'] {
@@ -316,6 +338,14 @@
     font-weight: 600;
     appearance: none;
     cursor: pointer;
+  }
+
+  /* iOS zooms the page into any form control under 16px when it is tapped; a roomier touch target too */
+  @media (pointer: coarse) {
+    .select select {
+      height: 40px;
+      font-size: 16px;
+    }
   }
 
   .skip-link {
@@ -566,7 +596,7 @@
   display: flex;
   flex-direction: column;
   min-height: calc(100svh - var(--header-h)); /* the links fill the whole panel */
-  padding-bottom: 24px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); /* clear of the iPhone home bar */
 }
 
 .menu__link {
@@ -897,8 +927,10 @@
   transition: color 0.4s;
 }
 
-.footer-cta:hover .footer-cta__text {
-  color: var(--color-orange-deep);
+@media (hover: hover) {
+  .footer-cta:hover .footer-cta__text {
+    color: var(--color-orange-deep);
+  }
 }
 
 .footer-cta__thumb {
@@ -932,8 +964,10 @@
   transition: transform 0.7s var(--ease-expo);
 }
 
-.footer-cta:hover .footer-cta__arrow {
-  transform: translateX(0.1em);
+@media (hover: hover) {
+  .footer-cta:hover .footer-cta__arrow {
+    transform: translateX(0.1em);
+  }
 }
 
 /* --------------------------------------------------------------- marquee */
@@ -1114,8 +1148,10 @@
   transition: transform 0.6s var(--ease-expo);
 }
 
-.hero-capsule:hover .hero-capsule__body {
-  transform: scale(1.05);
+@media (hover: hover) {
+  .hero-capsule:hover .hero-capsule__body {
+    transform: scale(1.05);
+  }
 }
 
 .hero-capsule__set {
@@ -1193,8 +1229,10 @@
   transition: transform 0.5s var(--ease-expo);
 }
 
-.hero-scroll:hover .hero-scroll__arrow {
-  transform: translateY(4px);
+@media (hover: hover) {
+  .hero-scroll:hover .hero-scroll__arrow {
+    transform: translateY(4px);
+  }
 }
 
 /* ------------------------------------------------------- home sections */
@@ -1261,8 +1299,10 @@
   transition: color 0.3s;
 }
 
-.spirit__link:hover {
-  color: var(--color-orange-text);
+@media (hover: hover) {
+  .spirit__link:hover {
+    color: var(--color-orange-text);
+  }
 }
 
 .reel {
@@ -1329,10 +1369,12 @@
     color 0.3s;
 }
 
-.reel__btn:hover {
-  background: var(--color-orange-deep);
-  color: #fff;
-  transform: scale(1.06);
+@media (hover: hover) {
+  .reel__btn:hover {
+    background: var(--color-orange-deep);
+    color: #fff;
+    transform: scale(1.06);
+  }
 }
 
 .reel__btn svg {
@@ -1507,8 +1549,10 @@
   transition: transform 1.2s var(--ease-expo);
 }
 
-.wm__tile:hover img {
-  transform: scale(1.06);
+@media (hover: hover) {
+  .wm__tile:hover img {
+    transform: scale(1.06);
+  }
 }
 
 .wm__ui {
@@ -1590,8 +1634,10 @@
   transition: color 0.3s;
 }
 
-.wm__explore:hover {
-  color: var(--color-orange-text);
+@media (hover: hover) {
+  .wm__explore:hover {
+    color: var(--color-orange-text);
+  }
 }
 
 .wm__hint {
@@ -1712,8 +1758,10 @@
   transition: transform 1.3s var(--ease-expo);
 }
 
-.news-card:hover .news-card__img {
-  transform: scale(1.05);
+@media (hover: hover) {
+  .news-card:hover .news-card__img {
+    transform: scale(1.05);
+  }
 }
 
 .news-card__tags {
@@ -1792,13 +1840,15 @@
   transition: transform 0.5s var(--ease-expo);
 }
 
-.news-card:hover .news-card__title,
-.news-card:hover .news-card__more {
-  color: var(--color-orange-text);
-}
+@media (hover: hover) {
+  .news-card:hover .news-card__title,
+  .news-card:hover .news-card__more {
+    color: var(--color-orange-text);
+  }
 
-.news-card:hover .news-card__arrow {
-  transform: translateX(4px);
+  .news-card:hover .news-card__arrow {
+    transform: translateX(4px);
+  }
 }
 
 /* ------------------------------------------------------------ page hero */
@@ -1816,6 +1866,12 @@
   margin-top: 26px;
   font-size: clamp(1.15rem, 1.6vw, 1.5rem);
   line-height: 1.28;
+}
+
+/* a page that is only its hero (404): fill the screen, content centred, footer below the fold */
+.page-hero--full {
+  min-height: 100svh;
+  align-content: center;
 }
 
 /* ---------------------------------------------------------------- studio */
@@ -2084,13 +2140,15 @@
   text-wrap: pretty;
 }
 
-.vmg-card:hover {
-  background: var(--color-orange-deep);
-  color: #fff;
-}
+@media (hover: hover) {
+  .vmg-card:hover {
+    background: var(--color-orange-deep);
+    color: #fff;
+  }
 
-.vmg-card:hover .vmg-card__num {
-  color: #fff;
+  .vmg-card:hover .vmg-card__num {
+    color: #fff;
+  }
 }
 
 @media (max-width: 639px) {
@@ -2168,9 +2226,11 @@
     filter 0.6s;
 }
 
-.member:hover .member__photo img {
-  filter: grayscale(0);
-  transform: scale(1.04);
+@media (hover: hover) {
+  .member:hover .member__photo img {
+    filter: grayscale(0);
+    transform: scale(1.04);
+  }
 }
 
 .member figcaption {
@@ -2236,6 +2296,13 @@
 
 .cta-block .t-display {
   font-size: clamp(2rem, 7.2vw, 8.5rem);
+}
+
+/* side by side only where "BERKOLABORASI." fits next to the text (from ~910px); narrower, the line masks would cut it */
+@media (max-width: 1023px) {
+  .cta-block {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* -------------------------------------------------------------- services */
@@ -2513,21 +2580,23 @@
   transition: border-color 0.5s var(--ease-expo);
 }
 
-.step__card:hover {
-  background: var(--color-orange-deep);
-  color: #fff;
-}
+@media (hover: hover) {
+  .step__card:hover {
+    background: var(--color-orange-deep);
+    color: #fff;
+  }
 
-.step__card:hover .step__num {
-  color: #fff;
-}
+  .step__card:hover .step__num {
+    color: #fff;
+  }
 
-.step__card:hover .step__lead {
-  opacity: 1;
-}
+  .step__card:hover .step__lead {
+    opacity: 1;
+  }
 
-.step__card:hover .step__points li {
-  border-color: rgb(255 255 255 / 0.35);
+  .step__card:hover .step__points li {
+    border-color: rgb(255 255 255 / 0.35);
+  }
 }
 
 .process__progress {
@@ -2957,8 +3026,10 @@
   transition: transform 1.3s var(--ease-expo);
 }
 
-.project-card:hover .project-card__img {
-  transform: scale(1.06);
+@media (hover: hover) {
+  .project-card:hover .project-card__img {
+    transform: scale(1.06);
+  }
 }
 
 .project-card__tags {
@@ -2982,8 +3053,10 @@
   transition: color 0.3s;
 }
 
-.project-card:hover .project-card__title {
-  color: var(--color-orange-text);
+@media (hover: hover) {
+  .project-card:hover .project-card__title {
+    color: var(--color-orange-text);
+  }
 }
 
 .project-card__line {
@@ -3032,14 +3105,16 @@
   letter-spacing: -0.01em;
 }
 
-.index-row--link:hover {
-  padding-inline: 12px;
-  background: var(--color-ink);
-  color: var(--color-paper);
-}
+@media (hover: hover) {
+  .index-row--link:hover {
+    padding-inline: 12px;
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
 
-.index-row--link:hover .index-row__no {
-  color: var(--color-orange);
+  .index-row--link:hover .index-row__no {
+    color: var(--color-orange);
+  }
 }
 
 .index-preview {
@@ -3139,7 +3214,7 @@
 
 .acc__head {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 22px;
+  grid-template-columns: 44px minmax(0, 1fr) 40px; /* icon sits at the end: a long question never touches it */
   align-items: center;
   width: 100%;
   padding: 18px 0;
@@ -3150,8 +3225,10 @@
   transition: color 0.3s;
 }
 
-.acc__head:hover {
-  color: var(--color-orange-text);
+@media (hover: hover) {
+  .acc__head:hover {
+    color: var(--color-orange-text);
+  }
 }
 
 .acc__num {
@@ -3162,6 +3239,7 @@
 
 .acc__icon {
   position: relative;
+  justify-self: end;
   width: 18px;
   height: 18px;
 }
@@ -3448,8 +3526,10 @@
   transition: background 0.3s;
 }
 
-button.news-search__btn:hover {
-  background: var(--color-orange-deep);
+@media (hover: hover) {
+  button.news-search__btn:hover {
+    background: var(--color-orange-deep);
+  }
 }
 
 .news-search__icon,
@@ -3547,8 +3627,10 @@ button.news-search__btn:hover {
   transition: color 0.3s;
 }
 
-.news-latest__link:hover .news-latest__title {
-  color: var(--color-orange-text);
+@media (hover: hover) {
+  .news-latest__link:hover .news-latest__title {
+    color: var(--color-orange-text);
+  }
 }
 
 .news-latest__date {
@@ -3599,8 +3681,10 @@ button.news-search__btn:hover {
   fill: rgb(255 255 255 / 0.28);
 }
 
-.news-cta:hover .news-cta__mark {
-  transform: rotate(-8deg) scale(1.04);
+@media (hover: hover) {
+  .news-cta:hover .news-cta__mark {
+    transform: rotate(-8deg) scale(1.04);
+  }
 }
 
 .news-cta__logo {
@@ -3637,9 +3721,11 @@ button.news-search__btn:hover {
   color: var(--color-ink);
 }
 
-.news-cta__btn:hover {
-  background: var(--color-ink);
-  color: #fff;
+@media (hover: hover) {
+  .news-cta__btn:hover {
+    background: var(--color-ink);
+    color: #fff;
+  }
 }
 
 .news-cta__btn--ghost {
@@ -3648,10 +3734,12 @@ button.news-search__btn:hover {
   color: #fff;
 }
 
-.news-cta__btn--ghost:hover {
-  border-color: #fff;
-  background: #fff;
-  color: var(--color-ink);
+@media (hover: hover) {
+  .news-cta__btn--ghost:hover {
+    border-color: #fff;
+    background: #fff;
+    color: var(--color-ink);
+  }
 }
 
 @media (max-width: 1023px) {
@@ -3846,8 +3934,10 @@ button.news-search__btn:hover {
   line-height: 1.45;
 }
 
-.locate__list a:hover {
-  color: var(--color-orange-text);
+@media (hover: hover) {
+  .locate__list a:hover {
+    color: var(--color-orange-text);
+  }
 }
 
 .locate__social {
@@ -3868,8 +3958,10 @@ button.news-search__btn:hover {
   transition: background 0.3s;
 }
 
-.locate__social a:hover {
-  background: var(--color-orange-deep);
+@media (hover: hover) {
+  .locate__social a:hover {
+    background: var(--color-orange-deep);
+  }
 }
 
 .locate__social svg {
@@ -4046,7 +4138,6 @@ button.news-search__btn:hover {
   .split,
   .p-intro,
   .nd-body,
-  .cta-block,
   .start,
   .p-story,
   .g-text {
@@ -4098,6 +4189,18 @@ button.news-search__btn:hover {
     position: relative;
   }
 
+  /* the dropdowns become full-width rows: with 16px touch text they no longer sit side by side tidily */
+  .filters__selects {
+    display: grid;
+    justify-items: start;
+    width: 100%;
+  }
+
+  .select,
+  .select select {
+    width: 100%;
+  }
+
   .index-row,
   .index-row:has(> :nth-child(6)) {
     grid-template-columns: 34px minmax(0, 1fr) minmax(0, 0.8fr);
@@ -4128,10 +4231,16 @@ button.news-search__btn:hover {
     position: static;
   }
 
+  /* brand and studio full width, then contact and menu side by side (shorter footer on phones) */
   .footer__grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 40px;
   }
 
+  .footer__brand,
+  .footer__studio {
+    grid-column: 1 / -1;
+  }
 }
 
 /* very small phones (under 360px): long labels such as "A Collaborative Architectural Solution"
@@ -4146,8 +4255,12 @@ button.news-search__btn:hover {
     line-height: 1.35;
     white-space: normal;
   }
-}
 
+  /* no room for contact and menu side by side: one column again */
+  .footer__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 
 /* ------------------------------------------------------- reduced motion */
 

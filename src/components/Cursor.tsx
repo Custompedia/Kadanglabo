@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { gsap, finePointer, reducedMotion } from '../lib/gsap'
+import { gsap, reducedMotion } from '../lib/gsap'
+import { useMediaQuery } from '../lib/media'
 
 /** Small follower dot; grows into a labelled disc over elements with data-cursor="Label". */
 export function Cursor() {
   const dot = useRef<HTMLDivElement>(null)
-  const [enabled] = useState(() => finePointer() && !reducedMotion())
+  // follows the live pointer type: a browser switched to touch / device mode drops the dot at once
+  const enabled = useMediaQuery('(hover: hover) and (pointer: fine)') && !reducedMotion()
   const [label, setLabel] = useState('')
 
   useEffect(() => {
