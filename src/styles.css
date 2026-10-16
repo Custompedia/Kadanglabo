@@ -1305,160 +1305,167 @@
   transition-delay: 0s;
 }
 
-/* ---- (03) Selected projects: full-screen panels that stack on scroll (Saisei reference) ---- */
-.selected {
-  padding-top: var(--sec);
-}
-
-.selected__head {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.45fr);
-  align-items: end;
-  gap: 32px;
-  padding-bottom: clamp(32px, 4vw, 64px);
-}
-
-.selected__title {
-  margin-top: 22px;
-}
-
-.selected__side {
-  max-width: 38ch;
-  padding-bottom: 0.6em;
-}
-
-.selected__foot {
-  display: flex;
-  justify-content: center;
-  padding-block: clamp(48px, 6vw, 88px) 0;
-}
-
-.sw {
+/* ---- (03) Our work: Coeval-style mosaic that drifts up while the category title changes ---- */
+.wm {
+  --cols: 8;
+  --u: calc((100vw - 2 * var(--pad)) / var(--cols));
+  --bh: max(118svh, calc(8 * var(--u)));
   position: relative;
+  height: 350svh; /* ≈ one screen of scrolling per screen of mosaic travel */
+  background: var(--color-paper);
 }
 
-.sw-panel {
+.wm__stage {
   position: sticky;
   top: 0;
   height: 100svh;
   min-height: 560px;
   overflow: hidden;
-  background: var(--color-navy-deep);
-  color: #fff;
 }
 
-.sw-panel__link {
+.wm__pattern {
   position: absolute;
-  inset: 0;
-  display: block;
-  overflow: hidden;
-  transform-origin: 50% 0%;
+  top: 0;
+  right: var(--pad);
+  left: var(--pad);
   will-change: transform;
 }
 
-.sw-panel__media {
+.wm__block {
   position: absolute;
-  inset: 0;
+  top: calc(var(--bi) * var(--bh));
+  right: 0;
+  left: 0;
+  height: var(--bh);
+}
+
+.wm__tile {
+  position: absolute;
+  top: calc(var(--y) * var(--bh) / 16);
+  left: calc(var(--x) * var(--u));
+  width: calc(var(--w) * var(--u));
+  height: calc(var(--h) * var(--u) / 2);
   overflow: hidden;
+  background: var(--color-sand);
 }
 
-.sw-panel__parallax {
-  position: absolute;
-  inset: -8% 0 0;
-  will-change: transform;
-}
-
-.sw-panel__parallax img {
+.wm__tile img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 1.6s var(--ease-expo);
+  transition: transform 1.2s var(--ease-expo);
 }
 
-.sw-panel__link:hover .sw-panel__parallax img {
-  transform: scale(1.04);
+.wm__tile:hover img {
+  transform: scale(1.06);
 }
 
-.sw-panel__shade {
+.wm__ui {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgb(0 0 0 / 0.35) 0%, rgb(0 0 0 / 0) 28%, rgb(0 0 0 / 0) 52%, rgb(0 0 0 / 0.62) 100%);
   pointer-events: none;
 }
 
-.sw-panel__dim {
-  position: absolute;
-  inset: 0;
-  background: #000;
-  opacity: 0;
-  pointer-events: none;
+.wm__ui a {
+  pointer-events: auto;
 }
 
-.sw-panel__top {
+.wm__label {
   position: absolute;
   top: calc(var(--header-h) + 18px);
-  right: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  left: var(--pad);
+  background: var(--color-paper);
 }
 
-.sw-panel__count {
-  font-size: 13px;
-  font-weight: 650;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums;
-}
-
-.sw-panel__bottom {
+.wm__count {
   position: absolute;
-  right: 0;
-  bottom: clamp(20px, 3vw, 44px);
-  left: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.sw-panel__meta {
-  margin-bottom: 14px;
+  top: 26%;
+  left: 50%;
+  translate: -50% 0; /* not transform: GSAP animates the y transform */
   font-family: var(--font-serif);
-  font-size: clamp(1.05rem, 1.5vw, 1.45rem);
-  opacity: 0.9;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-navy);
 }
 
-.sw-panel__title {
-  max-width: 15ch;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-stretch: 90%;
-  font-size: clamp(2.6rem, 7.4vw, 8.4rem);
-  line-height: 0.86;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-}
-
-.sw-panel__mask {
-  display: block;
-  overflow: hidden;
-  padding-top: 0.06em;
-}
-
-.sw-panel__line {
-  display: block;
-}
-
-.sw-panel__cta {
-  flex: none;
-  background: #fff;
+.wm__titles {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1em;
+  margin-top: -0.55em;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: min(18vw, 34svh);
+  line-height: 1;
+  letter-spacing: -0.02em;
   color: var(--color-ink);
+  text-align: center;
 }
 
-.sw-panel__link:hover .sw-panel__cta {
-  background: var(--color-orange);
-  color: #fff;
+.wm__title {
+  position: absolute;
+  inset: 0;
+  white-space: nowrap;
+}
+
+.wm__char {
+  display: inline-block;
+  transform-origin: 50% 62%;
+}
+
+.wm__links {
+  position: absolute;
+  top: calc(50% + min(10.5vw, 20svh));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.wm__explore {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  padding: 4px 2px;
+  border-bottom: 1px solid currentColor;
+  color: var(--color-ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--color-paper);
+  transition: color 0.3s;
+}
+
+.wm__explore:hover {
+  color: var(--color-orange);
+}
+
+.wm__hint {
+  position: absolute;
+  bottom: var(--pad);
+  left: var(--pad);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.wm-foot {
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  padding-block: clamp(56px, 7vw, 104px) 0;
+  text-align: center;
+}
+
+.wm-foot__text {
+  max-width: 34ch;
+  font-size: clamp(1.25rem, 2vw, 1.9rem);
+  line-height: 1.2;
 }
 
 .latest {
@@ -3657,21 +3664,15 @@
     font-size: 13vw;
   }
 
-  .selected__head {
-    grid-template-columns: minmax(0, 1fr);
+  .wm {
+    --cols: 4;
   }
 
-  .sw-panel__bottom {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .sw-panel__title {
-    font-size: 11.5vw;
-  }
-
-  .sw-panel__cta {
-    height: 44px;
+  .wm__tile {
+    top: calc(var(--my) * var(--bh) / 16);
+    left: calc(var(--mx) * var(--u));
+    width: calc(var(--mw) * var(--u));
+    height: calc(var(--mh) * var(--u) / 2);
   }
 
   .pin__name {

@@ -4,7 +4,7 @@ import { Img } from '../components/Img'
 import { SectionLabel } from '../components/Bits'
 import { HomeHero } from '../components/HomeHero'
 import { SectorShowcase } from '../components/SectorShowcase'
-import { SelectedWork } from '../components/SelectedWork'
+import { WorkMosaic } from '../components/WorkMosaic'
 import { NewsCard } from '../components/NewsCard'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
@@ -83,35 +83,18 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ---------- (03) SELECTED PROJECTS — stacked full-screen panels ---------- */}
-        <section className="selected" data-theme="light">
-          <div className="wrap selected__head">
-            <div>
-              <SectionLabel n="03">Our work</SectionLabel>
-              <h2 className="t-display selected__title" data-split>
-                Selected
-                <br />
-                projects
-              </h2>
-            </div>
-            <div className="selected__side" data-fade>
-              <p className="t-body-lg">
-                Commercial, hospitality, dan residential — sebagian karya yang telah kami rancang dan bangun.
-              </p>
-              <TLink to="/work" className="link-line t-label mt-5 inline-block">
-                Lihat semua karya →
-              </TLink>
-            </div>
-          </div>
-          <SelectedWork />
-          <div className="wrap selected__foot">
-            <TLink to="/work#arsip" className="btn-pill btn-pill--dark btn-pill--lg">
-              Lihat arsip {archive.length} proyek <ArrowRight className="h-[0.8em] w-auto" />
-            </TLink>
-          </div>
-        </section>
+        {/* ---------- (03) OUR WORK — Coeval-style mosaic per category ---------- */}
+        <WorkMosaic />
+        <div className="wrap wm-foot" data-theme="light">
+          <p className="t-serif wm-foot__text" data-fade>
+            Commercial, hospitality, dan residential — {archive.length} proyek dalam arsip kami.
+          </p>
+          <TLink to="/work" className="btn-pill btn-pill--dark btn-pill--lg" data-fade>
+            Lihat detail Our Work <ArrowRight className="h-[0.8em] w-auto" />
+          </TLink>
+        </div>
 
-        {/* ---------- (05) LATEST UPDATES ---------- */}
+        {/* ---------- (04) LATEST UPDATES ---------- */}
         <section className="latest wrap" data-theme="light">
           <div className="latest__head">
             <SectionLabel n="04">Latest updates</SectionLabel>
