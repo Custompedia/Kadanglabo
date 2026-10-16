@@ -1990,21 +1990,25 @@
   margin-bottom: 48px;
 }
 
-/* the director leads at 2×2; the other eight sit in two even rows beside him */
+/* the director leads at 2×2; the other eight sit in two even rows beside him.
+   Photo rows and caption rows are shared (subgrid), so the big photo ends exactly
+   where the second row's photos end, while its own caption can stay larger */
 .team__grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 28px 16px;
+  column-gap: 16px;
+  margin-bottom: -28px; /* the last captions' bottom padding */
 }
 
 .member {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
 }
 
 .member--lead {
   grid-column: span 2;
-  grid-row: span 2;
+  grid-row: span 4;
 }
 
 .member__photo {
@@ -2015,9 +2019,12 @@
 }
 
 .member--lead .member__photo {
-  flex: 1;
-  min-height: 0;
+  grid-row: 1 / 4;
   aspect-ratio: auto;
+}
+
+.member--lead figcaption {
+  grid-row: 4;
 }
 
 .member__photo img {
@@ -2040,8 +2047,9 @@
 
 .member figcaption {
   display: grid;
+  align-content: start;
   gap: 2px;
-  margin-top: 12px;
+  padding: 12px 0 28px; /* the space under a caption is the gap to the next row */
 }
 
 .member__name {
@@ -2072,16 +2080,20 @@
 @media (max-width: 639px) {
   .team__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px 10px;
+    column-gap: 10px;
   }
 
   .member--lead {
-    grid-row: auto;
+    grid-row: span 2;
   }
 
   .member--lead .member__photo {
-    flex: none;
+    grid-row: 1;
     aspect-ratio: 4 / 5;
+  }
+
+  .member--lead figcaption {
+    grid-row: 2;
   }
 }
 
