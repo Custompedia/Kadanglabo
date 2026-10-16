@@ -156,3 +156,22 @@ export const process: { title: string; lead: string; points: string[] }[] = [
     points: ['Gambar kerja (DED)', 'Rencana anggaran biaya', 'Pendampingan & pengawasan'],
   },
 ]
+
+/*
+ * Video trailer studio — BELUM ADA di aset klien (Drive & Company Profile dicek 2026-10-16).
+ * Bila tersedia, taruh filenya di public/video/ lalu isi, mis.:
+ *   export const trailer = { src: '/video/kadanglabo-trailer.mp4', poster: 'labarka-teppanyaki' }
+ * Selama null, section "Kadanglabo spirit" di Home memutar showreel dari render proyek di bawah ini.
+ */
+export const trailer: { src: string; poster: ImgKey } | null = null
+
+/** Showreel (Home, kiri section "Kadanglabo spirit") — semua render dari folder Drive klien. */
+export const showreel: { img: ImgKey; slug: string }[] = [
+  { img: 'labarka-teppanyaki', slug: 'la-barka-resort' },
+  { img: 'balecatur-interior', slug: 'bale-catur-villa-resto' },
+  { img: 'klinik-plaza', slug: 'klinik-uii' },
+  { img: 'labarka-exterior', slug: 'la-barka-resort' },
+  { img: 'hmw-facade-day', slug: 'hmw-house' },
+  { img: 'labarka-teppanyaki-interior', slug: 'la-barka-resort' },
+  { img: 'giripeni-aerial', slug: 'bukit-indah-ceria-giripeni' },
+]

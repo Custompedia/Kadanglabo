@@ -1,8 +1,8 @@
 import { useRef } from 'react'
 import { Page } from '../components/Page'
-import { Img } from '../components/Img'
 import { SectionLabel } from '../components/Bits'
 import { HomeHero } from '../components/HomeHero'
+import { ShowReel } from '../components/ShowReel'
 import { SectorShowcase } from '../components/SectorShowcase'
 import { WorkMosaic } from '../components/WorkMosaic'
 import { NewsCard } from '../components/NewsCard'
@@ -36,31 +36,24 @@ export default function Home() {
               ),
             )}
           </p>
+        </section>
 
-          <div className="intro__grid">
-            <div className="intro__text">
-              <p className="intro__ethos" data-fade>
+        {/* ---------- spirit: showreel left, ethos right (layout of shed.design "Shed spirit") ---------- */}
+        <section className="spirit wrap" data-theme="light">
+          <div className="spirit__media">
+            <ShowReel />
+          </div>
+          <div className="spirit__side">
+            <span className="pill" data-fade>
+              Kadanglabo spirit
+            </span>
+            <div className="spirit__bottom">
+              <p className="spirit__text" data-fade>
                 {about.ethos}
               </p>
-              <div className="intro__foot">
-                <ol className="intro__params" data-stagger="0.1">
-                  <li>
-                    <span>01</span>Desain Kontekstual
-                  </li>
-                  <li>
-                    <span>02</span>Efektifitas Workflow
-                  </li>
-                </ol>
-                <TLink to="/about" className="btn-pill btn-pill--dark" data-fade>
-                  Tentang kami <ArrowRight className="h-[0.8em] w-auto" />
-                </TLink>
-              </div>
-            </div>
-            <div className="intro__media" data-reveal>
-              <div className="intro__media-inner" data-parallax="7">
-                <Img id="hmw-facade-day" alt="HMW House — fasad rumah tinggal" sizes="(min-width: 768px) 58vw, 100vw" />
-              </div>
-              <span className="intro__media-tag pill pill--solid">HMW House</span>
+              <TLink to="/about" className="spirit__link" data-fade>
+                Tentang kami
+              </TLink>
             </div>
           </div>
         </section>

@@ -1121,7 +1121,7 @@
 
 .intro {
   padding-top: var(--sec);
-  padding-bottom: calc(var(--sec) * 0.75);
+  padding-bottom: clamp(48px, 6vw, 96px);
 }
 
 .intro__lead {
@@ -1133,87 +1133,159 @@
   color: var(--color-orange);
 }
 
-/* text column (ethos + the two parameters) beside a tall photo; both columns share one height */
-.intro__grid {
+/* About → "Kadanglabo spirit": showreel left, ethos + link right (layout of shed.design "Shed spirit") */
+.spirit {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  align-items: stretch;
-  gap: clamp(24px, 4vw, 72px);
-  margin-top: clamp(56px, 8vw, 120px);
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
+  grid-template-columns: minmax(0, 2.07fr) minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: var(--sec);
 }
 
-.intro__text {
+.spirit__media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+}
+
+.spirit__side {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 40px;
+  gap: 32px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line-strong);
 }
 
-.intro__ethos {
-  max-width: 30ch;
-  font-size: clamp(1.3rem, 2vw, 2.05rem);
-  font-weight: 500;
-  line-height: 1.22;
-  letter-spacing: -0.018em;
-}
-
-.intro__foot {
+.spirit__bottom {
   display: grid;
   justify-items: start;
-  gap: 28px;
+  gap: 22px;
 }
 
-.intro__params {
-  justify-self: stretch;
-  border-top: 1px solid var(--line-strong);
+.spirit__text {
+  max-width: 36ch;
+  font-size: clamp(1.05rem, 1.35vw, 1.32rem);
+  font-weight: 500;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
 }
 
-.intro__params li {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--line-strong);
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-stretch: 90%;
-  font-size: clamp(1.5rem, 2.6vw, 2.6rem);
-  line-height: 1;
-  letter-spacing: -0.02em;
+.spirit__link {
+  font-size: clamp(1rem, 1.25vw, 1.25rem);
+  font-weight: 750;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 7px;
+  transition: color 0.3s;
 }
 
-.intro__params span {
+.spirit__link:hover {
   color: var(--color-orange);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
 }
 
-.intro__media {
-  position: relative;
-  height: min(86vh, 48vw);
+.reel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--color-navy-deep);
+}
+
+.reel__frame {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
 }
 
-.intro__media-inner {
-  height: 116%;
-  margin-top: -8%;
-}
-
-.intro__media-inner img {
+.reel__frame img,
+.reel__video {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.intro__media-tag {
+.reel__frame img {
+  will-change: transform;
+}
+
+.reel__video {
   position: absolute;
-  bottom: 14px;
-  left: 14px;
+  inset: 0;
+}
+
+.reel__shade {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0) 55%, rgb(0 0 0 / 0.32) 100%);
+  pointer-events: none;
+}
+
+.reel__caption {
+  position: absolute;
+  bottom: clamp(12px, 1.4vw, 20px);
+  left: clamp(12px, 1.4vw, 20px);
+  z-index: 6;
+  animation: rise-in 0.7s var(--ease-expo) both;
+}
+
+/* the round white button of the reference (play when there is a trailer, otherwise "open project") */
+.reel__btn {
+  position: absolute;
+  right: clamp(12px, 1.4vw, 20px);
+  bottom: clamp(12px, 1.4vw, 20px);
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: clamp(64px, 8vw, 128px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--color-ink);
+  transition:
+    transform 0.6s var(--ease-expo),
+    background 0.3s,
+    color 0.3s;
+}
+
+.reel__btn:hover {
+  background: var(--color-orange);
+  color: #fff;
+  transform: scale(1.06);
+}
+
+.reel__btn svg {
+  width: 34%;
+  height: auto;
+}
+
+.reel-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  padding: var(--pad);
+  background: rgb(14 18 30 / 0.94);
+  animation: rise-in 0.5s var(--ease-expo) both;
+}
+
+.reel-modal__video {
+  width: min(100%, 1400px);
+  max-height: 86svh;
+  background: #000;
+}
+
+.reel-modal__close {
+  position: absolute;
+  top: 16px;
+  right: var(--pad);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .brand-section {
@@ -3590,7 +3662,7 @@
   }
 
 
-  .intro__grid,
+  .spirit,
   .sectors,
   .split,
   .p-intro,
@@ -3608,8 +3680,11 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .intro__media {
-    height: 70vw;
+  .spirit__side {
+    padding-top: 16px;
+    padding-left: 0;
+    border-top: 1px solid var(--line-strong);
+    border-left: 0;
   }
 
   .sectors__media {

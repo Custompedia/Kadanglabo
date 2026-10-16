@@ -46,7 +46,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 
 | Route | Isi |
 | --- | --- |
-| `/` | Sesuai urutan brief: Hero "KADANGLABO" (gaya shed.design) → (01) About → (02) Core services & sectors → (03) Our work: mosaik foto per kategori yang bergerak saat scroll (ref. Coeval) + tombol "Lihat detail Our Work" → (04) Latest updates → footer "See work" |
+| `/` | Sesuai urutan brief: Hero "KADANGLABO" (gaya shed.design) → (01) About → Kadanglabo spirit (showreel kiri, etos kanan — layout "Shed spirit") → (02) Core services & sectors → (03) Our work: mosaik foto per kategori yang bergerak saat scroll (ref. Coeval) + tombol "Lihat detail Our Work" → (04) Latest updates → footer "See work" |
 | `/about` team`) #team`) | About: copy persis dari brief, kolaborasi klien–perencana–pelaksana, 2 parameter keberhasilan, visi/misi/goals, filosofi, **Team** (menu sendiri, ref. Coeval). `/studio` dialihkan ke sini |
 | `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail — empat tahap berilustrasi dalam grid 2×2, satu kolom di mobile, scroll vertikal → (04) Start a project |
 | `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Peta proyek 3D** (ref. Sobha) → **Project archive** (filter Category · Location · Year · Status) |
@@ -90,7 +90,10 @@ node scripts/optimize-collaboration-images.mjs services-process
 4. **Lokasi yang disimpulkan dari nama proyek** (ditandai komentar di `projects.ts`, mis. Bale Catur, Giripeni, Villa Berbah) dan kategori di daftar arsip — mohon dikonfirmasi.
 5. Deskripsi singkat proyek dengan satu gambar (Hamzah Batik, Muji Rukost, Villa Berbah, Ivanna, Tiara, Kavling Bangunjiwo) ditulis dari render — sebaiknya direview klien.
 6. Gambar **HMW House (interior)** dan **Wira House** di Google Drive dikunci owner ("only owner and editors can download"). HMW memakai gambar dari company profile; Wira House baru tampil di arsip. Setelah akses dibuka, tambahkan dengan `npm run img`.
-7. Akun media sosial (Instagram dsb.) belum dicantumkan karena tidak ditemukan sumber resminya.
+7. **Video trailer belum ada** di Drive/PDF. Section "Kadanglabo spirit" di Home sementara memutar showreel dari render.
+   Kalau ada video: taruh di `public/video/` dan isi `trailer` di `src/data/site.ts` — tombol bulat otomatis jadi ▶ dan
+   membuka video dengan suara.
+8. Akun media sosial (Instagram dsb.) belum dicantumkan karena tidak ditemukan sumber resminya.
 
 ## Struktur singkat
 
