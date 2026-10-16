@@ -161,9 +161,9 @@ export default function Services() {
             <article key={s.key} className="cat">
               <span className="cat__num">0{i + 1}</span>
               <div className="cat__main">
-                <h3 className="cat__title" data-split>
+                <h2 className="cat__title" data-split>
                   {s.label}
-                </h3>
+                </h2>
                 <p className="cat__tags" data-fade>
                   <span className="pill">New Building &amp; Renovation / Development</span>
                 </p>

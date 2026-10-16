@@ -207,7 +207,7 @@ export function HomeHero() {
         </span>
       </button>
 
-      <button type="button" className="hero-scroll" onClick={() => scrollToElement('#intro', 0)} aria-label="Gulir ke About">
+      <button type="button" className="hero-scroll" onClick={() => scrollToElement('#intro', 0)} aria-label="Scroll explore: ke bagian About">
         <span className="hero-scroll__body">
           <svg viewBox="0 0 100 100" className="hero-scroll__ring" aria-hidden="true">
             <defs>

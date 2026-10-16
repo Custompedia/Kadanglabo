@@ -70,6 +70,15 @@ npm run img -- <key> "<path/ke/gambar.png>"
 
 Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src/data/images.json`. Pakai key tersebut di `projects.ts` (mis. `hero`, `cover`, `gallery`) atau `<Img id="key" />`.
 
+## Performa & pengujian
+
+- **Intro logo** tampil penuh sekali per tab (`sessionStorage` `kl-intro-seen`); reload / buka halaman langsung setelahnya memakai hand-over singkat (±1.7 dtk).
+- **Foto hero**: master 1672px, jadi ukuran terbesar 2560 (WebP q80, ekspor ulang: `node scripts/optimize-hero-images.mjs`). Slide kedua baru dipasang setelah intro; showreel memuat render satu langkah di depan.
+- **Muatan Home pertama kali** ±1.6 MB (sebelumnya 2.7 MB di laptop, 3.5 MB di ponsel).
+- **Lighthouse** (lokal, build produksi): Home desktop Performance 95 · Accessibility 95 · Best Practices 100 · SEO 100. Di simulasi ponsel lambat, skor performa dibatasi intro logo pada kunjungan pertama (LCP diukur setelah intro).
+- **Audit responsif**: 24 rute × 14 ukuran layar (320-2560px), tanpa overflow horizontal, teks terpotong, atau animasi yang tertinggal tersembunyi.
+- Kontras yang masih ditandai Lighthouse berasal dari palet brand (teks oranye di atas krem, teks putih di atas oranye) dan efek teks yang menyala saat di-scroll; dipertahankan sesuai desain.
+
 ## Yang perlu dilengkapi sebelum publish
 
 1. **Ejaan copy dari brief dipakai apa adanya**: teks About (Home + halaman About) dan skema Services
