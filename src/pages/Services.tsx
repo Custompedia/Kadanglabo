@@ -242,8 +242,7 @@ export default function Services() {
               Konsultasi &amp; project inquiry.
             </h2>
             <p className="t-body-lg max-w-[40ch] opacity-75 mt-6" data-fade>
-              Isi singkat kebutuhan Anda. Pesan akan terkirim ke WhatsApp studio, dan tim kami akan menghubungi Anda
-              kembali.
+              Isi singkat kebutuhan Anda, tim kami akan menghubungi Anda kembali.
             </p>
             <TLink to="/contact" className="link-line t-label mt-6 inline-block">
               Kontak lainnya <ArrowRight className="ml-1 inline h-[0.7em] w-auto" />

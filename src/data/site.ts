@@ -12,6 +12,7 @@ export const company = {
   phone: '0821-3106-9311',
   phoneIntl: '6282131069311',
   email: 'kadanglabo@gmail.com',
+  instagram: 'https://www.instagram.com/kadanglabo/',
 }
 
 const mapsQuery = 'Jl. Kaliurang KM.9 No.11, Dayu, Sinduharjo, Ngaglik, Sleman, Yogyakarta'

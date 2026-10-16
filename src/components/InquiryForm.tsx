@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { mailLink, waLink } from '../data/site'
+import { waLink } from '../data/site'
+import { ArrowRight } from './Icons'
 
 const sectorsOpt = ['Commercial', 'Hospitality', 'Residential']
 const scopeOpt = ['Bangunan baru', 'Renovasi', 'Pengembangan lahan', 'Interior']
@@ -39,7 +40,7 @@ function compose(f: FormState) {
   return lines.join('\n')
 }
 
-/** "Start a project" — consultation & project inquiry. Sends a prefilled WhatsApp message (no backend needed). */
+/** "Start a project": consultation & project inquiry. "Kirim" opens the studio chat with the message filled in (no backend needed). */
 export function InquiryForm() {
   const [f, setF] = useState<FormState>(initial)
   const [sent, setSent] = useState(false)
@@ -54,7 +55,7 @@ export function InquiryForm() {
   return (
     <form className="inquiry" onSubmit={submit}>
       <fieldset className="inquiry__group">
-        <legend className="t-label">Jenis proyek</legend>
+        <legend className="field__label">Jenis proyek</legend>
         <div className="inquiry__chips">
           {sectorsOpt.map((o) => (
             <label key={o} className="chip">
@@ -65,7 +66,7 @@ export function InquiryForm() {
         </div>
       </fieldset>
       <fieldset className="inquiry__group">
-        <legend className="t-label">Lingkup</legend>
+        <legend className="field__label">Lingkup</legend>
         <div className="inquiry__chips">
           {scopeOpt.map((o) => (
             <label key={o} className="chip">
@@ -79,37 +80,41 @@ export function InquiryForm() {
       <div className="inquiry__fields">
         <label className="field">
           <span className="field__label">Nama *</span>
-          <input required value={f.name} onChange={(e) => set('name')(e.target.value)} autoComplete="name" />
+          <input required value={f.name} onChange={(e) => set('name')(e.target.value)} autoComplete="name" placeholder="Nama lengkap" />
         </label>
         <label className="field">
-          <span className="field__label">No. WhatsApp / Email *</span>
-          <input required value={f.contact} onChange={(e) => set('contact')(e.target.value)} autoComplete="email" />
+          <span className="field__label">No. WhatsApp / email *</span>
+          <input required value={f.contact} onChange={(e) => set('contact')(e.target.value)} autoComplete="email" placeholder="08xx atau nama@email.com" />
         </label>
         <label className="field">
           <span className="field__label">Lokasi proyek</span>
           <input value={f.location} onChange={(e) => set('location')(e.target.value)} placeholder="Kota / kabupaten" />
         </label>
         <label className="field">
-          <span className="field__label">Luas lahan (opsional)</span>
+          <span className="field__label">Luas lahan</span>
           <input value={f.area} onChange={(e) => set('area')(e.target.value)} placeholder="mis. 250 m²" />
         </label>
         <label className="field field--wide">
           <span className="field__label">Ceritakan kebutuhan Anda</span>
-          <textarea rows={4} value={f.message} onChange={(e) => set('message')(e.target.value)} />
+          <textarea
+            rows={5}
+            value={f.message}
+            onChange={(e) => set('message')(e.target.value)}
+            placeholder="Mis. rumah dua lantai dengan tiga kamar, ingin mulai membangun tahun depan"
+          />
         </label>
       </div>
 
       <div className="inquiry__actions">
         <button type="submit" className="btn-pill btn-pill--orange btn-pill--lg">
-          Kirim via WhatsApp
+          Kirim <ArrowRight className="h-[0.8em] w-auto" />
         </button>
-        <a href={mailLink('Konsultasi Proyek', compose(f))} className="link-line text-sm">
-          atau kirim lewat email
-        </a>
+        <p className="inquiry__hint">* wajib diisi</p>
       </div>
       {sent && (
         <p className="inquiry__note" role="status">
-          Terima kasih! Pesan Anda sudah kami siapkan di WhatsApp. Tinggal tekan kirim, tim kami akan segera membalas.
+          Terima kasih{f.name.trim() ? `, ${f.name.trim().split(/\s+/)[0]}` : ''}! Pesan Anda sudah siap di percakapan yang baru
+          terbuka. Tinggal tekan kirim, tim kami akan segera membalas.
         </p>
       )}
     </form>

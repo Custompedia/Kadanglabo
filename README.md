@@ -52,7 +52,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 | `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Project archive** (filter Category · Location · Year · Status) |
 | `/work/:slug` | Halaman proyek: hero warna, header image, info, Context → Challenge → Concept → Development → Outcome, galeri, related projects, Next up |
 | `/news`, `/news/:slug` | News & Events: kartu artikel seragam (2 kolom) + sidebar kanan (cari artikel, Kategori, Topik, Terbaru, CTA), filter tersimpan di URL (`?type=`, `?tag=`, `?q=`); detail: Konteks · Isi utama · Visual · Informasi lanjutan · Explore more |
-| `/contact` | Alamat, kontak, peta ilustrasi (Google Maps dimuat saat diklik), form inquiry → WhatsApp |
+| `/contact` | Form inquiry (tombol "Kirim" membuka chat WhatsApp studio dengan pesan terisi) → How to find us (email, telepon, alamat, Instagram/WhatsApp/email/Maps, peta Google Maps) → FAQ 8 pertanyaan (`src/data/faq.ts`, plus data terstruktur FAQPage) |
 
 ## Mengubah konten
 
