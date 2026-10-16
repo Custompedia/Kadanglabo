@@ -47,7 +47,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 | Route | Isi |
 | --- | --- |
 | `/` | Sesuai urutan brief: Hero "KADANGLABO" (gaya shed.design) → (01) About → Kadanglabo spirit (showreel kiri, etos kanan — layout "Shed spirit") → (02) Core services & sectors → (03) Our work: mosaik foto per kategori yang bergerak saat scroll (ref. Coeval) + tombol "Lihat detail Our Work" → (04) Latest updates → footer "See work" |
-| `/about` (`/about#team`) | About: copy persis dari brief, kolaborasi klien, perencana, dan pelaksana (teks rata tengah, tanpa ilustrasi), 2 parameter keberhasilan, visi/misi/goals, filosofi, tim in-house (`#team`, tidak lagi di navbar). `/studio` dialihkan ke sini |
+| `/about` (`/about#team`) | About (tanpa section biru): copy persis dari brief, kolaborasi klien, perencana, dan pelaksana (teks rata tengah), 2 parameter keberhasilan (foto + teks), Vision di atas foto full-bleed, Mission & Our goals (kartu bernomor, hover oranye), tim in-house dengan Direktur Utama ditonjolkan (`#team`, tidak lagi di navbar). `/studio` dialihkan ke sini |
 | `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail — empat tahap berilustrasi dalam grid 2×2, satu kolom di mobile, scroll vertikal → (04) Start a project |
 | `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Peta proyek 3D** (ref. Sobha) → **Project archive** (filter Category · Location · Year · Status) |
 | `/work/:slug` | Halaman proyek: hero warna, header image, info, Context → Challenge → Concept → Development → Outcome, galeri, related projects, Next up |

@@ -38,8 +38,6 @@ export const about = {
     'Kadanglabo menjadi Konsultan Arsitektur berbasis komunitas dengan konsen utama solusi arsitektural secara kolaboratif. Tujuan tersebut dapat dicapai dengan kerja sama antara klien, perencana dan pelaksana dengan baik. Dua parameter keberhasilan proyek bagi Kadanglabo adalah Desain Kontekstual dan Efektifitas Workflow.',
   ethos:
     'Kadanglabo memilki target pada setiap proyek yang di desain harus terbangun karena merupakan etos kami untuk menyelesaikan bangunan yang sudah di desain dengan tuntas. Dari etos inilah dua parameter keberhasilan proyek kami dapat tercapai.',
-  philosophy:
-    'Kadanglabo berpegang pada prinsip problem solving dalam pendekatan desain, yang menghasilkan pendekatan form follows function. Langgam (style) bangunan adalah pendekatan kedua, setelah masalah terselesaikan dan fungsi tercapai.',
   focus:
     'Kami berfokus pada desain kontekstual yang dicapai melalui perencanaan induk, perencanaan bangunan, lanskap, interior, dan pencahayaan.',
 }
@@ -57,13 +55,17 @@ export const goals = [
   'Alur kerja dan pembiayaan yang efektif dalam perencanaan dan pelaksanaan, sehingga bangunan tepat guna.',
 ]
 
-export const parametersDetail = [
+export const parametersDetail: { title: string; body: string; img: ImgKey; imgAlt: string }[] = [
   {
     title: 'Desain Kontekstual',
+    img: 'labarka-bird',
+    imgAlt: 'La Barka Resort - tampak udara di tepi Kali Progo',
     body: 'Setiap tapak punya cerita: kontur, arah matahari, aliran air, budaya, hingga kondisi pasar. Desain kami lahir dari membaca konteks itu dengan jujur.',
   },
   {
     title: 'Efektifitas Workflow',
+    img: 'draw-model',
+    imgAlt: 'Studi model tapak dan massa bangunan',
     body: 'Perencanaan dan pelaksanaan dikelola dalam satu alur yang jelas, supaya waktu, biaya, dan kualitas tetap terkendali sampai bangunan berdiri.',
   },
 ]

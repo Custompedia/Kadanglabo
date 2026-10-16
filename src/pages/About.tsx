@@ -1,17 +1,23 @@
-import { useRef } from 'react'
+import { useRef, type CSSProperties } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img } from '../components/Img'
 import { Marquee, SectionLabel } from '../components/Bits'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
+import { gsap } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { about, company, disciplines, goals, mission, parametersDetail, team, vision } from '../data/site'
 
 export default function About() {
   const root = useRef<HTMLDivElement>(null)
 
-  usePageAnimations(root)
+  usePageAnimations(root, () => {
+    // Vision: the photo opens out to full bleed while it scrolls in; it is fully open before the text line rises
+    const st = { trigger: '.vision', start: 'top bottom', end: 'top 25%', scrub: true }
+    gsap.fromTo('.vision__frame', { clipPath: 'inset(0% 6% 0% 6%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: st })
+    gsap.fromTo('.vision__img', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: st })
+  })
 
   return (
     <Page title="About">
@@ -84,47 +90,63 @@ export default function About() {
         </section>
 
         {/* Two parameters */}
-        <section className="params" data-theme="dark">
-          <div className="wrap">
-            <SectionLabel>Dua parameter keberhasilan proyek</SectionLabel>
-            <div className="params__grid">
-              {parametersDetail.map((p, i) => (
-                <article key={p.title} className="param" data-fade data-delay={i * 0.12}>
-                  <span className="param__num">0{i + 1}</span>
-                  <h3 className="t-h1 param__title">{p.title}</h3>
-                  <p className="t-body-lg param__body">{p.body}</p>
-                </article>
-              ))}
+        <section className="params wrap" data-theme="light">
+          <SectionLabel>Dua parameter keberhasilan proyek</SectionLabel>
+          <div className="params__grid">
+            {parametersDetail.map((p, i) => (
+              <article key={p.title} className="param">
+                <div className="param__media" data-reveal data-delay={i * 0.12}>
+                  <div className="param__parallax" data-parallax="5">
+                    <Img id={p.img} alt={p.imgAlt} sizes="(min-width: 900px) 50vw, 100vw" />
+                  </div>
+                </div>
+                <span className="param__num" data-fade>
+                  0{i + 1}
+                </span>
+                <h3 className="param__title" data-split>
+                  {p.title}
+                </h3>
+                <p className="t-body-lg param__body" data-fade>
+                  {p.body}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* Vision: full-bleed photo */}
+        <section className="vision" data-theme="dark">
+          <div className="vision__frame">
+            <Img id="wira-front" alt="Wira House - fasad saat senja" sizes="100vw" className="vision__img" />
+            <div className="vision__body wrap">
+              <SectionLabel>Vision</SectionLabel>
+              <p className="vision__text" data-split>
+                {vision}
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Vision / mission / goals */}
+        {/* Mission / goals */}
         <section className="vmg wrap" data-theme="light">
-          <div className="vmg__vision">
-            <SectionLabel>Vision</SectionLabel>
-            <p className="t-h2 mt-6" data-split>
-              {vision}
-            </p>
-          </div>
-          <div className="vmg__cols">
-            <div>
-              <SectionLabel>Mission</SectionLabel>
-              <ol className="num-list" data-stagger>
-                {mission.map((m) => (
-                  <li key={m}>{m}</li>
+          {[
+            { label: 'Mission', items: mission },
+            { label: 'Our goals', items: goals },
+          ].map((g) => (
+            <div key={g.label} className="vmg__row">
+              <h3 className="t-h1 vmg__title" data-split>
+                {g.label}
+              </h3>
+              <ol className="vmg__cards" data-stagger="0.1" style={{ '--n': g.items.length } as CSSProperties}>
+                {g.items.map((t, i) => (
+                  <li key={t} className="vmg-card">
+                    <span className="vmg-card__num">0{i + 1}</span>
+                    <p className="vmg-card__text">{t}</p>
+                  </li>
                 ))}
               </ol>
             </div>
-            <div>
-              <SectionLabel>Our goals</SectionLabel>
-              <ol className="num-list" data-stagger>
-                {goals.map((g) => (
-                  <li key={g}>{g}</li>
-                ))}
-              </ol>
-            </div>
-          </div>
+          ))}
         </section>
 
         <Marquee className="band band--orange" seconds={30} theme="accent">
@@ -133,27 +155,6 @@ export default function About() {
           <span>Arsitektur untuk semua</span>
           <span>✦</span>
         </Marquee>
-
-        {/* Philosophy */}
-        <section className="philo-dark" data-theme="dark">
-          <div className="wrap philo-dark__grid">
-            <div className="philo-dark__img" data-reveal>
-              <Img id="draw-plan" alt="Gambar denah, studi ruang Kadanglabo" sizes="(min-width: 768px) 34vw, 80vw" />
-            </div>
-            <div>
-              <SectionLabel>Company philosophy</SectionLabel>
-              <h2 className="t-h1 mt-6" data-split>
-                Problem solving lebih dulu. Langgam kemudian.
-              </h2>
-              <p className="t-body-lg mt-8 max-w-[50ch] opacity-80" data-fade>
-                {about.philosophy}
-              </p>
-              <p className="t-serif philo-dark__quote" data-fade>
-                “Form follows function.”
-              </p>
-            </div>
-          </div>
-        </section>
 
         {/* Team */}
         <section id="team" className="team wrap" data-theme="light">
@@ -164,10 +165,14 @@ export default function About() {
             </h2>
           </div>
           <div className="team__grid" data-stagger="0.06">
-            {team.map((m) => (
-              <figure key={m.name} className="member">
+            {team.map((m, i) => (
+              <figure key={m.name} className={i === 0 ? 'member member--lead' : 'member'}>
                 <div className="member__photo">
-                  <Img id={m.img} alt={m.name} sizes="(min-width: 1024px) 19vw, (min-width: 640px) 30vw, 46vw" />
+                  <Img
+                    id={m.img}
+                    alt={m.name}
+                    sizes={i === 0 ? '(min-width: 640px) 34vw, 100vw' : '(min-width: 1100px) 16vw, (min-width: 640px) 24vw, 48vw'}
+                  />
                 </div>
                 <figcaption>
                   <span className="member__name">{m.name}</span>
