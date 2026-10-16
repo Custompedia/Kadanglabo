@@ -169,7 +169,7 @@ export function HomeHero() {
         <div className="hero__shade" />
       </div>
 
-      <h1 className="hero__title" aria-label="Kadanglabo — A Collaborative Architectural Solution">
+      <h1 className="hero__title" aria-label="Kadanglabo - A Collaborative Architectural Solution">
         <span ref={fit} className="hero__fit" aria-hidden="true">
           <span className="hero__mask">
             <span className="hero__word">

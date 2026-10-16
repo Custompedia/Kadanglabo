@@ -44,7 +44,7 @@ export default function News() {
               <br />& events
             </>
           }
-          sub="Latest updates from the studio — berita, publikasi, aktivitas studio, juga agenda, pameran, talk, dan workshop."
+          sub="Latest updates from the studio: berita, publikasi, aktivitas studio, juga agenda, pameran, talk, dan workshop."
         />
 
         <section className="news wrap" data-theme="light">

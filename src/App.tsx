@@ -37,7 +37,7 @@ const workThumbs = projects.slice(0, 8).map((p) => p.cover)
 function footerCta(pathname: string): FooterCtaProps {
   if (pathname.startsWith('/work/')) {
     const next = nextProject(pathname.split('/')[2] ?? '')
-    return { words: 'Next up', to: `/work/${next.slug}`, imgs: [next.cover], kicker: `Proyek berikutnya — ${next.title}` }
+    return { words: 'Next up', to: `/work/${next.slug}`, imgs: [next.cover], kicker: `Proyek berikutnya: ${next.title}` }
   }
   if (pathname === '/work') {
     return { words: 'Start a project', to: '/contact#start', imgs: ['labarka-path', 'hmw-dining', 'balecatur-lobby', 'klinik-waiting'] }

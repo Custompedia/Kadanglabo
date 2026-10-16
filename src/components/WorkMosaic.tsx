@@ -159,7 +159,7 @@ export function WorkMosaic() {
   )
 
   return (
-    <section ref={root} className="wm" data-theme="light" aria-label="Our work — proyek terpilih per kategori">
+    <section ref={root} className="wm" data-theme="light" aria-label="Our work: proyek terpilih per kategori">
       <div className="wm__stage">
         <div className="wm__pattern" aria-hidden="true">
           {groups.map((g, bi) => (

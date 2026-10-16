@@ -77,7 +77,7 @@ export function ProjectCard({ p, sizes = '(min-width: 1024px) 31vw, (min-width: 
       </div>
       <p className="project-card__caption">
         <span className="project-card__title">{p.title}</span>
-        <span className="t-serif project-card__line"> — {p.tagline}</span>
+        <span className="t-serif project-card__line"> - {p.tagline}</span>
       </p>
     </TLink>
   )

@@ -39,7 +39,7 @@ export default function Services() {
               to be built.
             </>
           }
-          sub="Overview seluruh layanan studio — dari perencanaan hingga perawatan, untuk bangunan baru, renovasi, dan pengembangan."
+          sub="Overview seluruh layanan studio, dari perencanaan hingga perawatan, untuk bangunan baru, renovasi, dan pengembangan."
         />
 
         <section className="collage" data-theme="light" aria-hidden="true">
@@ -62,7 +62,7 @@ export default function Services() {
         {/* Overview: everything the studio does, in one grid */}
         <section className="overview wrap" data-theme="light">
           <p className="overview__intro t-h2" data-fade>
-            Perencanaan, desain, dan manajemen pelaksanaan — dalam satu pintu.
+            Perencanaan, desain, dan manajemen pelaksanaan dalam satu pintu.
           </p>
           <div className="overview__grid" data-stagger="0.08">
             <div className="overview__col">
@@ -88,7 +88,7 @@ export default function Services() {
                   <li key={m}>{m}</li>
                 ))}
               </ul>
-              <p className="overview__note">Untuk bangunan yang sudah ada — menjaga fungsi dan nilainya tetap hidup.</p>
+              <p className="overview__note">Untuk bangunan yang sudah ada, menjaga fungsi dan nilainya tetap hidup.</p>
             </div>
           </div>
         </section>
@@ -98,7 +98,7 @@ export default function Services() {
           <div className="cats__head">
             <SectionLabel n="02">Service categories</SectionLabel>
             <p className="t-body-lg max-w-[44ch] opacity-75" data-fade>
-              Setiap kategori mencakup bangunan baru, renovasi, dan pengembangan — dikerjakan dengan alur yang sama
+              Setiap kategori mencakup bangunan baru, renovasi, dan pengembangan, dikerjakan dengan alur yang sama
               dari analisa hingga deliverables.
             </p>
           </div>
@@ -141,7 +141,7 @@ export default function Services() {
                 Dari kebutuhan{' '}<br />ke bangunan.
               </h2>
               <p className="t-body-lg process__description" data-fade>
-                Empat tahap yang kami jalani bersama setiap klien — transparan, terukur, dan selalu berujung di
+                Empat tahap yang kami jalani bersama setiap klien: transparan, terukur, dan selalu berujung di
                 lapangan.
               </p>
             </div>
@@ -170,7 +170,7 @@ export default function Services() {
         <section className="mantra" data-theme="accent">
           <div className="wrap">
             <p className="t-h1 mantra__text" data-split>
-              Desain kontekstual. Workflow yang efektif. Bangunan yang tuntas — satu pintu dari perencanaan hingga
+              Desain kontekstual. Workflow yang efektif. Bangunan yang tuntas. Satu pintu dari perencanaan hingga
               pelaksanaan.
             </p>
           </div>

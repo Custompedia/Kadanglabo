@@ -35,13 +35,13 @@ export default function About() {
               untuk semua.
             </>
           }
-          sub="Konsultan arsitektur berbasis komunitas di Yogyakarta — didirikan oleh Raditya Alvin pada akhir September 2020."
+          sub="Konsultan arsitektur berbasis komunitas di Yogyakarta, didirikan oleh Raditya Alvin pada akhir September 2020."
         />
 
         <section className="wide-media" data-theme="dark">
           <div className="wide-media__frame" data-reveal>
             <div className="wide-media__inner" data-parallax="9">
-              <Img id="labarka-garden" alt="La Barka Resort — taman dan massa bangunan" sizes="100vw" />
+              <Img id="labarka-garden" alt="La Barka Resort - taman dan massa bangunan" sizes="100vw" />
             </div>
           </div>
         </section>
@@ -91,7 +91,7 @@ export default function About() {
             </h2>
             <p className="t-body-lg mt-6 max-w-[44ch] opacity-75" data-fade>
               Tujuan kami tercapai lewat kerja sama yang baik antara ketiganya. Perencanaan dan pelaksanaan
-              terintegrasi dalam satu pintu — supaya yang digambar benar-benar terbangun.
+              terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.
             </p>
           </div>
           <CollabDiagram />
@@ -152,7 +152,7 @@ export default function About() {
         <section className="philo-dark" data-theme="dark">
           <div className="wrap philo-dark__grid">
             <div className="philo-dark__img" data-reveal>
-              <Img id="draw-plan" alt="Gambar denah — studi ruang Kadanglabo" sizes="(min-width: 768px) 34vw, 80vw" />
+              <Img id="draw-plan" alt="Gambar denah, studi ruang Kadanglabo" sizes="(min-width: 768px) 34vw, 80vw" />
             </div>
             <div>
               <SectionLabel>Company philosophy</SectionLabel>
@@ -174,7 +174,7 @@ export default function About() {
           <div className="team__head">
             <SectionLabel>Tim in-house</SectionLabel>
             <h2 className="t-h1 mt-6" data-split>
-              Orang-orang di balik setiap gambar — dan setiap bangunan.
+              Orang-orang di balik setiap gambar dan setiap bangunan.
             </h2>
           </div>
           <div className="team__grid" data-stagger="0.06">
@@ -200,7 +200,7 @@ export default function About() {
           </h2>
           <div className="cta-block__side" data-fade>
             <p className="t-body-lg max-w-[34ch]">
-              Ceritakan rencana Anda — rumah, usaha, atau kawasan. Kami bantu dari pertanyaan pertama sampai bangunan
+              Ceritakan rencana Anda: rumah, usaha, atau kawasan. Kami bantu dari pertanyaan pertama sampai bangunan
               berdiri.
             </p>
             <TLink to="/contact#start" className="btn-pill btn-pill--orange btn-pill--lg mt-6">

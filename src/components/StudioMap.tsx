@@ -83,7 +83,7 @@ export function StudioMap() {
             <text x="64" y="-6" className="studio-map__pin-label">KADANGLABO STUDIO</text>
             <text x="64" y="18" className="studio-map__small">KM 9 No.11 · Ruko 3</text>
           </g>
-          <text x="1180" y="606" textAnchor="end" className="studio-map__note">Peta skematis — bukan skala</text>
+          <text x="1180" y="606" textAnchor="end" className="studio-map__note">Peta skematis, bukan skala</text>
         </svg>
       )}
       {!live && (

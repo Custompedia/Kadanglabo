@@ -64,7 +64,7 @@ export default function Home() {
             <div>
               <SectionLabel n="02">Core services & sectors</SectionLabel>
               <p className="t-body-lg brand-section__intro" data-fade>
-                Kami merancang bangunan baru, renovasi, hingga pengembangan lahan — dibagi menjadi tiga sektor inti.
+                Kami merancang bangunan baru, renovasi, hingga pengembangan lahan, dibagi menjadi tiga sektor inti.
               </p>
               <TLink to="/services" className="link-line t-label mt-6 inline-block" data-fade>
                 Our services →
@@ -80,7 +80,7 @@ export default function Home() {
         <WorkMosaic />
         <div className="wrap wm-foot" data-theme="light">
           <p className="t-serif wm-foot__text" data-fade>
-            Commercial, hospitality, dan residential — {archive.length} proyek dalam arsip kami.
+            Commercial, hospitality, dan residential: {archive.length} proyek dalam arsip kami.
           </p>
           <TLink to="/work" className="btn-pill btn-pill--dark btn-pill--lg" data-fade>
             Lihat detail Our Work <ArrowRight className="h-[0.8em] w-auto" />

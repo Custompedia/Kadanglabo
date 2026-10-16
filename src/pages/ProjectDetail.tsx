@@ -93,7 +93,7 @@ function GalleryBlock({ b }: { b: Block }) {
           <p className="g-quote__text" data-split>
             “{b.text}”
           </p>
-          {b.cite && <cite className="t-label">— {b.cite}</cite>}
+          {b.cite && <cite className="t-label">{b.cite}</cite>}
         </blockquote>
       )
   }

@@ -138,7 +138,7 @@ export function ProjectMap({ areas, active, onSelect }: Props) {
                   onMouseLeave={() => setHover(null)}
                   onFocus={() => setHover(a.key)}
                   onBlur={() => setHover(null)}
-                  aria-label={`${a.label}: ${a.count} proyek — lihat di arsip`}
+                  aria-label={`${a.label}: ${a.count} proyek, lihat di arsip`}
                 >
                   <span className="pin__name">{a.label}</span>
                   <b>{a.count}</b>

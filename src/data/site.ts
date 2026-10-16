@@ -39,7 +39,7 @@ export const about = {
   ethos:
     'Kadanglabo memilki target pada setiap proyek yang di desain harus terbangun karena merupakan etos kami untuk menyelesaikan bangunan yang sudah di desain dengan tuntas. Dari etos inilah dua parameter keberhasilan proyek kami dapat tercapai.',
   philosophy:
-    'Kadanglabo berpegang pada prinsip problem solving dalam pendekatan desain, yang menghasilkan pendekatan form follows function. Langgam (style) bangunan adalah pendekatan kedua — setelah masalah terselesaikan dan fungsi tercapai.',
+    'Kadanglabo berpegang pada prinsip problem solving dalam pendekatan desain, yang menghasilkan pendekatan form follows function. Langgam (style) bangunan adalah pendekatan kedua, setelah masalah terselesaikan dan fungsi tercapai.',
   focus:
     'Kami berfokus pada desain kontekstual yang dicapai melalui perencanaan induk, perencanaan bangunan, lanskap, interior, dan pencahayaan.',
 }
@@ -64,7 +64,7 @@ export const parametersDetail = [
   },
   {
     title: 'Efektifitas Workflow',
-    body: 'Perencanaan dan pelaksanaan dikelola dalam satu alur yang jelas — supaya waktu, biaya, dan kualitas tetap terkendali sampai bangunan berdiri.',
+    body: 'Perencanaan dan pelaksanaan dikelola dalam satu alur yang jelas, supaya waktu, biaya, dan kualitas tetap terkendali sampai bangunan berdiri.',
   },
 ]
 
@@ -96,8 +96,8 @@ export const sectors: {
     title: 'Commercial',
     label: 'Commercial Design',
     img: 'klinik-hero',
-    imgAlt: 'Klinik UII — fasad secondary skin',
-    desc: 'Bangunan baru, renovasi, dan pengembangan untuk ruang usaha dan institusi — dari coffee shop hingga fasilitas kesehatan.',
+    imgAlt: 'Klinik UII - fasad secondary skin',
+    desc: 'Bangunan baru, renovasi, dan pengembangan untuk ruang usaha dan institusi, dari coffee shop hingga fasilitas kesehatan.',
     typologies: ['Restoran & Coffee Shop', 'Ruko & Kantor', 'Fasilitas Kesehatan', 'Tata Lanskap'],
   },
   {
@@ -105,8 +105,8 @@ export const sectors: {
     title: 'Hospitality',
     label: 'Hospitality Design',
     img: 'labarka-bird',
-    imgAlt: 'La Barka Resort — tampak udara di tepi Kali Progo',
-    desc: 'Resort, villa, homestay, hingga rumah kos — ruang menginap yang dirancang menyatu dengan tapak dan pengalaman tamu.',
+    imgAlt: 'La Barka Resort - tampak udara di tepi Kali Progo',
+    desc: 'Resort, villa, homestay, hingga rumah kos: ruang menginap yang dirancang menyatu dengan tapak dan pengalaman tamu.',
     typologies: ['Resort & Villa', 'Homestay & Guest House', 'Hotel', 'Rumah Kos'],
   },
   {
@@ -114,8 +114,8 @@ export const sectors: {
     title: 'Residential',
     label: 'Selected Residential Design',
     img: 'hmw-facade',
-    imgAlt: 'HMW House — fasad rumah tinggal',
-    desc: 'Rumah tinggal dan kawasan perumahan — bangunan baru, renovasi, maupun pengembangan lahan yang tepat guna.',
+    imgAlt: 'HMW House - fasad rumah tinggal',
+    desc: 'Rumah tinggal dan kawasan perumahan: bangunan baru, renovasi, maupun pengembangan lahan yang tepat guna.',
     typologies: ['Rumah Tinggal', 'Perumahan & Kavling', 'Interior Hunian'],
   },
 ]
@@ -147,12 +147,12 @@ export const process: { title: string; lead: string; points: string[] }[] = [
   },
   {
     title: 'Proses Kreatif',
-    lead: 'Problem solving lebih dulu, langgam kemudian. Form follows function — diuji bersama klien di setiap tahap.',
+    lead: 'Problem solving lebih dulu, langgam kemudian. Form follows function, diuji bersama klien di setiap tahap.',
     points: ['Konsep & skematik', 'Pengembangan desain', 'Visualisasi 3D'],
   },
   {
     title: 'Deliverables',
-    lead: 'Dokumen yang siap dibangun — karena setiap desain harus terbangun, kami mendampingi sampai lapangan.',
+    lead: 'Dokumen yang siap dibangun. Karena setiap desain harus terbangun, kami mendampingi sampai lapangan.',
     points: ['Gambar kerja (DED)', 'Rencana anggaran biaya', 'Pendampingan & pengawasan'],
   },
 ]

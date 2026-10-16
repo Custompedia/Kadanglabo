@@ -109,7 +109,7 @@ export function InquiryForm() {
       </div>
       {sent && (
         <p className="inquiry__note" role="status">
-          Terima kasih! Pesan Anda sudah kami siapkan di WhatsApp — tinggal tekan kirim, tim kami akan segera membalas.
+          Terima kasih! Pesan Anda sudah kami siapkan di WhatsApp. Tinggal tekan kirim, tim kami akan segera membalas.
         </p>
       )}
     </form>

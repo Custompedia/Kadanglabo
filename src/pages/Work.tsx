@@ -46,7 +46,7 @@ const areaStats: AreaStat[] = areas
 
 const joinId = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')}, dan ${xs[xs.length - 1]}`)
 
-const intro = `Sejak 2020, Kadanglabo telah mengerjakan lebih dari ${Math.floor(archive.length / 10) * 10} proyek — rumah tinggal dan kawasan perumahan, resort dan villa, restoran, kantor, hingga fasilitas kesehatan. Sebagian besar berada di D.I. Yogyakarta, juga di ${joinId(
+const intro = `Sejak 2020, Kadanglabo telah mengerjakan lebih dari ${Math.floor(archive.length / 10) * 10} proyek: rumah tinggal dan kawasan perumahan, resort dan villa, restoran, kantor, hingga fasilitas kesehatan. Sebagian besar berada di D.I. Yogyakarta, juga di ${joinId(
   areaStats.filter((a) => a.key !== 'diy').map((a) => a.label),
 )}.`
 
@@ -299,9 +299,9 @@ export default function Work() {
                     {e.title}
                   </span>
                   <span role="cell">{categoryLabel[e.category]}</span>
-                  <span role="cell">{e.region ?? '—'}</span>
-                  {hasYears && <span role="cell">{e.year ?? '—'}</span>}
-                  <span role="cell">{e.status ?? '—'}</span>
+                  <span role="cell">{e.region ?? '-'}</span>
+                  {hasYears && <span role="cell">{e.year ?? '-'}</span>}
+                  <span role="cell">{e.status ?? '-'}</span>
                 </>
               )
               return e.slug ? (

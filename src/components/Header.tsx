@@ -83,7 +83,7 @@ export function Header({ menuOpen, onToggleMenu }: Props) {
       data-line={pathname === '/' && !solid && !menuOpen ? '' : undefined}
     >
       <div className="wrap site-header__bar">
-        <TLink to="/" className="site-logo" aria-label="Kadanglabo — Home">
+        <TLink to="/" className="site-logo" aria-label="Kadanglabo - Home">
           <BrandMark className="site-logo__mark" />
           <span className="site-logo__word">
             <img src="/brand/kadanglabo-wordmark.svg" alt="" className="site-logo__img site-logo__img--light" width={1046} height={110} />

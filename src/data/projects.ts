@@ -96,12 +96,12 @@ export const projects: Project[] = [
       },
       {
         key: 'challenge',
-        text: 'Bangunan harus hadir tanpa melawan tapaknya — mengikuti kontur, memberi ruang bagi aliran air, dan menjaga suasana alam yang menjadi daya tarik utama resort.',
+        text: 'Bangunan harus hadir tanpa melawan tapaknya: mengikuti kontur, memberi ruang bagi aliran air, dan menjaga suasana alam yang menjadi daya tarik utama resort.',
         img: 'labarka-garden',
       },
       {
         key: 'concept',
-        text: 'Pendekatan tropis modern: massa beratap pelana disusun mengikuti tapak, sementara lanskap diperlakukan sebagai bagian dari arsitektur — bukan sekadar pelengkap.',
+        text: 'Pendekatan tropis modern: massa beratap pelana disusun mengikuti tapak, sementara lanskap diperlakukan sebagai bagian dari arsitektur, bukan sekadar pelengkap.',
         img: 'labarka-gables',
       },
       {
@@ -111,7 +111,7 @@ export const projects: Project[] = [
       },
       {
         key: 'outcome',
-        text: 'Dikerjakan dengan skema desain & build — 718 m² bangunan di atas lahan 2.344 m² yang hadir sebagai resort yang menyatu dengan alam.',
+        text: 'Dikerjakan dengan skema desain & build: 718 m² bangunan di atas lahan 2.344 m² yang hadir sebagai resort yang menyatu dengan alam.',
         img: 'labarka-koi',
       },
     ],
@@ -122,7 +122,7 @@ export const projects: Project[] = [
       {
         t: 'text',
         label: 'Lanskap',
-        body: 'Taman, kolam, dan jalur setapak dirancang sebagai ruang transisi — tamu bergerak dari ruang terbuka menuju kamar melalui vegetasi yang rapat dan teduh.',
+        body: 'Taman, kolam, dan jalur setapak dirancang sebagai ruang transisi: tamu bergerak dari ruang terbuka menuju kamar melalui vegetasi yang rapat dan teduh.',
       },
       { t: 'pair', imgs: ['labarka-koi', 'labarka-path'] },
       { t: 'offset', img: 'labarka-gables', side: 'right', caption: 'Massa beratap pelana dengan material kayu dan batu.' },
@@ -152,7 +152,7 @@ export const projects: Project[] = [
     accent: '#1B2238',
     tagline: 'Percakapan antara tradisi dan kesederhanaan kontemporer.',
     summary:
-      'Bale Catur Villa & Resto adalah percakapan antara tradisi dan kesederhanaan kontemporer — dari fasad yang berkarakter, lobby dan restoran yang terintegrasi, kamar yang merespons cara orang beristirahat, hingga area pool yang terasa seperti milik sendiri.',
+      'Bale Catur Villa & Resto adalah percakapan antara tradisi dan kesederhanaan kontemporer. Dari fasad yang berkarakter, lobby dan restoran yang terintegrasi, kamar yang merespons cara orang beristirahat, hingga area pool yang terasa seperti milik sendiri.',
     story: [
       {
         key: 'context',
@@ -161,7 +161,7 @@ export const projects: Project[] = [
       },
       {
         key: 'challenge',
-        text: 'Menghadirkan rasa tradisi tanpa terjebak romantisme — tetap sederhana, fungsional, dan relevan bagi tamu masa kini.',
+        text: 'Menghadirkan rasa tradisi tanpa terjebak romantisme: tetap sederhana, fungsional, dan relevan bagi tamu masa kini.',
         img: 'balecatur-sign',
       },
       {
@@ -176,7 +176,7 @@ export const projects: Project[] = [
       },
       {
         key: 'outcome',
-        text: 'Area pool yang terasa privat — seperti milik sendiri — menjadi pusat pengalaman menginap.',
+        text: 'Area pool yang terasa privat, seperti milik sendiri, menjadi pusat pengalaman menginap.',
         img: 'balecatur-pool',
       },
     ],
@@ -188,7 +188,7 @@ export const projects: Project[] = [
       {
         t: 'text',
         label: 'Lobby & Restoran',
-        body: 'Lobby dan restoran menyatu di bawah atap yang tinggi — ruang sambut yang hangat dengan material kayu, bata, dan cahaya temaram.',
+        body: 'Lobby dan restoran menyatu di bawah atap yang tinggi: ruang sambut yang hangat dengan material kayu, bata, dan cahaya temaram.',
       },
       { t: 'offset', img: 'balecatur-lobby', side: 'left' },
       { t: 'pair', imgs: ['balecatur-bed', 'balecatur-bed2'] },
@@ -224,7 +224,7 @@ export const projects: Project[] = [
       },
       {
         key: 'concept',
-        text: 'Fasad didominasi secondary skin berupa kisi-kisi vertikal yang membungkus massa lantai atas — membentuk karakter visual yang tegas dan elegan.',
+        text: 'Fasad didominasi secondary skin berupa kisi-kisi vertikal yang membungkus massa lantai atas, membentuk karakter visual yang tegas dan elegan.',
         img: 'klinik-hero',
       },
       {
@@ -234,7 +234,7 @@ export const projects: Project[] = [
       },
       {
         key: 'outcome',
-        text: 'Di dalam, koridor, ruang tunggu, dan ruang praktik dirancang bersih dan hangat — dinding putih berpadu aksen kayu yang menenangkan.',
+        text: 'Di dalam, koridor, ruang tunggu, dan ruang praktik dirancang bersih dan hangat: dinding putih berpadu aksen kayu yang menenangkan.',
         img: 'klinik-corridor',
       },
     ],
@@ -246,7 +246,7 @@ export const projects: Project[] = [
       {
         t: 'text',
         label: 'Secondary skin',
-        body: 'Kisi-kisi vertikal membungkus massa lantai atas: menyaring cahaya, meredam panas, dan menjaga privasi ruang klinis — sekaligus menjadi wajah institusi.',
+        body: 'Kisi-kisi vertikal membungkus massa lantai atas: menyaring cahaya, meredam panas, dan menjaga privasi ruang klinis, sekaligus menjadi wajah institusi.',
       },
       { t: 'full', img: 'klinik-side' },
       { t: 'pair', imgs: ['klinik-corridor', 'klinik-signage'] },
@@ -266,13 +266,13 @@ export const projects: Project[] = [
     scope: ['Arsitektur', 'Desain Interior', 'Landscape'],
     color: '#1B2238',
     accent: '#EC6434',
-    tagline: 'Detail kecil bukan kemewahan — melainkan standar.',
+    tagline: 'Detail kecil bukan kemewahan, melainkan standar.',
     summary:
       'HMW House adalah bukti bahwa detail-detail kecil itu bukan kemewahan; mereka adalah standar yang seharusnya dimiliki setiap hunian. Karena hunian impian bukan soal seberapa besar, tapi seberapa tepat ia dirancang.',
     story: [
       {
         key: 'context',
-        text: 'Sebuah rumah tinggal yang dirancang untuk keseharian keluarga — hangat, tenang, dan dekat dengan alam.',
+        text: 'Sebuah rumah tinggal yang dirancang untuk keseharian keluarga: hangat, tenang, dan dekat dengan alam.',
         img: 'hmw-facade-day',
       },
       {
@@ -292,7 +292,7 @@ export const projects: Project[] = [
       },
       {
         key: 'outcome',
-        text: 'Setiap detail — dari material hingga pencahayaan — dirancang sebagai standar, bukan tambahan.',
+        text: 'Setiap detail, dari material hingga pencahayaan, dirancang sebagai standar, bukan tambahan.',
         img: 'hmw-dining',
       },
     ],
@@ -326,7 +326,7 @@ export const projects: Project[] = [
     accent: '#F3F0EA',
     tagline: 'Lahan terbatas, potensi besar.',
     summary:
-      'Dari kebutuhan nyata — lahan terbatas, potensi besar, dan pemilik yang belum tahu harus mulai dari mana — kami hadir bukan hanya sebagai perancang, tapi sebagai mitra yang menerjemahkan visi menjadi tata ruang yang strategis, bernilai, dan berkarakter.',
+      'Dari kebutuhan nyata seperti lahan terbatas, potensi besar, dan pemilik yang belum tahu harus mulai dari mana, kami hadir bukan hanya sebagai perancang, tapi sebagai mitra yang menerjemahkan visi menjadi tata ruang yang strategis, bernilai, dan berkarakter.',
     story: [
       {
         key: 'context',
@@ -335,12 +335,12 @@ export const projects: Project[] = [
       },
       {
         key: 'challenge',
-        text: 'Menerjemahkan visi pemilik menjadi tata ruang yang strategis dan bernilai — bukan sekadar membagi kavling.',
+        text: 'Menerjemahkan visi pemilik menjadi tata ruang yang strategis dan bernilai, bukan sekadar membagi kavling.',
         img: 'firlatata-day',
       },
       {
         key: 'concept',
-        text: 'Deretan unit dirancang dengan karakter visual yang kuat — atap pelana tinggi yang berulang — sehingga menciptakan identitas kawasan yang mudah dikenali.',
+        text: 'Deretan unit dirancang dengan karakter visual yang kuat, atap pelana tinggi yang berulang, sehingga menciptakan identitas kawasan yang mudah dikenali.',
         img: 'firlatata-front',
       },
       {
@@ -362,7 +362,7 @@ export const projects: Project[] = [
       {
         t: 'text',
         label: 'Interior unit',
-        body: 'Ruang keluarga, dapur, dan area makan disusun ringkas dan terbuka — palet kayu hangat membuat unit terasa lapang.',
+        body: 'Ruang keluarga, dapur, dan area makan disusun ringkas dan terbuka. Palet kayu hangat membuat unit terasa lapang.',
       },
       { t: 'pair', imgs: ['firlatata-living', 'firlatata-tv'] },
       { t: 'full', img: 'firlatata-shelf' },
@@ -387,7 +387,7 @@ export const projects: Project[] = [
     story: [
       {
         key: 'context',
-        text: 'PT. Papan Cemerlang mempercayakan pengembangan lahannya kepada Kadanglabo — kerja sama pertama kami di bidang perumahan.',
+        text: 'PT. Papan Cemerlang mempercayakan pengembangan lahannya kepada Kadanglabo, kerja sama pertama kami di bidang perumahan.',
         img: 'giripeni-aerial',
       },
       {
@@ -407,7 +407,7 @@ export const projects: Project[] = [
       },
       {
         key: 'outcome',
-        text: 'Sebuah kawasan hunian yang utuh — dari gerbang, jalan lingkungan, hingga interior unit.',
+        text: 'Sebuah kawasan hunian yang utuh, dari gerbang, jalan lingkungan, hingga interior unit.',
         img: 'giripeni-living',
       },
     ],
@@ -436,7 +436,7 @@ export const projects: Project[] = [
     accent: '#1B2238',
     tagline: 'Wajah yang hangat di koridor paling ikonik Yogyakarta.',
     summary:
-      'Rancangan fasad Hamzah Batik di kawasan Malioboro — lengkung, gevel, dan ritme jendela bergaya kolonial yang menghadirkan wajah bangunan yang hangat dan berwibawa di koridor heritage Yogyakarta.',
+      'Rancangan fasad Hamzah Batik di kawasan Malioboro: lengkung, gevel, dan ritme jendela bergaya kolonial yang menghadirkan wajah bangunan yang hangat dan berwibawa di koridor heritage Yogyakarta.',
     hero: 'hamzah-front',
     cover: 'hamzah-front',
     gallery: [{ t: 'full', img: 'hamzah-street' }],
@@ -455,7 +455,7 @@ export const projects: Project[] = [
     accent: '#F3F0EA',
     tagline: 'Atap lebar, batu alam, dan halaman yang teduh.',
     summary:
-      'Villa dengan atap pelana lebar dan dinding batu alam — massa sederhana yang hangat dan menyatu dengan halaman hijau di sekitarnya.',
+      'Villa dengan atap pelana lebar dan dinding batu alam: massa sederhana yang hangat dan menyatu dengan halaman hijau di sekitarnya.',
     hero: 'berbah-front',
     cover: 'berbah-front',
     gallery: [],
@@ -474,7 +474,7 @@ export const projects: Project[] = [
     accent: '#EC6434',
     tagline: 'Ruko dan kos dalam satu massa yang ringkas.',
     summary:
-      'Rukost — perpaduan ruko dan rumah kos — dengan massa kubus putih yang bersih dan tegas: efisien secara ruang, rapi di muka jalan.',
+      'Rukost, perpaduan ruko dan rumah kos, dengan massa kubus putih yang bersih dan tegas: efisien secara ruang, rapi di muka jalan.',
     hero: 'muji-front',
     cover: 'muji-front',
     gallery: [],
@@ -512,7 +512,7 @@ export const projects: Project[] = [
     accent: '#1B2238',
     tagline: 'Tertutup di muka, terbuka pada cahaya.',
     summary:
-      'Rumah tinggal dengan atap pelana dan bukaan cahaya memanjang di puncaknya — fasad yang menjaga privasi namun tetap terbuka pada cahaya alami.',
+      'Rumah tinggal dengan atap pelana dan bukaan cahaya memanjang di puncaknya: fasad yang menjaga privasi namun tetap terbuka pada cahaya alami.',
     hero: 'tiara-front',
     cover: 'tiara-front',
     gallery: [],
@@ -531,7 +531,7 @@ export const projects: Project[] = [
     accent: '#EC6434',
     tagline: 'Unit ringkas yang memaksimalkan lahan.',
     summary:
-      'Unit kavling dua lantai dengan carport kembar — desain ringkas yang memaksimalkan lahan tanpa kehilangan karakter.',
+      'Unit kavling dua lantai dengan carport kembar: desain ringkas yang memaksimalkan lahan tanpa kehilangan karakter.',
     hero: 'bangunjiwo-front',
     cover: 'bangunjiwo-front',
     gallery: [],

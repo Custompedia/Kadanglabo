@@ -92,7 +92,7 @@ export function Footer({ cta }: { cta: FooterCtaProps }) {
         <span>
           © {year} {company.name}. Arsitektur untuk semua.
         </span>
-        <span>Sleman, D.I. Yogyakarta — Indonesia</span>
+        <span>Sleman, D.I. Yogyakarta, Indonesia</span>
       </div>
       <FooterCta {...cta} />
     </footer>

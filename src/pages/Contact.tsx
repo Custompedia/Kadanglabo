@@ -71,7 +71,7 @@ export default function Contact() {
               Mari mulai dari ngobrol.
             </h2>
             <p className="t-body-lg max-w-[40ch] opacity-75 mt-6" data-fade>
-              Konsultasi dan project inquiry — ceritakan rencana Anda, kami siapkan langkah pertamanya.
+              Konsultasi dan project inquiry: ceritakan rencana Anda, kami siapkan langkah pertamanya.
             </p>
           </div>
           <InquiryForm />
