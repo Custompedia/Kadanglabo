@@ -83,7 +83,7 @@ export default function About() {
           <h2 className="t-h1 collab__title mt-6" data-split>
             Satu meja untuk klien, perencana, dan pelaksana.
           </h2>
-          <p className="t-body-lg mt-6 max-w-[44ch] opacity-75" data-fade>
+          <p className="t-body-lg collab__body mt-6 opacity-75" data-fade>
             Tujuan kami tercapai lewat kerja sama yang baik antara ketiganya. Perencanaan dan pelaksanaan
             terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.
           </p>
