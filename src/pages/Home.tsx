@@ -1,29 +1,21 @@
 import { useRef } from 'react'
 import { Page } from '../components/Page'
 import { Img } from '../components/Img'
-import { Marquee, SectionLabel } from '../components/Bits'
+import { SectionLabel } from '../components/Bits'
 import { HomeHero } from '../components/HomeHero'
 import { SectorShowcase } from '../components/SectorShowcase'
-import { ProjectRing, type RingItem } from '../components/ProjectRing'
+import { SelectedWork } from '../components/SelectedWork'
 import { NewsCard } from '../components/NewsCard'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { TLink } from '../lib/transition'
 import { about } from '../data/site'
-import { categoryLabel, projects } from '../data/projects'
+import { archive } from '../data/projects'
 import { sortedNews } from '../data/news'
-
-const ringItems: RingItem[] = projects.map((p) => ({
-  slug: p.slug,
-  title: p.title,
-  meta: `${categoryLabel[p.category]} — ${p.location ?? p.typology}`,
-  img: p.cover,
-}))
 
 export default function Home() {
   const root = useRef<HTMLDivElement>(null)
   usePageAnimations(root)
-
 
   return (
     <Page>
@@ -91,60 +83,38 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ---------- (03) SELECTED WORK — 3D ring ---------- */}
+        {/* ---------- (03) SELECTED PROJECTS — stacked full-screen panels ---------- */}
         <section className="selected" data-theme="light">
           <div className="wrap selected__head">
-            <SectionLabel n="03">Selected work</SectionLabel>
-            <h2 className="t-h1 selected__title" data-split>
-              Dirancang untuk
-              <br />
-              terbangun.
-            </h2>
-            <p className="selected__hint t-label" data-fade>
-              Geser untuk menjelajah ↔
-            </p>
+            <div>
+              <SectionLabel n="03">Our work</SectionLabel>
+              <h2 className="t-display selected__title" data-split>
+                Selected
+                <br />
+                projects
+              </h2>
+            </div>
+            <div className="selected__side" data-fade>
+              <p className="t-body-lg">
+                Commercial, hospitality, dan residential — sebagian karya yang telah kami rancang dan bangun.
+              </p>
+              <TLink to="/work" className="link-line t-label mt-5 inline-block">
+                Lihat semua karya →
+              </TLink>
+            </div>
           </div>
-          <ProjectRing items={ringItems} />
+          <SelectedWork />
           <div className="wrap selected__foot">
-            <TLink to="/work" className="btn-pill btn-pill--dark btn-pill--lg">
-              Lihat semua karya <ArrowRight className="h-[0.8em] w-auto" />
+            <TLink to="/work#arsip" className="btn-pill btn-pill--dark btn-pill--lg">
+              Lihat arsip {archive.length} proyek <ArrowRight className="h-[0.8em] w-auto" />
             </TLink>
-          </div>
-        </section>
-
-        <Marquee className="band band--navy" seconds={36} theme="dark">
-          <span>Desain kontekstual</span>
-          <span>✦</span>
-          <span>Efektifitas workflow</span>
-          <span>✦</span>
-          <span>Arsitektur untuk semua</span>
-          <span>✦</span>
-        </Marquee>
-
-        {/* ---------- (04) PHILOSOPHY ---------- */}
-        <section className="philo wrap" data-theme="light">
-          <div className="philo__text">
-            <SectionLabel n="04">Design philosophy</SectionLabel>
-            <h2 className="t-display philo__title" data-split>
-              Form
-              <br />
-              follows
-              <br />
-              function.
-            </h2>
-            <p className="t-body-lg philo__body" data-fade>
-              {about.philosophy}
-            </p>
-          </div>
-          <div className="philo__drawing" data-reveal>
-            <Img id="draw-exploded" alt="Gambar isometri eksploded — studi ruang Kadanglabo" sizes="(min-width: 768px) 36vw, 90vw" />
           </div>
         </section>
 
         {/* ---------- (05) LATEST UPDATES ---------- */}
         <section className="latest wrap" data-theme="light">
           <div className="latest__head">
-            <SectionLabel n="05">Latest updates</SectionLabel>
+            <SectionLabel n="04">Latest updates</SectionLabel>
             <TLink to="/news" className="link-line t-label">
               News & events →
             </TLink>

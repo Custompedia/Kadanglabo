@@ -85,7 +85,7 @@ export function Preloader() {
         .to({}, { duration: 0.6 }) // hold the finished logo for a beat
 
       const exit = contextSafe(() => {
-        gsap
+        const tl = gsap
           .timeline({
             onComplete: () => {
               sessionStorage.setItem('kl-intro-seen', '1')
@@ -93,35 +93,40 @@ export function Preloader() {
             },
           })
           .to('.intro-logo', { yPercent: -40, autoAlpha: 0, duration: 0.7, ease: 'power3.in' }, 0)
-          .fromTo(
-            panel,
-            { clipPath: 'inset(100% 0% 0% 0%)' },
-            { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'expo.inOut' },
-            0.35,
-          )
-          .fromTo(heroImg, { scale: 1.15 }, { scale: 1, duration: 1.6, ease: 'power3.out' }, 0.35)
           .add(() => {
             lockScroll(false)
             openGate()
           }, 1.2)
           .set(header, { autoAlpha: 1 }, 1.2)
-          // home: the hero intro animates the header items; elsewhere ease them in here
-          .from(
-            isHome ? [] : document.querySelectorAll('.site-header__bar > *:not(.site-header__line)'),
-            { yPercent: -60, autoAlpha: 0, duration: 1.1, stagger: 0.08, ease: 'power3.out' },
-            1.3,
-          )
           // home: the panel already shows the first hero slide, so simply drop the overlay;
           // other pages: fade the overlay away to reveal the page
           .to(el, { autoAlpha: 0, duration: isHome ? 0.01 : 0.6, ease: 'power2.out' }, isHome ? 1.5 : 1.25)
+        if (panel) tl.fromTo(panel, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'expo.inOut' }, 0.35)
+        if (heroImg) tl.fromTo(heroImg, { scale: 1.15 }, { scale: 1, duration: 1.6, ease: 'power3.out' }, 0.35)
       })
+
+      // home: the hero intro animates the header items; elsewhere ease them in after the intro
+      const easeHeaderIn = () => {
+        if (isHome) return
+        gsap.from(document.querySelectorAll('.site-header__bar > *:not(.site-header__line)'), {
+          yPercent: -60,
+          autoAlpha: 0,
+          duration: 1.1,
+          stagger: 0.08,
+          ease: 'power3.out',
+          delay: 1.3,
+        })
+      }
 
       const run = async () => {
         await Promise.all([
           logo.then(),
           Promise.race([Promise.all([loaded(heroImg), document.fonts?.ready, firstPageReady()]), wait(5000)]),
         ])
-        if (!cancelled) exit()
+        if (!cancelled) {
+          exit()
+          easeHeaderIn()
+        }
       }
       run()
 
@@ -162,8 +167,8 @@ export function Preloader() {
         </svg>
       </div>
 
-      <div className="preloader__hero">
-        {isHome && (
+      {isHome && (
+        <div className="preloader__hero">
           <Img
             id={heroId}
             className="preloader__img--hero"
@@ -171,9 +176,9 @@ export function Preloader() {
             priority
             style={{ backgroundColor: 'transparent' }}
           />
-        )}
-        <div className="hero__shade" />
-      </div>
+          <div className="hero__shade" />
+        </div>
+      )}
     </div>
   )
 }
