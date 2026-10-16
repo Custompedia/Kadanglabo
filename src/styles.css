@@ -3425,18 +3425,59 @@ button.news-search__btn:hover {
   color: var(--color-mute);
 }
 
+/* orange card: white logo, a big K mark drawn into the corner and a drafting grid fading in behind it */
 .news-cta {
-  padding: clamp(22px, 2vw, 30px);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: clamp(22px, 2vw, 30px) clamp(22px, 2vw, 30px) 150px; /* the K mark lives in the bottom corner */
   background: var(--color-orange);
   color: #fff;
 }
 
-.news-cta__kicker {
-  opacity: 0.8;
+.news-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(130% 95% at 100% 100%, #000 10%, transparent 72%);
+  mask-image: radial-gradient(130% 95% at 100% 100%, #000 10%, transparent 72%);
+}
+
+.news-cta__mark {
+  position: absolute;
+  right: -40px;
+  bottom: -62px;
+  z-index: -1;
+  width: 200px;
+  height: auto;
+  transform-origin: 70% 70%;
+  transition: transform 1.2s var(--ease-expo);
+}
+
+.news-cta__mark .bm-ring {
+  stroke: rgb(255 255 255 / 0.55);
+}
+
+.news-cta__mark .bm-piece {
+  fill: rgb(255 255 255 / 0.28);
+}
+
+.news-cta:hover .news-cta__mark {
+  transform: rotate(-8deg) scale(1.04);
+}
+
+.news-cta__logo {
+  width: auto;
+  height: 22px;
 }
 
 .news-cta__title {
-  margin-top: 14px;
+  margin-top: 26px;
   font-weight: 800;
   font-family: var(--font-display);
   font-stretch: 90%;

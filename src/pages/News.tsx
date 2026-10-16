@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
+import { BrandMark } from '../components/BrandMark'
 import { NewsCard } from '../components/NewsCard'
 import { ArrowRight, Plus, Search } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
@@ -59,7 +60,13 @@ export default function News() {
   const pickTopic = (x: (typeof topics)[number]) => update(tag === x.tag ? { tag: null } : { tag: x.tag, type: x.type })
   const reset = () => setParams(new URLSearchParams(), { replace: true, preventScrollReset: true })
 
-  usePageAnimations(root)
+  usePageAnimations(root, () => {
+    // CTA card: the watermark K draws its ring and pops its pieces in, like the logo intro
+    gsap
+      .timeline({ scrollTrigger: { trigger: '.news-cta', start: 'top 85%', once: true } })
+      .fromTo('.news-cta__mark .bm-ring', { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.6, ease: 'power2.inOut' })
+      .from('.news-cta__mark .bm-piece', { scale: 0, transformOrigin: '50% 50%', duration: 0.9, stagger: 0.12, ease: 'back.out(1.8)' }, 0.6)
+  })
 
   // Re-animate the cards when the result set changes (not on every keystroke that leaves it the same).
   const resultKey = items.map((n) => n.slug).join('|')
@@ -193,8 +200,9 @@ export default function News() {
               </ol>
             </div>
 
-            <div className="news-cta">
-              <p className="t-label news-cta__kicker">Kadanglabo</p>
+            <div className="news-cta" data-fade>
+              <BrandMark className="news-cta__mark" />
+              <img src="/brand/kadanglabo-logo-white.svg" alt="Kadanglabo" width={1400} height={324} className="news-cta__logo" />
               <p className="news-cta__title">Mari berkolaborasi.</p>
               <p className="news-cta__text">
                 Ceritakan rencana Anda: rumah, usaha, atau kawasan. Kami bantu dari pertanyaan pertama sampai bangunan
