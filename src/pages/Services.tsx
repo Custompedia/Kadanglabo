@@ -199,7 +199,7 @@ export default function Services() {
                   lapangan.
                 </p>
               </div>
-              <ol className="process__cards">
+              <ol className="process__cards" tabIndex={0} aria-label="Empat tahap layanan">
                 {process.map((step, i) => (
                   <li key={step.title} className="step">
                     <div className="step__card">

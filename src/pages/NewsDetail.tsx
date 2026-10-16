@@ -40,7 +40,7 @@ function Article({ n }: { n: NewsItem }) {
           <p className="nd-hero__meta" data-fade="now">
             <span className="pill">{n.type === 'event' ? 'Event' : 'News'}</span>
             <span className="pill">{n.tag}</span>
-            <span className="t-label opacity-60">{formatDate(n.date)}</span>
+            <span className="t-label opacity-70">{formatDate(n.date)}</span>
           </p>
           <h1 className="t-h1 nd-hero__title" data-split="now">
             {n.title}

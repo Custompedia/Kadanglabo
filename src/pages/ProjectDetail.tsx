@@ -136,7 +136,7 @@ function ProjectView({ p }: { p: Project }) {
   const shown = open < 0 ? 0 : open
   const related = relatedProjects(p)
   const vars = { '--p-color': p.color, '--p-accent': p.accent } as CSSProperties
-  const heroTheme = p.color.toUpperCase() === '#EC6434' ? 'accent' : 'dark'
+  const heroTheme = p.color.toUpperCase() === '#D34614' ? 'accent' : 'dark' // deep orange (white text) or navy
 
   return (
     <Page title={p.title}>

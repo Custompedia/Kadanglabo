@@ -148,8 +148,8 @@ export const projects: Project[] = [
     year: null,
     status: null,
     scope: ['Arsitektur', 'Desain Interior', 'Landscape'],
-    color: '#EC6434',
-    accent: '#1B2238',
+    color: '#D34614',
+    accent: '#FFFFFF',
     tagline: 'Percakapan antara tradisi dan kesederhanaan kontemporer.',
     summary:
       'Bale Catur Villa & Resto adalah percakapan antara tradisi dan kesederhanaan kontemporer. Dari fasad yang berkarakter, lobby dan restoran yang terintegrasi, kamar yang merespons cara orang beristirahat, hingga area pool yang terasa seperti milik sendiri.',
@@ -379,8 +379,8 @@ export const projects: Project[] = [
     status: null,
     scope: ['Tata Kawasan', 'Arsitektur', 'Desain Interior'],
     client: 'PT. Papan Cemerlang',
-    color: '#EC6434',
-    accent: '#1B2238',
+    color: '#D34614',
+    accent: '#FFFFFF',
     tagline: 'Kerja sama pertama kami di bidang perumahan.',
     summary:
       'Merupakan kerja sama pertama bagi kami dalam bidang perumahan. PT. Papan Cemerlang mempercayakan kami untuk mengembangkan lahannya yang sulit berkembang pada masa pandemi.',
@@ -432,8 +432,8 @@ export const projects: Project[] = [
     year: null,
     status: null,
     scope: ['Arsitektur'],
-    color: '#EC6434',
-    accent: '#1B2238',
+    color: '#D34614',
+    accent: '#FFFFFF',
     tagline: 'Wajah yang hangat di koridor paling ikonik Yogyakarta.',
     summary:
       'Rancangan fasad Hamzah Batik di kawasan Malioboro: lengkung, gevel, dan ritme jendela bergaya kolonial yang menghadirkan wajah bangunan yang hangat dan berwibawa di koridor heritage Yogyakarta.',
@@ -508,8 +508,8 @@ export const projects: Project[] = [
     year: null,
     status: null,
     scope: ['Arsitektur'],
-    color: '#EC6434',
-    accent: '#1B2238',
+    color: '#D34614',
+    accent: '#FFFFFF',
     tagline: 'Tertutup di muka, terbuka pada cahaya.',
     summary:
       'Rumah tinggal dengan atap pelana dan bukaan cahaya memanjang di puncaknya: fasad yang menjaga privasi namun tetap terbuka pada cahaya alami.',

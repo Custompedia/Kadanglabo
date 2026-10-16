@@ -8,7 +8,7 @@ import { Img } from './Img'
 export function SectionLabel({ n, children, className = '' }: { n?: string; children: ReactNode; className?: string }) {
   return (
     <span className={`pill ${className}`} data-fade>
-      {n && <span className="opacity-60">({n})</span>}
+      {n && <span className="pill__n">({n})</span>}
       {children}
     </span>
   )
