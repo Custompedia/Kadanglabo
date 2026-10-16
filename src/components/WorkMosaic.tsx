@@ -1,6 +1,7 @@
 import { useRef, type CSSProperties } from 'react'
 import { gsap, ScrollTrigger, useGSAP, reducedMotion } from '../lib/gsap'
 import { TLink } from '../lib/transition'
+import { useMediaQuery } from '../lib/media'
 import { categoryTitle, getProject, type Category } from '../data/projects'
 import { Img, type ImgKey } from './Img'
 
@@ -71,6 +72,48 @@ const N = groups.length
 const indexAt = (p: number) => Math.min(N - 1, Math.floor(p * (N - 1) + 0.5))
 
 export function WorkMosaic() {
+  const phone = useMediaQuery('(max-width: 767px)')
+  return phone ? <WorkStack /> : <Mosaic />
+}
+
+/**
+ * Phones: on a narrow screen the drifting mosaic put the giant titles over the photos (and past the
+ * screen edge), so the same three categories become a calm stack: counter, title, three photos, link.
+ */
+function WorkStack() {
+  return (
+    <section className="wms wrap" data-theme="light" aria-label="Our work: proyek terpilih per kategori">
+      <span className="pill" data-fade>
+        (03) Our work
+      </span>
+      {groups.map((g, gi) => (
+        <div key={g.key} className="wms__group">
+          <p className="wms__count" data-fade>
+            {gi + 1} / {N}
+          </p>
+          <h2 className="wms__title" data-split>
+            {g.title}
+          </h2>
+          <div className="wms__grid">
+            {g.tiles.slice(0, 3).map((t, i) => {
+              const p = getProject(t.slug)
+              return (
+                <TLink key={t.img} to={`/work/${t.slug}`} className={i === 0 ? 'wms__tile wms__tile--wide' : 'wms__tile'} data-reveal>
+                  <Img id={t.img} alt={p?.title ?? ''} sizes={i === 0 ? '100vw' : '50vw'} />
+                </TLink>
+              )
+            })}
+          </div>
+          <TLink to={`/work#${g.key}`} className="link-line t-label wms__link" data-fade>
+            Lihat {categoryTitle[g.key]} →
+          </TLink>
+        </div>
+      ))}
+    </section>
+  )
+}
+
+function Mosaic() {
   const root = useRef<HTMLElement>(null)
 
   useGSAP(
