@@ -51,7 +51,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 | `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail: empat tahap dalam kartu yang bergeser ke samping saat di-scroll (desktop) / di-swipe (mobile), tanpa ilustrasi → (04) Start a project |
 | `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Project archive** (filter Category · Location · Year · Status) |
 | `/work/:slug` | Halaman proyek: hero warna, header image, info, Context → Challenge → Concept → Development → Outcome, galeri, related projects, Next up |
-| `/news`, `/news/:slug` | News & Events, detail: Konteks · Isi utama · Visual · Informasi lanjutan · Explore more |
+| `/news`, `/news/:slug` | News & Events: kartu artikel seragam (2 kolom) + sidebar kanan (cari artikel, Kategori, Topik, Terbaru, CTA), filter tersimpan di URL (`?type=`, `?tag=`, `?q=`); detail: Konteks · Isi utama · Visual · Informasi lanjutan · Explore more |
 | `/contact` | Alamat, kontak, peta ilustrasi (Google Maps dimuat saat diklik), form inquiry → WhatsApp |
 
 ## Mengubah konten

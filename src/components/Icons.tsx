@@ -23,3 +23,12 @@ export function Plus({ className }: IconProps) {
     </svg>
   )
 }
+
+export function Search({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" fill="none" stroke="currentColor">
+      <circle cx="10.5" cy="10.5" r="6.5" strokeWidth="1.8" />
+      <path d="M15.4 15.4L21 21" strokeWidth="1.8" />
+    </svg>
+  )
+}
