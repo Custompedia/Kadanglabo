@@ -46,7 +46,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 
 | Route | Isi |
 | --- | --- |
-| `/` | Hero "KADANGLABO" (gaya shed.design), (01) About, angka studio, (02) Core services & sectors, (03) Selected work (ring 3D, ref. CLOU), (04) filosofi, (05) Latest updates |
+| `/` | Sesuai urutan brief: Hero "KADANGLABO" (gaya shed.design) → (01) About → (02) Core services & sectors → (03) Our work: panel proyek layar penuh bertumpuk (ref. Saisei) → (04) Latest updates → footer "See work" |
 | `/about` team`) #team`) | About: copy persis dari brief, kolaborasi klien–perencana–pelaksana, 2 parameter keberhasilan, visi/misi/goals, filosofi, **Team** (menu sendiri, ref. Coeval). `/studio` dialihkan ke sini |
 | `/services` | Skema brief: (01) Our services → (02) Service categories → (03) Service detail — empat tahap berilustrasi dalam grid 2×2, satu kolom di mobile, scroll vertikal → (04) Start a project |
 | `/work` | Skema brief: Introduction & Selected projects per kategori (a. Commercial Design, b. Hospitality Design, c. Selected Residential Design) → **Peta proyek 3D** (ref. Sobha) → **Project archive** (filter Category · Location · Year · Status) |
@@ -98,7 +98,7 @@ node scripts/optimize-collaboration-images.mjs services-process
 src/
   App.tsx              router, layout, footer CTA per halaman
   lib/                 gsap, smooth scroll, transisi halaman (curtain), helper animasi
-  components/          Header, Menu, Footer, Preloader, HomeHero, ProjectRing (3D), ProjectMap (peta 3D), SectorShowcase, InquiryForm, StudioMap, …
+  components/          Header, Menu, Footer, Preloader, HomeHero, SelectedWork, ProjectMap (peta 3D), SectorShowcase, InquiryForm, StudioMap, …
   pages/               Home, About, Services, Work, ProjectDetail, News, NewsDetail, Contact
 scripts/               optimize-image.mjs (npm run img), build-map.mjs (peta)
   data/                konten + images.json (manifest gambar)
