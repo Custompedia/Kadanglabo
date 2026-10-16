@@ -2506,13 +2506,11 @@
 
 /* --------------------------------------------------------------- inquiry */
 
-/* the form sits on a sand panel; fields are paper boxes, the chips match them */
+/* open form, no panel: labels above, inputs on a hairline, like a native iOS form */
 .inquiry {
   display: grid;
   align-content: start;
-  gap: 28px;
-  padding: clamp(22px, 3vw, 44px);
-  background: var(--color-sand);
+  gap: 32px;
   container-type: inline-size; /* fields stack whenever the form itself is narrow (tablet columns, phones) */
 }
 
@@ -2573,7 +2571,7 @@
 .inquiry__fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px 24px;
+  gap: 28px;
 }
 
 @container (max-width: 520px) {
@@ -2599,52 +2597,46 @@
   text-transform: uppercase;
 }
 
+/* two background lines: the hairline, and an ink line that draws across it on focus */
 .field input,
 .field textarea {
   width: 100%;
-  padding: 13px 16px;
-  border: 1px solid transparent;
+  padding: 10px 0 12px;
+  border: 0;
   border-radius: 0;
-  background: var(--color-paper);
-  font-size: 16px; /* 16px keeps iOS from zooming in on focus */
-  line-height: 1.5;
+  background:
+    linear-gradient(var(--color-ink), var(--color-ink)) 0 100% / 0% 1px no-repeat,
+    linear-gradient(var(--line-strong), var(--line-strong)) 0 100% / 100% 1px no-repeat;
+  font-size: 18px; /* 16px+ keeps iOS from zooming in on focus */
+  line-height: 1.45;
   outline: none;
-  transition: border-color 0.3s;
+  transition: background-size 0.6s var(--ease-expo);
 }
 
 .field textarea {
-  min-height: 140px;
+  min-height: 112px;
   resize: vertical;
-}
-
-.field input:hover,
-.field textarea:hover {
-  border-color: var(--line-strong);
 }
 
 .field input:focus,
 .field textarea:focus {
-  border-color: var(--color-ink);
+  background-size:
+    100% 1px,
+    100% 1px;
+}
+
+/* keep the browser's autofill tint off the open fields */
+.field input:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-ink);
+  transition:
+    background-size 0.6s var(--ease-expo),
+    background-color 9999s;
 }
 
 .field input::placeholder,
 .field textarea::placeholder {
   color: var(--color-mute);
-  opacity: 0.6;
-}
-
-.inquiry .chip span {
-  border-color: transparent;
-  background: var(--color-paper);
-}
-
-.inquiry .chip:hover span {
-  border-color: var(--line-strong);
-}
-
-.inquiry .chip input:checked + span {
-  border-color: var(--color-ink);
-  background: var(--color-ink);
+  opacity: 0.55;
 }
 
 .inquiry__actions {
@@ -2662,9 +2654,10 @@
 }
 
 .inquiry__note {
-  padding: 14px 16px;
-  background: var(--color-paper);
-  font-size: 14px;
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid var(--color-orange);
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 /* ------------------------------------------------------------------ work */
