@@ -66,26 +66,25 @@ export function Preloader() {
       const heroImg = el.querySelector<HTMLImageElement>('.preloader__hero img')
 
       // the mark starts alone in the centre of the lockup (svg units: lockup 1609 wide, mark ≈330)
-      // about 2.7s in total: the same moves as before, just closer together
       const logo = gsap
-        .timeline({ delay: 0.15 })
+        .timeline({ delay: 0.25 })
         .set(mark, { x: 1609 / 2 - 165 })
         // the navy half-ring pops in exactly like the orange pieces, then the pieces follow
         .from(
           '.il-ring',
-          { scale: 0, autoAlpha: 0, transformOrigin: '50% 50%', duration: 0.6, ease: 'back.out(1.8)' },
+          { scale: 0, autoAlpha: 0, transformOrigin: '50% 50%', duration: 0.75, ease: 'back.out(1.8)' },
           0,
         )
         .from(
           '.il-piece',
-          { scale: 0, autoAlpha: 0, transformOrigin: '50% 50%', duration: 0.6, stagger: 0.09, ease: 'back.out(1.8)' },
-          0.2,
+          { scale: 0, autoAlpha: 0, transformOrigin: '50% 50%', duration: 0.75, stagger: 0.12, ease: 'back.out(1.8)' },
+          0.3,
         )
-        .to(mark, { x: 0, duration: 0.75, ease: 'expo.inOut' }, 0.85)
+        .to(mark, { x: 0, duration: 0.9, ease: 'expo.inOut' }, 1.3)
         // wordmark and tagline wipe in left → right, only once the mark has cleared their space
-        .fromTo('#il-clip-word rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.7, ease: 'power3.inOut' }, 1.25)
-        .fromTo('#il-clip-tag rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.7, ease: 'power3.inOut' }, 1.55)
-        .to({}, { duration: 0.35 }) // hold the finished logo for a beat
+        .fromTo('#il-clip-word rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 1.9)
+        .fromTo('#il-clip-tag rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 2.35)
+        .to({}, { duration: 0.6 }) // hold the finished logo for a beat
       if (seen) {
         logo.progress(1)
         gsap.set('.intro-logo', { autoAlpha: 0 })
@@ -110,7 +109,7 @@ export function Preloader() {
           .to(el, { autoAlpha: 0, duration: isHome ? 0.01 : 0.6, ease: 'power2.out' }, isHome ? 1.5 : 1.25)
         if (panel) tl.fromTo(panel, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'expo.inOut' }, 0.35)
         if (heroImg) tl.fromTo(heroImg, { scale: 1.15 }, { scale: 1, duration: 1.6, ease: 'power3.out' }, 0.35)
-        tl.timeScale(seen ? 1.5 : 1.15) // repeat visits: nothing to lift away, so the hand-over is brisker still
+        if (seen) tl.timeScale(1.5) // nothing to lift away, so the hand-over can be brisker
       })
 
       // home: the hero intro animates the header items; elsewhere ease them in after the intro
