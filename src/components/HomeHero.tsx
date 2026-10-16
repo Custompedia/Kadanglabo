@@ -31,7 +31,7 @@ export function HomeHero() {
   const root = useRef<HTMLElement>(null)
   const fit = useRef<HTMLSpanElement>(null)
   const [cur, setCur] = useState(0)
-  const [mounted, setMounted] = useState(2)
+  const [mounted, setMounted] = useState(1) // the next slide mounts after the intro, so the first photo loads alone
   const [leaving, setLeaving] = useState<number | null>(null)
   const curRef = useRef(0)
   const timer = useRef<gsap.core.Tween | null>(null)
@@ -79,6 +79,7 @@ export function HomeHero() {
           .add(() => {
             running.current = true
             startTimer()
+            setMounted((m) => Math.max(m, 2))
           }, 1.2)
       })
       return whenGateOpen(intro)

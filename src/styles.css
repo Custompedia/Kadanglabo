@@ -159,12 +159,11 @@
     white-space: normal;
   }
 
+  /* tag on a photo: a solid tint instead of a backdrop blur, so card grids stay cheap to scroll */
   .pill--solid {
-    background: rgb(21 21 21 / 0.62);
+    background: rgb(21 21 21 / 0.7);
     border-color: transparent;
     color: #fff;
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
   }
 
   .pill--link {

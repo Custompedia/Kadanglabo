@@ -2,15 +2,14 @@
   "generator": "built-in image_gen / GPT Image",
   "purpose": "Faithful reconstruction of the five home hero images.",
   "export": {
-    "method": "GPT Image detail restoration followed by Lanczos3 resizing and WebP export. Exported 3840px assets are upscaled; the generated masters are not native 4K.",
+    "method": "GPT Image detail restoration (1672px masters) followed by Lanczos3 resizing and WebP export. 2560px is the largest export; 3840px files were dropped (upscales only).",
     "widths": [
       640,
       1280,
       1920,
-      2560,
-      3840
+      2560
     ],
-    "webpQuality": 88
+    "webpQuality": 80
   },
   "images": [
     {

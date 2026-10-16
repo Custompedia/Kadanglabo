@@ -31,6 +31,9 @@ export function ShowReel() {
   const root = useRef<HTMLDivElement>(null)
   const [i, setI] = useState(0)
   const [open, setOpen] = useState(false)
+  // renders load one step ahead of the reel instead of all seven at once
+  const [ready, setReady] = useState(2)
+  useEffect(() => setReady((r) => Math.max(r, i + 2)), [i])
 
   useGSAP(
     () => {
@@ -132,7 +135,7 @@ export function ShowReel() {
       ) : (
         frames.map((f, k) => (
           <div key={f.img} className="reel__frame">
-            <Img id={f.img} alt={k === i ? f.title : ''} sizes="(min-width: 768px) 66vw, 100vw" />
+            {k < ready && <Img id={f.img} alt={k === i ? f.title : ''} sizes="(min-width: 768px) 66vw, 100vw" />}
           </div>
         ))
       )}
