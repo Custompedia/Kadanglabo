@@ -1142,7 +1142,7 @@
   display: grid;
   grid-template-columns: minmax(0, 2.07fr) minmax(0, 1fr);
   gap: 12px;
-  padding-bottom: var(--sec);
+  padding-bottom: calc(var(--sec) * 0.5); /* the orange services block follows; half a section is enough */
 }
 
 .spirit__media {
