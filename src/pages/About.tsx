@@ -2,27 +2,16 @@ import { useRef } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img } from '../components/Img'
-import { CollabDiagram } from '../components/CollabDiagram'
 import { Marquee, SectionLabel } from '../components/Bits'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
-import { gsap } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { about, company, disciplines, goals, mission, parametersDetail, team, vision } from '../data/site'
 
 export default function About() {
   const root = useRef<HTMLDivElement>(null)
 
-  usePageAnimations(root, () => {
-    const tl = gsap.timeline({
-      scrollTrigger: { trigger: '.collab__visual', start: 'top 85%', end: 'center 45%', scrub: 1 },
-    })
-    tl.fromTo('.collab__node--plan', { y: -35, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: 'none' }, 0)
-      .fromTo('.collab__node--client', { x: -35, y: 20, autoAlpha: 0 }, { x: 0, y: 0, autoAlpha: 1, ease: 'none' }, 0)
-      .fromTo('.collab__node--build', { x: 35, y: 20, autoAlpha: 0 }, { x: 0, y: 0, autoAlpha: 1, ease: 'none' }, 0)
-      .fromTo('.collab__connections', { autoAlpha: 0 }, { autoAlpha: 1, ease: 'none' }, 0.35)
-      .fromTo('.collab__node--together', { autoAlpha: 0, scale: 0.88 }, { autoAlpha: 1, scale: 1, ease: 'none' }, 0.55)
-  })
+  usePageAnimations(root)
 
   return (
     <Page title="About">
@@ -84,17 +73,14 @@ export default function About() {
 
         {/* Collaboration */}
         <section className="collab wrap" data-theme="light">
-          <div className="collab__text">
-            <SectionLabel>A collaborative architectural solution</SectionLabel>
-            <h2 className="t-h1 mt-6" data-split>
-              Satu meja untuk klien, perencana, dan pelaksana.
-            </h2>
-            <p className="t-body-lg mt-6 max-w-[44ch] opacity-75" data-fade>
-              Tujuan kami tercapai lewat kerja sama yang baik antara ketiganya. Perencanaan dan pelaksanaan
-              terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.
-            </p>
-          </div>
-          <CollabDiagram />
+          <SectionLabel>A collaborative architectural solution</SectionLabel>
+          <h2 className="t-h1 collab__title mt-6" data-split>
+            Satu meja untuk klien, perencana, dan pelaksana.
+          </h2>
+          <p className="t-body-lg mt-6 max-w-[44ch] opacity-75" data-fade>
+            Tujuan kami tercapai lewat kerja sama yang baik antara ketiganya. Perencanaan dan pelaksanaan
+            terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.
+          </p>
         </section>
 
         {/* Two parameters */}

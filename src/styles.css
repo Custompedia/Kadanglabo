@@ -1731,119 +1731,14 @@
 
 .collab {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  gap: 48px;
-  padding-block: calc(var(--sec) * 0.6) var(--sec);
-}
-
-.collab__visual {
-  position: relative;
-  justify-self: center;
-  width: 100%;
-  max-width: 660px;
-  aspect-ratio: 1;
-  isolation: isolate;
-}
-
-.collab__connections {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.collab__connection {
-  stroke-width: 1.5;
-  stroke-dasharray: 4 7;
-  stroke-linecap: round;
-  opacity: 0.5;
-}
-
-.collab__connection--plan,
-.collab__connection--build {
-  stroke: var(--color-navy);
-}
-
-.collab__connection--client {
-  stroke: var(--color-orange);
-}
-
-.collab__node {
-  position: absolute;
-  width: 38%;
-  margin: 0;
+  justify-items: center;
+  padding-bottom: var(--sec);
   text-align: center;
-}
-
-.collab__node > img {
-  width: 76%;
-  height: auto;
-  margin-inline: auto;
-}
-
-.collab__node--plan {
-  top: 0;
-  left: 31%;
-}
-
-.collab__node--client {
-  top: 59%;
-  left: 0;
-}
-
-.collab__node--build {
-  top: 59%;
-  right: 0;
-}
-
-.collab__node--together {
-  top: 35%;
-  left: 30%;
-  width: 40%;
-  z-index: 1;
-}
-
-.collab__node h3 {
-  margin-top: 5px;
-  font-size: clamp(14px, 1.45vw, 22px);
-  font-weight: 650;
-  line-height: 1.15;
-  letter-spacing: -0.035em;
-}
-
-.collab__node p {
-  margin-top: 5px;
-  color: var(--color-mute);
-  font-size: clamp(10px, 0.8vw, 12px);
-  line-height: 1.45;
   text-wrap: balance;
 }
 
-.collab__node--together h3 {
-  display: inline-block;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: var(--color-navy);
-  color: var(--color-paper);
-  font-size: clamp(12px, 1vw, 15px);
-  letter-spacing: -0.02em;
-}
-
-@media (max-width: 899px) {
-  .collab__visual {
-    aspect-ratio: 640 / 840;
-  }
-
-  .collab__node--together {
-    top: 40%;
-  }
-
-  .collab__node--client,
-  .collab__node--build {
-    top: 63%;
-  }
+.collab__title {
+  max-width: 22ch;
 }
 
 .params {
@@ -3748,7 +3643,6 @@
   .split,
   .p-intro,
   .nd-body,
-  .collab,
   .params__grid,
   .vmg__cols,
   .philo-dark__grid,

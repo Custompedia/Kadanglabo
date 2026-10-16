@@ -1,6 +1,5 @@
 // Preserve the generated cutouts' transparency when exporting responsive WebP.
-// Run: node scripts/optimize-collaboration-images.mjs
-// Service illustrations: node scripts/optimize-collaboration-images.mjs services-process
+// Run: node scripts/optimize-collaboration-images.mjs services-process
 import sharp from 'sharp'
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -10,10 +9,9 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const manifestPath = path.join(root, 'src/data/images.json')
 const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'))
 const collections = {
-  collaboration: ['collab-client', 'collab-planner', 'collab-builder', 'collab-together'],
   'services-process': ['process-brief', 'process-analysis', 'process-creative', 'process-deliverables'],
 }
-const collection = process.argv[2] ?? 'collaboration'
+const collection = process.argv[2] ?? 'services-process'
 const keys = collections[collection]
 if (!keys) throw new Error(`Unknown illustration collection: ${collection}`)
 
