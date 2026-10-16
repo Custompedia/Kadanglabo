@@ -72,7 +72,7 @@ Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src
 
 ## Performa & pengujian
 
-- **Intro logo** tampil penuh sekali per tab (`sessionStorage` `kl-intro-seen`); reload / buka halaman langsung setelahnya memakai hand-over singkat (±1.7 dtk).
+- **Intro logo** Kadanglabo (motion logo awal) tampil penuh setiap halaman dibuka atau di-reload; perpindahan halaman di dalam situs memakai tirai transisi, tanpa intro ulang.
 - **Foto hero**: master 1672px, jadi ukuran terbesar 2560 (WebP q80, ekspor ulang: `node scripts/optimize-hero-images.mjs`). Slide kedua baru dipasang setelah intro; showreel memuat render satu langkah di depan.
 - **Muatan Home pertama kali** ±1.6 MB (sebelumnya 2.7 MB di laptop, 3.5 MB di ponsel).
 - **Lighthouse** (lokal, build produksi): Home desktop Performance 95 · Accessibility 95 · Best Practices 100 · SEO 100. Di simulasi ponsel lambat, skor performa dibatasi intro logo pada kunjungan pertama (LCP diukur setelah intro).

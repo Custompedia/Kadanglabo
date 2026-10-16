@@ -55,8 +55,6 @@ export function Preloader() {
         return
       }
       let cancelled = false
-      // the full logo animation plays once per tab; a reload or a direct link later only gets the short hand-over
-      const seen = sessionStorage.getItem('kl-intro-seen') === '1'
       lockScroll(true)
       const header = document.querySelector('.site-header__bar')
       gsap.set(header, { autoAlpha: 0 })
@@ -85,19 +83,10 @@ export function Preloader() {
         .fromTo('#il-clip-word rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 1.9)
         .fromTo('#il-clip-tag rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 2.35)
         .to({}, { duration: 0.6 }) // hold the finished logo for a beat
-      if (seen) {
-        logo.progress(1)
-        gsap.set('.intro-logo', { autoAlpha: 0 })
-      }
 
       const exit = contextSafe(() => {
         const tl = gsap
-          .timeline({
-            onComplete: () => {
-              sessionStorage.setItem('kl-intro-seen', '1')
-              setGone(true)
-            },
-          })
+          .timeline({ onComplete: () => setGone(true) })
           .to('.intro-logo', { yPercent: -40, autoAlpha: 0, duration: 0.7, ease: 'power3.in' }, 0)
           .add(() => {
             lockScroll(false)
@@ -109,7 +98,6 @@ export function Preloader() {
           .to(el, { autoAlpha: 0, duration: isHome ? 0.01 : 0.6, ease: 'power2.out' }, isHome ? 1.5 : 1.25)
         if (panel) tl.fromTo(panel, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'expo.inOut' }, 0.35)
         if (heroImg) tl.fromTo(heroImg, { scale: 1.15 }, { scale: 1, duration: 1.6, ease: 'power3.out' }, 0.35)
-        if (seen) tl.timeScale(1.5) // nothing to lift away, so the hand-over can be brisker
       })
 
       // home: the hero intro animates the header items; elsewhere ease them in after the intro
