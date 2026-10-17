@@ -78,7 +78,8 @@ Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src
 - **Lighthouse** (lokal, build produksi): Home desktop Performance 95 · Accessibility 95 · Best Practices 100 · SEO 100. Di simulasi ponsel lambat, skor performa dibatasi intro logo pada kunjungan pertama (LCP diukur setelah intro).
 - **Audit responsif**: 24 rute × 15 ukuran layar (320-3840px), tanpa overflow horizontal, teks terpotong, atau animasi yang tertinggal tersembunyi.
 - **Layar lebar (>1920px)**: isi tetap memakai tata letak 1920 dan diletakkan di tengah (`--gutter` di `styles.css`); latar section dan foto full-bleed tetap memenuhi layar.
-- **Kontras WCAG 2.1 AA** (axe-core: 0 pelanggaran di 24 rute, HP & desktop). Skala oranye satu hue: `--color-orange` #EC6434 (logo, dekoratif, teks gelap di atasnya), `--color-orange-deep` #D34614 (latar dengan teks putih, teks oranye besar), `--color-orange-text` #B33B11 (teks oranye kecil). Teks yang "menyala" saat scroll mulai dari 62% agar tetap terbaca.
+- **Kontras WCAG 2.1 AA** (axe-core, 24 rute, HP & desktop): warna dan teks statis lolos semua. Skala oranye satu hue: `--color-orange` #EC6434 (logo, dekoratif, teks gelap di atasnya), `--color-orange-deep` #D34614 (latar dengan teks putih, teks oranye besar), `--color-orange-text` #B33B11 (teks oranye kecil).
+- **Teks yang "menyala" saat scroll** (`data-scrub`) sengaja memakai animasi aslinya: kata mulai samar (14%) lalu penuh begitu paragraf melewati area baca. axe menandai kata yang belum menyala (kontras rendah saat samar); kondisi menyala penuh lolos AA.
 
 ## Yang perlu dilengkapi sebelum publish
 

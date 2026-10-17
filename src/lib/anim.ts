@@ -11,8 +11,7 @@ const num = (v: string | undefined, fallback: number) => (v === undefined || v =
  *  data-stagger          children fade + rise in sequence
  *  data-reveal           image wrapper wiped open, inner <img> settles from a zoom
  *  data-parallax="10"    element drifts ±10% while its parent crosses the viewport
- *  data-scrub            words darken as you scroll through the paragraph (unlit words stay readable, AA)
- *  data-scrub-keep       inside a data-scrub paragraph: never dimmed (e.g. the orange highlights)
+ *  data-scrub            words light up as you scroll through the paragraph
  */
 export function attachReveals(root: HTMLElement) {
   root.querySelectorAll<HTMLElement>('[data-split]').forEach((el) => {
@@ -89,9 +88,8 @@ export function attachReveals(root: HTMLElement) {
       autoSplit: true,
       onSplit: (self) =>
         gsap.fromTo(
-          // 62% ink is still 4.9:1 on paper, so the text reads before it is "lit"
-          self.words.filter((w) => !w.closest('[data-scrub-keep]')),
-          { opacity: 0.62 },
+          self.words,
+          { opacity: 0.14 },
           {
             opacity: 1,
             stagger: 0.1,

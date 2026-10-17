@@ -28,7 +28,7 @@ export default function Home() {
           <p className="t-lead intro__lead" data-scrub>
             {about.lead.split(/(Desain Kontekstual|Efektifitas Workflow)/).map((part, i) =>
               i % 2 ? (
-                <span key={i} className="intro__hl" data-scrub-keep>
+                <span key={i} className="intro__hl">
                   {part}
                 </span>
               ) : (
