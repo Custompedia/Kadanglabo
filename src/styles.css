@@ -2564,7 +2564,8 @@
   margin-top: 24px;
 }
 
-/* Services overview: every service in one numbered run (after Telha Clarke's services line), lit word by word */
+/* Services overview: every service, numbered (after Telha Clarke's services line). One row per group - its name
+   and count on the left, the services as a calm run on the right - lit word by word as you read */
 .overview {
   padding-bottom: var(--sec);
 }
@@ -2584,32 +2585,44 @@
   white-space: nowrap;
 }
 
+.overview__row {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.26fr) minmax(0, 1fr);
+  gap: 12px clamp(24px, 4vw, 72px);
+  padding-block: clamp(24px, 2.8vw, 40px);
+  border-bottom: 1px solid var(--line);
+}
+
+.overview__group {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding-top: 0.55em;
+}
+
+.overview__group-count {
+  color: var(--color-mute);
+  font-size: clamp(15px, 1.2vw, 18px);
+}
+
 .overview__run {
-  margin-top: clamp(28px, 3.5vw, 48px);
-  font-size: clamp(1.9rem, 4vw, 4.4rem);
-  font-weight: 640;
-  line-height: 1.12;
-  letter-spacing: -0.035em;
+  max-width: 30em;
+  font-size: clamp(1.45rem, 2.6vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
   text-wrap: pretty;
 }
 
-/* the number rides at cap height without opening up the line */
+/* the number rides at cap height, small and quiet, without opening up the line */
 .overview__run sup {
-  margin-left: 0.15em;
-  font-size: 0.3em;
+  margin-left: 0.12em;
+  color: var(--color-mute);
+  font-size: 0.34em;
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
   line-height: 0;
-  vertical-align: 1.7em;
-}
-
-/* one line per group: design, management, care */
-.overview__line {
-  display: block;
-}
-
-.overview__line + .overview__line {
-  margin-top: 0.28em;
+  vertical-align: 1.45em;
 }
 
 .overview__tail {
@@ -2617,23 +2630,22 @@
 }
 
 .overview__sep {
+  padding-left: 0.1em;
   color: var(--color-mute);
   font-weight: 300;
 }
 
-/* group name: a small pill set into the run */
-.overview__group {
-  display: inline-block;
-  margin-right: 0.25em;
-  padding-inline: 0.8em;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  font-size: 0.2em;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 2;
-  text-transform: uppercase;
-  vertical-align: 1.2em;
+@media (max-width: 767px) {
+  .overview__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .overview__group {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-top: 0;
+  }
 }
 
 .statement {

@@ -182,7 +182,7 @@ export default function Services() {
           </div>
         </section>
 
-        {/* Overview: every service in one numbered run (after Telha Clarke's services line), lit as you read */}
+        {/* Overview: every service, numbered (after Telha Clarke's services line): one row per group, lit as you read */}
         <section className="overview wrap" data-theme="light" aria-labelledby="overview-title">
           <div className="overview__head">
             <h2 id="overview-title" className="t-label">
@@ -192,10 +192,13 @@ export default function Services() {
               {serviceNo} layanan, {serviceRun.length} kelompok
             </span>
           </div>
-          <p className="overview__run" data-scrub>
-            {serviceRun.map((g) => (
-              <span key={g.group} className="overview__line">
-                <span className="overview__group">{g.group}</span>{' '}
+          {serviceRun.map((g) => (
+            <div key={g.group} className="overview__row">
+              <p className="overview__group" data-fade>
+                <span className="t-label">{g.group}</span>
+                <span className="t-serif overview__group-count">{g.items.length} layanan</span>
+              </p>
+              <p className="overview__run" data-scrub>
                 {g.items.map((s, i) => {
                   const words = s.name.split(' ')
                   const last = words.pop()
@@ -205,7 +208,7 @@ export default function Services() {
                       {/* the last word keeps its number and the slash with it, so neither starts a line */}
                       <span className="overview__tail">
                         {last}
-                        <sup>({s.no})</sup>
+                        <sup>{s.no}</sup>
                         {i < g.items.length - 1 && (
                           <span className="overview__sep" aria-hidden="true">
                             {' /'}
@@ -215,9 +218,9 @@ export default function Services() {
                     </Fragment>
                   )
                 })}
-              </span>
-            ))}
-          </p>
+              </p>
+            </div>
+          ))}
         </section>
 
         {/* Service categories */}
