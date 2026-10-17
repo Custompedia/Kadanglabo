@@ -2518,6 +2518,60 @@
   font-size: clamp(2rem, 7.2vw, 8.5rem);
 }
 
+/* About's closing invitation with the K mark: title and text on the left, the mark large on the right */
+.cta-block--mark {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'title mark'
+    'side mark';
+  align-items: center;
+  column-gap: clamp(32px, 6vw, 120px);
+}
+
+.cta-block--mark .t-display {
+  grid-area: title;
+  align-self: end;
+}
+
+.cta-block--mark .cta-block__side {
+  grid-area: side;
+  align-self: start;
+}
+
+.cta-block__mark {
+  grid-area: mark;
+  width: clamp(200px, 24vw, 400px);
+  height: auto;
+}
+
+@media (max-width: 1023px) {
+  .cta-block--mark {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'mark'
+      'title'
+      'side';
+  }
+
+  .cta-block__mark {
+    width: clamp(120px, 34vw, 220px);
+  }
+}
+
+/* 404: the exploded house drawing above the number, its white paper melted into the page */
+.nf-art {
+  order: -1;
+  width: clamp(130px, 16vw, 220px);
+  margin-bottom: clamp(20px, 3vw, 36px);
+  overflow: hidden;
+  mix-blend-mode: multiply;
+}
+
+.nf-art img {
+  width: 100%;
+  height: auto;
+}
+
 /* side by side only where "BERKOLABORASI." fits next to the text (from ~910px); narrower, the line masks would cut it */
 @media (max-width: 1023px) {
   .cta-block {
@@ -2584,6 +2638,51 @@
   color: var(--color-mute);
   font-size: clamp(15px, 1.3vw, 19px);
   white-space: nowrap;
+}
+
+/* the rows and, from tablet up, the studio's drawing beside them */
+.overview__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 0.34fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 96px);
+}
+
+.overview__art {
+  display: grid;
+  gap: 14px;
+}
+
+/* white paper of the scan melts into the page; only the navy lines remain. The blend sits on the clipped box
+   (its clip-path makes it a group of its own, so a blend on the image inside would have nothing to mix with) */
+.overview__art-draw {
+  overflow: hidden;
+  mix-blend-mode: multiply;
+}
+
+.overview__art-draw img {
+  width: 100%;
+  height: auto;
+}
+
+.overview__art-cap {
+  max-width: 26ch;
+  color: var(--color-mute);
+  font-size: clamp(15px, 1.1vw, 17px);
+  line-height: 1.35;
+}
+
+@media (max-width: 1023px) {
+  .overview__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .overview__art {
+    order: -1;
+    justify-self: end;
+    width: min(64%, 380px);
+    margin-top: 28px;
+  }
 }
 
 .overview__row {

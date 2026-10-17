@@ -4,6 +4,7 @@ import { PageHero } from '../components/PageHero'
 import { Img, type ImgKey } from '../components/Img'
 import { SectionLabel } from '../components/Bits'
 import { ArrowRight } from '../components/Icons'
+import { BrandMark } from '../components/BrandMark'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger } from '../lib/gsap'
 import { TLink } from '../lib/transition'
@@ -47,6 +48,12 @@ export default function About() {
   const root = useRef<HTMLDivElement>(null)
 
   usePageAnimations(root, (page) => {
+    // Closing invitation: the K mark draws its ring and pops its pieces in as the section arrives
+    gsap
+      .timeline({ scrollTrigger: { trigger: '.cta-block', start: 'top 75%', once: true } })
+      .fromTo('.cta-block__mark .bm-ring', { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.6, ease: 'power2.inOut' })
+      .from('.cta-block__mark .bm-piece', { scale: 0, transformOrigin: '50% 50%', duration: 0.8, stagger: 0.14, ease: 'back.out(1.8)' }, 0.7)
+
     // The doorway: a narrow arch in the middle widens to the full frame while the photo scrolls in
     const door = page.querySelector<HTMLElement>('.wide-media__frame')!
     const arch = () => Math.round(door.offsetWidth * 0.19)
@@ -333,7 +340,9 @@ export default function About() {
           </div>
         </section>
 
-        <section className="cta-block wrap" data-theme="light">
+        <section className="cta-block cta-block--mark wrap" data-theme="light">
+          {/* the logo's K, drawn the way the intro draws it: ring first, then the three orange pieces */}
+          <BrandMark className="cta-block__mark" ringColor="#3C4C74" />
           <h2 className="t-display" data-split>
             Mari
             <br />

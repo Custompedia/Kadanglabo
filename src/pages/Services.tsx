@@ -26,6 +26,17 @@ export default function Services() {
   const [cat, setCat] = useState(0) // service category in view (the sticky photo on wide screens follows it)
 
   usePageAnimations(root, (page) => {
+    // The drawing beside the services is drawn in from the top, like ink on paper, while the list is read
+    gsap.fromTo(
+      '.overview__art-draw',
+      { clipPath: 'inset(0% 0% 100% 0%)' },
+      {
+        clipPath: 'inset(0% 0% 0% 0%)',
+        ease: 'none',
+        scrollTrigger: { trigger: '.overview__body', start: 'top 80%', end: 'center 45%', scrub: 0.6 },
+      },
+    )
+
     // Service categories (archi-malin): each category's text sets which photo and number the sticky stage shows
     gsap.utils.toArray<HTMLElement>('.cat', page).forEach((el, i) => {
       ScrollTrigger.create({ trigger: el, start: 'top 60%', end: 'bottom 60%', onToggle: (self) => self.isActive && setCat(i) })
@@ -192,35 +203,53 @@ export default function Services() {
               {serviceNo} layanan, {serviceRun.length} kelompok
             </span>
           </div>
-          {serviceRun.map((g) => (
-            <div key={g.group} className="overview__row">
-              <p className="overview__group" data-fade>
-                <span className="t-label">{g.group}</span>
-                <span className="t-serif overview__group-count">{g.items.length} layanan</span>
-              </p>
-              <p className="overview__run" data-scrub>
-                {g.items.map((s, i) => {
-                  const words = s.name.split(' ')
-                  const last = words.pop()
-                  return (
-                    <Fragment key={s.name}>
-                      {words.length > 0 && `${words.join(' ')} `}
-                      {/* the last word keeps its number and the slash with it, so neither starts a line */}
-                      <span className="overview__tail">
-                        {last}
-                        <sup>{s.no}</sup>
-                        {i < g.items.length - 1 && (
-                          <span className="overview__sep" aria-hidden="true">
-                            {' /'}
-                          </span>
-                        )}
-                      </span>{' '}
-                    </Fragment>
-                  )
-                })}
-              </p>
+          <div className="overview__body">
+            <div className="overview__rows">
+              {serviceRun.map((g) => (
+                <div key={g.group} className="overview__row">
+                  <p className="overview__group" data-fade>
+                    <span className="t-label">{g.group}</span>
+                    <span className="t-serif overview__group-count">{g.items.length} layanan</span>
+                  </p>
+                  <p className="overview__run" data-scrub>
+                    {g.items.map((s, i) => {
+                      const words = s.name.split(' ')
+                      const last = words.pop()
+                      return (
+                        <Fragment key={s.name}>
+                          {words.length > 0 && `${words.join(' ')} `}
+                          {/* the last word keeps its number and the slash with it, so neither starts a line */}
+                          <span className="overview__tail">
+                            {last}
+                            <sup>{s.no}</sup>
+                            {i < g.items.length - 1 && (
+                              <span className="overview__sep" aria-hidden="true">
+                                {' /'}
+                              </span>
+                            )}
+                          </span>{' '}
+                        </Fragment>
+                      )
+                    })}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
+            {/* the studio's own drawing (Drive): an exploded axonometric house, drawn in as you scroll */}
+            <figure className="overview__art">
+              <div className="overview__art-draw">
+                <Img
+                  id="draw-exploded"
+                  alt="Gambar aksonometri rumah terurai dari studio Kadanglabo"
+                  sizes="(min-width: 1024px) 30vw, 64vw"
+                  style={{ backgroundColor: 'transparent' }}
+                />
+              </div>
+              <figcaption className="t-serif overview__art-cap" data-fade>
+                Dari gambar kerja studio: rumah diurai lantai demi lantai.
+              </figcaption>
+            </figure>
+          </div>
         </section>
 
         {/* Service categories */}
