@@ -3096,21 +3096,23 @@
   gap: 8px;
 }
 
-/* Selected projects, one block per category (a / b / c) */
+/* Selected projects, one block per category (a / b / c): a head band, then a staggered layout (Kononenko) */
 .work-group {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.1fr);
-  gap: clamp(24px, 4vw, 64px);
   padding-block: 28px var(--sec);
   border-top: 1px solid var(--line);
   scroll-margin-top: 70px;
 }
 
-.work-group__aside {
-  position: sticky;
-  top: calc(var(--header-h) + 24px);
+.work-group__head {
   display: grid;
-  align-self: start;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 24px clamp(32px, 5vw, 80px);
+}
+
+.work-group__name,
+.work-group__side {
+  display: grid;
   justify-items: start;
   gap: 16px;
 }
@@ -3144,19 +3146,348 @@
   font-size: 13px;
 }
 
-.work-group__grid {
+/* pairs on a 12-column grid: a big picture and a smaller one set lower, the next pair mirrored */
+.work-flow {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-content: start;
-  gap: 44px 20px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  gap: clamp(56px, 7vw, 120px) clamp(16px, 2vw, 28px);
+  margin-top: clamp(48px, 6vw, 96px);
 }
 
-.work-group__grid[data-count='1'] {
-  grid-template-columns: minmax(0, 1fr);
+.wp {
+  display: block;
+  --ar: 4 / 3;
 }
 
-.work-group__grid[data-count='1'] .project-card__media {
-  aspect-ratio: 16 / 9;
+.wp__inner {
+  display: block;
+}
+
+.wp__media {
+  display: block;
+  aspect-ratio: var(--ar);
+  overflow: hidden;
+}
+
+.wp__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.3s var(--ease-expo);
+}
+
+.wp__cap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.wp__name {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  transition: color 0.3s;
+}
+
+.wp__meta {
+  color: var(--color-mute);
+  font-size: 15.5px;
+  text-align: right;
+}
+
+@media (hover: hover) {
+  .wp:hover .wp__media img {
+    transform: scale(1.05);
+  }
+
+  .wp:hover .wp__name {
+    color: var(--color-orange-text);
+  }
+}
+
+.wp:nth-child(6n + 1) {
+  grid-column: 1 / span 7;
+}
+
+.wp:nth-child(6n + 2) {
+  grid-column: 9 / span 4;
+  margin-top: clamp(80px, 13vw, 230px);
+  --ar: 4 / 5;
+}
+
+.wp:nth-child(6n + 3) {
+  grid-column: 2 / span 5;
+  --ar: 1 / 1;
+}
+
+.wp:nth-child(6n + 4) {
+  grid-column: 8 / span 5;
+  margin-top: clamp(64px, 10vw, 180px);
+  --ar: 3 / 2;
+}
+
+.wp:nth-child(6n + 5) {
+  grid-column: 1 / span 4;
+  --ar: 4 / 5;
+}
+
+.wp:nth-child(6n + 6) {
+  grid-column: 6 / span 7;
+  margin-top: clamp(48px, 8vw, 140px);
+  --ar: 16 / 10;
+}
+
+/* a single project: one wide picture, set right */
+.work-flow[data-count='1'] .wp {
+  grid-column: 4 / span 9;
+  --ar: 16 / 9;
+}
+
+/* five: the last one closes the group as a wide picture instead of a lone small one */
+.work-flow[data-count='5'] .wp:nth-child(5) {
+  grid-column: 4 / span 7;
+  --ar: 16 / 10;
+}
+
+@media (max-width: 899px) {
+  .work-group__head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .work-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+  }
+
+  .wp:nth-child(n) {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .wp:nth-child(3n + 2) {
+    width: 82%;
+    align-self: flex-end;
+  }
+
+  .wp:nth-child(3n + 3) {
+    width: 82%;
+    align-self: flex-start;
+  }
+
+  .work-flow[data-count='1'] .wp {
+    width: 100%;
+  }
+}
+
+/* Archive intro (Telha Clarke "All Work"): a tall field of photos drifting at different depths while the title holds */
+.arch-intro {
+  position: relative;
+  height: 200svh;
+  border-top: 1px solid var(--line);
+}
+
+.arch-intro__photos {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+}
+
+.arch-intro__photo {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  width: var(--w);
+  opacity: var(--o);
+}
+
+.arch-intro__frame {
+  aspect-ratio: var(--ar);
+  overflow: hidden;
+}
+
+.arch-intro__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.arch-intro__stage {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 20px;
+  height: 100svh;
+  padding-inline: var(--gutter);
+  text-align: center;
+  pointer-events: none;
+}
+
+.arch-intro__stage > * {
+  pointer-events: auto;
+}
+
+/* a soft paper glow behind the words, so photos passing behind fade out instead of crossing the text */
+.arch-intro__stage::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  width: min(1100px, 96vw);
+  height: min(560px, 62svh);
+  background: radial-gradient(closest-side, var(--color-paper) 58%, rgb(243 240 234 / 0) 100%);
+  translate: -50% -50%;
+}
+
+.arch-intro__heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.2em;
+  font-size: clamp(3rem, 7.4vw, 8rem);
+}
+
+.arch-intro__title {
+  font-size: 1em;
+  font-weight: 640;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+.arch-intro__count {
+  padding-top: 0.12em;
+  font-size: 0.3em;
+  font-weight: 560;
+  letter-spacing: -0.01em;
+}
+
+.arch-intro__sub {
+  max-width: 30ch;
+  color: var(--color-mute);
+  font-size: clamp(17px, 1.5vw, 22px);
+  line-height: 1.3;
+}
+
+.arch-intro__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 10px 14px 10px 16px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.arch-intro__btn-k {
+  color: rgb(255 255 255 / 0.62);
+}
+
+.arch-intro__btn-icon {
+  width: 14px;
+  height: 14px;
+}
+
+@media (hover: hover) {
+  .arch-intro__btn:hover {
+    background: var(--color-orange-deep);
+  }
+}
+
+@media (max-width: 767px) {
+  .arch-intro {
+    height: 170svh;
+  }
+
+  .arch-intro__photo {
+    width: calc(var(--w) * 1.9);
+  }
+
+  /* fewer, larger photos on a phone */
+  .arch-intro__photo:nth-child(3n) {
+    display: none;
+  }
+}
+
+/* Floating section pill on Work (Kononenko's bottom switcher): categories + archive, orange marker on the current one */
+.wpill {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  z-index: 30;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: rgb(255 255 255 / 0.72);
+  opacity: 0;
+  transform: translate(-50%, 160%);
+  transition:
+    transform 0.7s var(--ease-expo),
+    opacity 0.4s;
+}
+
+.wpill[data-on] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.wpill__item {
+  position: relative;
+  z-index: 1;
+  padding: 9px 15px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.wpill__item[aria-current='true'] {
+  color: #fff;
+}
+
+@media (hover: hover) {
+  .wpill__item:hover {
+    color: #fff;
+  }
+}
+
+.wpill__ind {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: 0;
+  border-radius: 999px;
+  background: var(--color-orange-deep);
+  transition:
+    transform 0.6s var(--ease-expo),
+    width 0.6s var(--ease-expo);
+}
+
+@media (max-width: 399px) {
+  .wpill__item {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 359px) {
+  .wpill__item {
+    padding: 8px 7px;
+    font-size: 11.5px;
+  }
 }
 
 /* Project archive: the next chapter after the category groups, same hairline and rhythm */
@@ -3169,14 +3500,14 @@
 .archive__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
-.archive__title {
-  margin-top: 24px;
+.archive__label {
+  color: var(--color-mute);
 }
 
 .archive__count {
@@ -4300,15 +4631,6 @@
 
 /* ------------------------------------------------------------ responsive */
 
-@media (max-width: 899px) {
-  .work-group {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .work-group__aside {
-    position: static;
-  }
-}
 
 @media (max-width: 1023px) {
   .related__grid,
@@ -4414,7 +4736,6 @@
     aspect-ratio: 4 / 3;
   }
 
-  .work-group__grid,
   .related__grid,
   .nd-more__grid,
   .latest__grid {

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { useSearchParams } from 'react-router'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
-import { Img } from '../components/Img'
-import { ProjectCard, SectionLabel } from '../components/Bits'
+import { Img, type ImgKey } from '../components/Img'
+import { SectionLabel } from '../components/Bits'
 import { Plus } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger, finePointer, reducedMotion } from '../lib/gsap'
@@ -21,6 +21,7 @@ import {
   projects,
   type ArchiveEntry,
   type Category,
+  type Project,
 } from '../data/projects'
 
 /*
@@ -42,6 +43,45 @@ const matches = (f: Filters) => (e: ArchiveEntry) =>
   (f.year === 'all' || String(e.year) === f.year) &&
   (f.status === 'all' || e.status === f.status)
 
+// "All Work" scatter before the archive (after Telha Clarke): project photos at different depths drift past the
+// title. x / y in % of the section, w as a width, s = scroll speed (under 1 lags behind = far, over 1 = near).
+const scatter: { id: ImgKey; x: number; y: number; w: string; ar: string; s: number }[] = [
+  { id: 'labarka-river', x: 3, y: 7, w: 'clamp(110px, 13vw, 230px)', ar: '4 / 3', s: 0.8 },
+  { id: 'hamzah-front', x: 71, y: 3, w: 'clamp(130px, 16vw, 280px)', ar: '3 / 4', s: 1.18 },
+  { id: 'klinik-front', x: 33, y: 15, w: 'clamp(90px, 10vw, 180px)', ar: '4 / 3', s: 0.7 },
+  { id: 'ivanna-front', x: 86, y: 24, w: 'clamp(90px, 10vw, 180px)', ar: '1 / 1', s: 0.85 },
+  { id: 'balecatur-lobby', x: 12, y: 33, w: 'clamp(120px, 15vw, 260px)', ar: '3 / 4', s: 1.22 },
+  { id: 'giripeni-aerial', x: 63, y: 42, w: 'clamp(100px, 12vw, 210px)', ar: '4 / 3', s: 0.75 },
+  { id: 'muji-front', x: 1, y: 58, w: 'clamp(100px, 11vw, 200px)', ar: '1 / 1', s: 0.9 },
+  { id: 'labarka-teppanyaki', x: 77, y: 60, w: 'clamp(130px, 17vw, 300px)', ar: '4 / 3', s: 1.25 },
+  { id: 'hmw-facade', x: 36, y: 71, w: 'clamp(110px, 13vw, 230px)', ar: '3 / 4', s: 0.8 },
+  { id: 'firlatata-street', x: 16, y: 83, w: 'clamp(100px, 12vw, 210px)', ar: '4 / 3', s: 1.1 },
+  { id: 'berbah-front', x: 67, y: 85, w: 'clamp(90px, 10vw, 180px)', ar: '4 / 3', s: 0.72 },
+]
+
+// sections the floating pill moves between (ids on the page), Kononenko's bottom switcher
+const pillItems: { id: string; label: string; jump: string }[] = [
+  ...categoryOrder.map((c) => ({ id: c, label: categoryLabel[c], jump: `#${c}` })),
+  { id: 'archive', label: 'Arsip', jump: '#arsip' },
+]
+
+/** One selected project in the staggered layout (after Kononenko's Work page): photo, name, typology · place */
+function WorkPiece({ p }: { p: Project }) {
+  return (
+    <TLink to={`/work/${p.slug}`} className="wp" data-cursor="Lihat">
+      <span className="wp__inner">
+        <span className="wp__media" data-reveal>
+          <Img id={p.cover} alt={p.title} sizes="(min-width: 900px) 56vw, 100vw" />
+        </span>
+        <span className="wp__cap">
+          <span className="wp__name">{p.title}</span>
+          <span className="t-serif wp__meta">{[p.typology, p.region].filter(Boolean).join(' · ')}</span>
+        </span>
+      </span>
+    </TLink>
+  )
+}
+
 const intro = `Lebih dari ${Math.floor(archive.length / 10) * 10} proyek sejak 2020, dari rumah tinggal dan perumahan sampai resort, kantor, dan fasilitas kesehatan.`
 
 export default function Work() {
@@ -50,6 +90,9 @@ export default function Work() {
   const preview = useRef<HTMLDivElement>(null)
   const [params, setParams] = useSearchParams()
   const [hovered, setHovered] = useState<string | null>(null)
+  const [pillOn, setPillOn] = useState(false)
+  const [section, setSection] = useState(0)
+  const pill = useRef<HTMLElement>(null)
 
   const f: Filters = {
     category: params.get('category') ?? 'all',
@@ -93,7 +136,70 @@ export default function Work() {
   const hasYears = options.years.length > 0
   const hasActiveFilter = filterKey !== 'all|all|all|all'
 
-  usePageAnimations(root)
+  usePageAnimations(root, (page) => {
+    // Selected projects: the second picture of each pair drifts a little faster than the first (wide screens)
+    const wide = window.matchMedia('(min-width: 900px)')
+    gsap.utils.toArray<HTMLElement>('.wp:nth-child(even) .wp__inner', page).forEach((el) => {
+      gsap.fromTo(
+        el,
+        { y: () => (wide.matches ? 70 : 0) },
+        {
+          y: () => (wide.matches ? -70 : 0),
+          ease: 'none',
+          scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: true, invalidateOnRefresh: true },
+        },
+      )
+    })
+
+    // Archive intro: every photo moves at its own speed, so the field reads in depth while the title holds
+    const field = page.querySelector<HTMLElement>('.arch-intro')!
+    const travel = () => field.offsetHeight + window.innerHeight
+    gsap.utils.toArray<HTMLElement>('.arch-intro__photo', field).forEach((el) => {
+      const s = Number(el.dataset.speed)
+      gsap.fromTo(
+        el,
+        { y: () => ((s - 1) * travel()) / 2 },
+        {
+          y: () => (-(s - 1) * travel()) / 2,
+          ease: 'none',
+          scrollTrigger: { trigger: field, start: 'top bottom', end: 'bottom top', scrub: true, invalidateOnRefresh: true },
+        },
+      )
+    })
+
+    // Floating section pill: shows once the selected projects begin, follows the section in view
+    const first = page.querySelector<HTMLElement>(`#${categoryOrder[0]}`)!
+    const archiveEnd = page.querySelector<HTMLElement>('#arsip')!
+    ScrollTrigger.create({
+      trigger: first,
+      start: 'top 70%',
+      endTrigger: archiveEnd,
+      end: 'bottom 85%',
+      onToggle: (self) => setPillOn(self.isActive),
+    })
+    pillItems.forEach((it, i) => {
+      const el = page.querySelector<HTMLElement>(`#${it.id}`)
+      if (!el) return
+      const last = i === pillItems.length - 1
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 55%',
+        endTrigger: last ? archiveEnd : el,
+        end: 'bottom 55%',
+        onToggle: (self) => self.isActive && setSection(i),
+      })
+    })
+  })
+
+  // the pill's orange marker slides under the item of the section in view
+  useLayoutEffect(() => {
+    const nav = pill.current
+    const item = nav?.querySelectorAll<HTMLElement>('.wpill__item')[section]
+    const ind = nav?.querySelector<HTMLElement>('.wpill__ind')
+    if (!item || !ind) return
+    ind.style.width = `${item.offsetWidth}px`
+    ind.style.transform = `translateX(${item.offsetLeft}px)`
+  }, [section, pillOn])
 
   // Re-animate the archive rows whenever a filter changes (the page intro handles the first render).
   const firstRun = useRef(true)
@@ -177,54 +283,85 @@ export default function Work() {
           </div>
         </section>
 
-        {/* Selected projects — Category Project a / b / c */}
+        {/* Selected projects, Category a / b / c: a head band, then the pictures in a staggered layout (Kononenko) */}
         {categoryOrder.map((cat, gi) => {
           const list = projects.filter((p) => p.category === cat)
           const sector = sectors.find((s) => s.key === cat)
           const inArchive = archive.filter((a) => a.category === cat).length
           return (
             <section key={cat} id={cat} className="work-group wrap" data-theme="light">
-              <div className="work-group__aside">
-                <span className="work-group__letter" data-fade>
-                  {LETTERS[gi]}.
-                </span>
-                <h2 className="work-group__title" data-split>
-                  {categoryTitle[cat]}
-                </h2>
-                {sector && (
-                  <p className="t-body-lg work-group__desc" data-fade>
-                    {sector.desc}
+              <header className="work-group__head">
+                <div className="work-group__name">
+                  <span className="work-group__letter" data-fade>
+                    {LETTERS[gi]}.
+                  </span>
+                  <h2 className="work-group__title" data-split>
+                    {categoryTitle[cat]}
+                  </h2>
+                </div>
+                <div className="work-group__side">
+                  {sector && (
+                    <p className="t-body-lg work-group__desc" data-fade>
+                      {sector.desc}
+                    </p>
+                  )}
+                  <p className="work-group__meta" data-fade>
+                    {list.length} proyek terpilih · {inArchive} proyek di arsip
                   </p>
-                )}
-                <p className="work-group__meta" data-fade>
-                  {list.length} proyek terpilih · {inArchive} proyek di arsip
-                </p>
-                <button type="button" className="link-line t-label" onClick={() => showInArchive({ category: cat })} data-fade>
-                  Lihat semua di arsip →
-                </button>
-              </div>
-              <div className="work-group__grid" data-count={list.length} data-stagger="0.06">
+                  <button type="button" className="link-line t-label" onClick={() => showInArchive({ category: cat })} data-fade>
+                    Lihat semua di arsip →
+                  </button>
+                </div>
+              </header>
+              <div className="work-flow" data-count={list.length}>
                 {list.map((p) => (
-                  <ProjectCard
-                    key={p.slug}
-                    p={p}
-                    sizes={list.length === 1 ? '(min-width: 900px) 64vw, 100vw' : '(min-width: 900px) 32vw, (min-width: 640px) 48vw, 100vw'}
-                  />
+                  <WorkPiece key={p.slug} p={p} />
                 ))}
               </div>
             </section>
           )
         })}
 
-        {/* Project archive */}
-        <section id="arsip" className="archive wrap" data-theme="light">
-          <div className="archive__head">
-            <div>
-              <SectionLabel>Project archive</SectionLabel>
-              <h2 className="t-h1 archive__title" data-split>
+        {/* Project archive, opened by Telha Clarke's "All Work": the title holds while project photos drift past */}
+        <section id="archive" className="arch-intro" data-theme="light" aria-labelledby="archive-title">
+          <div className="arch-intro__photos" aria-hidden="true">
+            {scatter.map((sp) => (
+              <div
+                key={sp.id}
+                className="arch-intro__photo"
+                data-speed={sp.s}
+                style={{ '--x': `${sp.x}%`, '--y': `${sp.y}%`, '--w': sp.w, '--ar': sp.ar, '--o': sp.s < 0.95 ? 0.5 : 1 } as CSSProperties}
+              >
+                <div className="arch-intro__frame" data-reveal>
+                  <Img id={sp.id} sizes="(min-width: 768px) 17vw, 34vw" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="arch-intro__stage">
+            <SectionLabel>Project archive</SectionLabel>
+            <div className="arch-intro__heading">
+              <h2 id="archive-title" className="arch-intro__title" data-split>
                 Arsip proyek
               </h2>
+              <span className="arch-intro__count" data-fade data-delay="0.3">
+                ({archive.length})
+              </span>
             </div>
+            <p className="t-serif arch-intro__sub" data-fade>
+              Semua proyek sejak 2020, dari rumah tinggal sampai fasilitas kesehatan.
+            </p>
+            <button type="button" className="arch-intro__btn" onClick={() => scrollToElement('#arsip', -60)} data-fade>
+              <span className="arch-intro__btn-k">Arsip</span>
+              Lihat semua
+              <Plus className="arch-intro__btn-icon" />
+            </button>
+          </div>
+        </section>
+
+        <section id="arsip" className="archive wrap" data-theme="light" aria-label="Arsip proyek">
+          <div className="archive__head">
+            <p className="t-label archive__label">Filter arsip</p>
             <p className="archive__count" aria-live="polite">
               <b>{rows.length}</b> dari {archive.length} proyek
             </p>
@@ -338,6 +475,22 @@ export default function Work() {
             </button>
           )}
         </section>
+
+        {/* floating section pill (Kononenko's bottom switcher): jump between the categories and the archive */}
+        <nav ref={pill} className="wpill" data-on={pillOn ? '' : undefined} aria-label="Pindah bagian" inert={!pillOn}>
+          <span className="wpill__ind" aria-hidden="true" />
+          {pillItems.map((it, i) => (
+            <button
+              key={it.id}
+              type="button"
+              className="wpill__item"
+              aria-current={i === section ? 'true' : undefined}
+              onClick={() => scrollToElement(it.jump, it.id === 'archive' ? -60 : -70)}
+            >
+              {it.label}
+            </button>
+          ))}
+        </nav>
 
         <div ref={preview} className="index-preview" data-on={hoveredProject ? '' : undefined} aria-hidden="true">
           {hoveredProject && <Img id={hoveredProject.cover} sizes="300px" />}
