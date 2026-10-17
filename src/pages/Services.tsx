@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img, type ImgKey } from '../components/Img'
@@ -6,7 +6,7 @@ import { SectionLabel } from '../components/Bits'
 import { InquiryForm } from '../components/InquiryForm'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
-import { gsap } from '../lib/gsap'
+import { gsap, ScrollTrigger } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { disciplines, managementServices, process, sectors } from '../data/site'
 
@@ -23,8 +23,14 @@ const collage: ImgKey[] = ['labarka-path', 'klinik-corridor', 'labarka-balcony',
 
 export default function Services() {
   const root = useRef<HTMLDivElement>(null)
+  const [cat, setCat] = useState(0) // service category in view (the sticky photo on wide screens follows it)
 
   usePageAnimations(root, (page) => {
+    // Service categories (archi-malin): each category's text sets which photo and number the sticky stage shows
+    gsap.utils.toArray<HTMLElement>('.cat', page).forEach((el, i) => {
+      ScrollTrigger.create({ trigger: el, start: 'top 60%', end: 'bottom 60%', onToggle: (self) => self.isActive && setCat(i) })
+    })
+
     gsap.fromTo(
       '.collage__track',
       { xPercent: 0 },
@@ -223,28 +229,49 @@ export default function Services() {
               dari analisa hingga deliverables.
             </p>
           </div>
-          {sectors.map((s, i) => (
-            <article key={s.key} className="cat">
-              <span className="cat__num">0{i + 1}</span>
-              <div className="cat__main">
-                <h2 className="cat__title" data-split>
-                  {s.label}
-                </h2>
-                <p className="t-body-lg cat__desc" data-fade>
-                  {s.desc}
-                </p>
-                <p className="cat__typos" data-fade>
-                  {s.typologies.join(' · ')}
-                </p>
-                <TLink to={`/work#${s.key}`} className="link-line t-label mt-6 inline-block" data-fade>
-                  Lihat proyek {s.title.toLowerCase()} →
-                </TLink>
-              </div>
-              <div className="cat__media" data-reveal>
-                <Img id={s.img} alt={s.imgAlt} sizes="(min-width: 768px) 40vw, 100vw" />
-              </div>
-            </article>
-          ))}
+          <div className="cats__body">
+            {/* wide screens: the photo holds on the left with a big number, and changes with the category in view */}
+            <div className="cats__stage" aria-hidden="true">
+              {sectors.map((s, i) => (
+                <div key={s.key} className="cats__shot" data-on={i <= cat ? '' : undefined}>
+                  <Img id={s.img} sizes="50vw" />
+                </div>
+              ))}
+              <span className="cats__big">
+                <span className="cats__big-track" style={{ transform: `translateY(${-cat}em)` }}>
+                  {sectors.map((s, i) => (
+                    <span key={s.key}>0{i + 1}</span>
+                  ))}
+                </span>
+              </span>
+            </div>
+            <div className="cats__list">
+              {sectors.map((s, i) => (
+                <article key={s.key} className="cat">
+                  <span className="cat__num">0{i + 1}</span>
+                  <div className="cat__main">
+                    <h2 className="cat__title" data-split>
+                      {s.label}
+                    </h2>
+                    <p className="t-body-lg cat__desc" data-fade>
+                      {s.desc}
+                    </p>
+                    <ul className="cat__typos" data-stagger="0.06">
+                      {s.typologies.map((t) => (
+                        <li key={t}>{t}</li>
+                      ))}
+                    </ul>
+                    <TLink to={`/work#${s.key}`} className="link-line t-label mt-8 inline-block" data-fade>
+                      Lihat proyek {s.title.toLowerCase()} →
+                    </TLink>
+                  </div>
+                  <div className="cat__media" data-reveal>
+                    <Img id={s.img} alt={s.imgAlt} sizes="(min-width: 768px) 40vw, 100vw" />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* Service detail: four stages on cards that travel sideways while you scroll (swipe on touch screens) */}
