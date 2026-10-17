@@ -1,18 +1,98 @@
 import { useRef, type CSSProperties } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
-import { Img } from '../components/Img'
+import { Img, type ImgKey } from '../components/Img'
 import { SectionLabel } from '../components/Bits'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
-import { gsap } from '../lib/gsap'
+import { gsap, ScrollTrigger } from '../lib/gsap'
 import { TLink } from '../lib/transition'
-import { about, company, disciplines, goals, mission, parametersDetail, team, vision } from '../data/site'
+import { company, goals, mission, parametersDetail, team, vision } from '../data/site'
+import { archive, areaStats, categoryLabel, categoryOrder } from '../data/projects'
+
+const NUMBERS_WIDE = '(min-width: 1024px)' // the ring scene holds the screen from here up (see .numbers in styles.css)
+
+// project photos on the ring of "Kadanglabo dalam angka" (warm renders, no blue drawings)
+const ringPhotos: ImgKey[] = [
+  'labarka-river',
+  'hamzah-front',
+  'klinik-front',
+  'ivanna-front',
+  'balecatur-lobby',
+  'giripeni-aerial',
+  'labarka-teppanyaki',
+  'muji-front',
+  'draw-model',
+  'hmw-facade',
+  'labarka-koi',
+  'firlatata-street',
+  'balecatur-pool',
+  'berbah-front',
+  'labarka-gables',
+  'wira-front',
+]
+
+// every figure comes from the site data, so it stays true when projects or people are added
+const figures = [
+  { value: String(company.founded), label: 'Tahun berdiri', note: `Didirikan ${company.founder}, akhir September ${company.founded}` },
+  { value: `${Math.floor(archive.length / 10) * 10}+`, label: 'Proyek', note: 'Rumah, perumahan, resort, restoran, kantor, hingga klinik' },
+  { value: String(areaStats.length), label: 'Wilayah', note: areaStats.map((a) => a.label).join(' · ') },
+  { value: String(categoryOrder.length), label: 'Sektor', note: categoryOrder.map((c) => categoryLabel[c]).join(' · ') },
+  { value: String(team.length), label: 'Tim in-house', note: 'Arsitek, drafter, pengawas lapangan, hingga tim digital' },
+]
+
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
 export default function About() {
   const root = useRef<HTMLDivElement>(null)
 
-  usePageAnimations(root, () => {
+  usePageAnimations(root, (page) => {
+    // Kadanglabo in numbers, wide screens: the stage holds while the ring of photos turns, the intro steps aside
+    // and the figures roll past the centre like a drum. Built once; the CSS media query switches the layout,
+    // so crossing the breakpoint only re-renders (no triggers are created during a breakpoint change).
+    const numbers = page.querySelector<HTMLElement>('.numbers')!
+    const stage = numbers.querySelector<HTMLElement>('.numbers__stage')!
+    const ring = numbers.querySelector<HTMLElement>('.numbers__ring')!
+    const intro = numbers.querySelector<HTMLElement>('.numbers__intro')!
+    const items = gsap.utils.toArray<HTMLElement>('.numbers__item', numbers)
+    const wide = window.matchMedia(NUMBERS_WIDE)
+    numbers.dataset.motion = ''
+    let still = false
+    const render = (p: number) => {
+      if (!wide.matches) {
+        if (!still) gsap.set([ring, intro, ...items], { clearProps: 'transform,opacity' })
+        still = true
+        return
+      }
+      still = false
+      const out = clamp01((p - 0.03) / 0.06) // the intro steps up and away first
+      const show = clamp01((p - 0.075) / 0.06) // and the first figure rises in right behind it
+      const pos = clamp01((p - 0.14) / 0.74) * (items.length - 1) // which figure sits in the centre
+      const step = stage.clientHeight * 0.42
+      gsap.set(ring, { rotation: -150 * p })
+      gsap.set(intro, { opacity: 1 - out, y: -70 * out })
+      items.forEach((item, i) => {
+        const d = i - pos + (1 - show) * 0.35 // the first figure rises into place as it appears
+        gsap.set(item, { y: d * step, opacity: clamp01(1 - Math.abs(d) * 0.85) * show, scale: 1 - Math.min(1, Math.abs(d)) * 0.1 })
+      })
+    }
+    ScrollTrigger.create({
+      trigger: numbers,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => render(self.progress),
+      onRefresh: (self) => render(self.progress),
+    })
+
+    // One table: client, planner and builder close in on one another until the shared core ("satu pintu") lights up
+    const venn = page.querySelector<HTMLElement>('.venn')!
+    gsap
+      .timeline({ scrollTrigger: { trigger: venn, start: 'top 85%', end: 'center 50%', scrub: 0.6 } })
+      .fromTo('.venn__ring--a', { xPercent: -55, yPercent: -12, autoAlpha: 0 }, { xPercent: 0, yPercent: 0, autoAlpha: 1, ease: 'power2.out' }, 0)
+      .fromTo('.venn__ring--b', { xPercent: 55, yPercent: -12, autoAlpha: 0 }, { xPercent: 0, yPercent: 0, autoAlpha: 1, ease: 'power2.out' }, 0)
+      .fromTo('.venn__ring--c', { yPercent: 45, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, ease: 'power2.out' }, 0)
+      .fromTo('.venn__core', { scale: 0 }, { scale: 1, duration: 0.45, ease: 'back.out(1.6)' }, 0.75)
+
     // Vision: the photo opens out to full bleed while it scrolls in; it is fully open before the text line rises
     const st = { trigger: '.vision', start: 'top bottom', end: 'top 25%', scrub: true }
     gsap.fromTo('.vision__frame', { clipPath: 'inset(0% 6% 0% 6%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: st })
@@ -64,57 +144,71 @@ export default function About() {
           </div>
         </section>
 
-        {/* Overview */}
-        <section className="split wrap" data-theme="light">
-          <div className="split__aside">
-            <SectionLabel>Overview</SectionLabel>
-            <dl className="meta-list" data-stagger>
-              <div>
-                <dt>Didirikan</dt>
-                <dd>Akhir September 2020</dd>
-              </div>
-              <div>
-                <dt>Pendiri</dt>
-                <dd>{company.founder}</dd>
-              </div>
-              <div>
-                <dt>Studio</dt>
-                <dd>Ngaglik, Sleman, D.I. Yogyakarta</dd>
-              </div>
-              <div>
-                <dt>Disiplin</dt>
-                <dd>{disciplines.slice(0, 5).join(', ')}</dd>
-              </div>
-            </dl>
-          </div>
-          <div className="split__main">
-            <p className="t-lead" data-scrub>
-              {about.lead}
-            </p>
-            <p className="t-body-lg mt-10 max-w-[52ch]" data-fade>
-              {about.ethos}
-            </p>
-            <p className="t-body-lg mt-4 max-w-[52ch] opacity-70" data-fade>
-              {about.focus}
-            </p>
+        {/* Kadanglabo in numbers: a ring of project photos turns while the figures roll past (wide screens);
+            a calm list of figures on tablets and phones */}
+        <section className="numbers" data-theme="light" aria-labelledby="numbers-title">
+          <div className="numbers__stage">
+            <div className="numbers__ring" style={{ '--n': ringPhotos.length } as CSSProperties} aria-hidden="true">
+              {ringPhotos.map((id, i) => (
+                <div key={id} className="numbers__photo" style={{ '--i': i } as CSSProperties}>
+                  <Img id={id} sizes="190px" />
+                </div>
+              ))}
+            </div>
+            <div className="numbers__intro wrap">
+              <SectionLabel>Kadanglabo dalam angka</SectionLabel>
+              <h2 id="numbers-title" className="t-h1 numbers__title" data-split>
+                Arsitektur kolaboratif, dari Yogyakarta ke berbagai kota.
+              </h2>
+            </div>
+            <ol className="numbers__list wrap">
+              {figures.map((f) => (
+                <li key={f.label} className="numbers__item">
+                  <span className="numbers__value" data-fade>
+                    {f.value}
+                  </span>
+                  <span className="numbers__text" data-fade data-delay="0.1">
+                    <span className="numbers__label">{f.label}</span>
+                    <span className="t-serif numbers__note">{f.note}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
-        {/* Collaboration */}
+        {/* One table: the three parties meet in one door (converging rings, scrubbed above) */}
         <section className="collab wrap" data-theme="light">
           <SectionLabel>A collaborative architectural solution</SectionLabel>
           <h2 className="t-h1 collab__title mt-6" data-split>
             Satu meja untuk klien, perencana, dan pelaksana.
           </h2>
-          <p className="t-body-lg collab__body mt-6 opacity-75" data-fade>
-            Tujuan kami tercapai lewat kerja sama yang baik antara ketiganya. Perencanaan dan pelaksanaan
-            terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.
+          <div className="venn" aria-hidden="true">
+            <span className="venn__ring venn__ring--a">
+              <span className="venn__label">Klien</span>
+            </span>
+            <span className="venn__ring venn__ring--b">
+              <span className="venn__label">Perencana</span>
+            </span>
+            <span className="venn__ring venn__ring--c">
+              <span className="venn__label">Pelaksana</span>
+            </span>
+            <span className="venn__core">Satu pintu</span>
+          </div>
+          <p className="t-body-lg collab__body opacity-75" data-fade>
+            Perencanaan dan pelaksanaan terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.
           </p>
         </section>
 
-        {/* Two parameters */}
+        {/* Ethos, and the two parameters that follow from it */}
         <section className="params wrap" data-theme="light">
-          <SectionLabel>Dua parameter keberhasilan proyek</SectionLabel>
+          <SectionLabel>Etos kami</SectionLabel>
+          <p className="t-lead params__ethos" data-scrub>
+            Setiap proyek yang kami desain harus terbangun, tuntas sampai berdiri.
+          </p>
+          <p className="t-label params__intro" data-fade>
+            Dari etos itu lahir dua parameter keberhasilan proyek
+          </p>
           <div className="params__grid">
             {parametersDetail.map((p, i) => (
               <article key={p.title} className="param">

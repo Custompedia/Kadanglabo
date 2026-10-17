@@ -12,7 +12,7 @@ import { sectors } from '../data/site'
 import {
   archive,
   areaOf,
-  areas,
+  areaStats,
   categoryLabel,
   categoryOrder,
   categoryTitle,
@@ -38,10 +38,6 @@ const matches = (f: Filters) => (e: ArchiveEntry) =>
   (f.location === 'all' || areaOf(e.region) === f.location) &&
   (f.year === 'all' || String(e.year) === f.year) &&
   (f.status === 'all' || e.status === f.status)
-
-const areaStats = areas
-  .map((a) => ({ ...a, count: archive.filter((e) => areaOf(e.region) === a.key).length }))
-  .filter((a) => a.count > 0)
 
 const joinId = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')}, dan ${xs[xs.length - 1]}`)
 

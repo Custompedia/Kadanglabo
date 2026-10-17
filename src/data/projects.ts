@@ -648,3 +648,8 @@ export const archive: ArchiveEntry[] = [
   })),
   ...listOnly.map(([title, category, region]) => ({ title, category, region, year: null, status: null })),
 ]
+
+/** Areas that have at least one archived project, with how many (archive filter, About "in numbers") */
+export const areaStats = areas
+  .map((a) => ({ ...a, count: archive.filter((e) => areaOf(e.region) === a.key).length }))
+  .filter((a) => a.count > 0)

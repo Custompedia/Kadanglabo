@@ -1860,16 +1860,11 @@
   object-fit: cover;
 }
 
-.split,
 .p-intro,
 .nd-body {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(0, 2.2fr);
   gap: clamp(32px, 6vw, 96px);
-}
-
-.split {
-  padding-bottom: var(--sec);
 }
 
 .meta-list {
@@ -1893,6 +1888,150 @@
   font-weight: 560;
 }
 
+/* Kadanglabo in numbers (About): a calm list of figures; on wide screens a held stage where a ring of project
+   photos turns around the figure in the centre (motion in About.tsx, layout switch below) */
+.numbers {
+  position: relative;
+  padding-block: var(--sec);
+}
+
+.numbers__ring {
+  display: none;
+}
+
+.numbers__title {
+  max-width: 14em;
+  margin-top: 22px;
+  text-wrap: balance;
+}
+
+.numbers__list {
+  margin-top: clamp(40px, 5vw, 64px);
+  border-bottom: 1px solid var(--line);
+  list-style: none;
+}
+
+.numbers__item {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: end;
+  gap: 16px;
+  padding-block: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.numbers__value {
+  font-weight: 800;
+  font-family: var(--font-display);
+  font-stretch: 90%;
+  font-size: clamp(3.2rem, 13vw, 6rem);
+  line-height: 0.82;
+  letter-spacing: -0.03em;
+}
+
+.numbers__text {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 2px;
+}
+
+.numbers__label {
+  font-size: clamp(1.05rem, 1.6vw, 1.5rem);
+  font-weight: 640;
+  letter-spacing: -0.02em;
+}
+
+.numbers__note {
+  color: var(--color-mute);
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.3;
+}
+
+@media (min-width: 1024px) {
+  .numbers[data-motion] {
+    height: 340svh; /* scroll distance of the held scene */
+    padding-block: 0;
+  }
+
+  .numbers[data-motion] .numbers__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 640px;
+    overflow: hidden;
+  }
+
+  /* the ring: its top and bottom run off screen, the sides frame the figure in the centre */
+  .numbers[data-motion] .numbers__ring {
+    --r: min(40vw, 72svh);
+    --pw: clamp(120px, 10.5vw, 190px);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: 0;
+    height: 0;
+  }
+
+  .numbers[data-motion] .numbers__photo {
+    position: absolute;
+    width: var(--pw);
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    transform: translate(-50%, -50%) rotate(calc(var(--i) * 360deg / var(--n))) translateY(calc(-1 * var(--r)));
+  }
+
+  .numbers[data-motion] .numbers__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .numbers[data-motion] .numbers__intro {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .numbers[data-motion] .numbers__list {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    border: 0;
+  }
+
+  .numbers[data-motion] .numbers__item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 22px;
+    width: min(56vw, 760px);
+    padding: 0;
+    border: 0;
+    text-align: center;
+    opacity: 0;
+  }
+
+  .numbers[data-motion] .numbers__value {
+    font-size: clamp(6rem, 12vw, 12.5rem);
+  }
+
+  .numbers[data-motion] .numbers__text {
+    justify-items: center;
+    gap: 8px;
+  }
+
+  .numbers[data-motion] .numbers__label {
+    font-size: clamp(1.5rem, 2vw, 2.1rem);
+  }
+}
+
 .collab {
   --title: clamp(2.1rem, 4.8vw, 5.2rem); /* same as .t-h1; the paragraph borrows the title's width from it */
   display: grid;
@@ -1913,8 +2052,97 @@
   font-size: clamp(1.02rem, 1.4vw, 1.45rem);
 }
 
+/* One table (About): client, planner and builder as three rings that settle into one Venn, the shared core lit
+   orange. Positions below are the settled state; the rings fly in from apart (About.tsx). */
+.venn {
+  --s: min(520px, 86vw);
+  position: relative;
+  width: var(--s);
+  height: calc(var(--s) * 0.9);
+  margin-block: clamp(36px, 5vw, 64px) clamp(24px, 3vw, 40px);
+}
+
+.venn__ring {
+  position: absolute;
+  width: calc(var(--s) * 0.58);
+  aspect-ratio: 1;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+}
+
+.venn__ring--a {
+  top: 4%;
+  left: 6%;
+}
+
+.venn__ring--b {
+  top: 4%;
+  left: 36%;
+}
+
+.venn__ring--c {
+  top: 30%;
+  left: 21%;
+}
+
+/* each name sits in the part of its ring the others do not cover */
+.venn__label {
+  position: absolute;
+  font-size: clamp(11px, 1vw, 12.5px);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.venn__ring--a .venn__label {
+  top: 36%;
+  left: 14%;
+}
+
+.venn__ring--b .venn__label {
+  top: 36%;
+  right: 12%;
+}
+
+.venn__ring--c .venn__label {
+  bottom: 18%;
+  left: 50%;
+  translate: -50% 0;
+}
+
+.venn__core {
+  position: absolute;
+  top: calc(var(--s) * 0.4167);
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: calc(var(--s) * 0.2);
+  aspect-ratio: 1;
+  padding: 6px;
+  border-radius: 50%;
+  background: var(--color-orange-deep);
+  color: #fff;
+  font-size: clamp(10px, 0.9vw, 11.5px);
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: uppercase;
+  translate: -50% -50%;
+}
+
 .params {
   padding-bottom: var(--sec);
+}
+
+.params__ethos {
+  max-width: 17em;
+  margin-top: 26px;
+}
+
+.params__intro {
+  margin-top: clamp(56px, 7vw, 104px);
+  color: var(--color-mute);
 }
 
 .params__grid {
@@ -4074,7 +4302,6 @@
 
   .spirit,
   .sectors,
-  .split,
   .p-intro,
   .nd-body,
   .start,
