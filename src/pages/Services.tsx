@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { Fragment, useEffect, useRef } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img, type ImgKey } from '../components/Img'
@@ -8,9 +8,17 @@ import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { gsap } from '../lib/gsap'
 import { TLink } from '../lib/transition'
-import { about, disciplines, managementServices, process, sectors } from '../data/site'
+import { disciplines, managementServices, process, sectors } from '../data/site'
 
 const WIDE = '(min-width: 900px)' // Service detail travels sideways from here up (see .process in styles.css)
+// every service in one numbered run, in three groups: design disciplines, management, care of existing buildings
+let serviceNo = 0
+const serviceRun = [
+  { group: 'Desain', items: disciplines },
+  { group: 'Manajemen', items: managementServices.perencanaan },
+  { group: 'Perawatan', items: managementServices.perawatan },
+].map((g) => ({ group: g.group, items: g.items.map((name) => ({ name, no: String(++serviceNo).padStart(2, '0') })) }))
+
 const collage: ImgKey[] = ['labarka-path', 'klinik-corridor', 'labarka-balcony', 'balecatur-lobby', 'hmw-dining', 'balecatur-bed', 'firlatata-living']
 
 export default function Services() {
@@ -150,43 +158,48 @@ export default function Services() {
 
         <section className="statement wrap" data-theme="light">
           <SectionLabel n="01">Our services</SectionLabel>
-          <p className="t-lead statement__text" data-scrub>
-            {about.ethos}
+          <p className="t-h1 statement__text" data-split>
+            Desain kontekstual. Workflow yang efektif. Bangunan yang tuntas. Satu pintu dari perencanaan hingga
+            pelaksanaan.
           </p>
         </section>
 
-        {/* Overview: everything the studio does, in one grid */}
-        <section className="overview wrap" data-theme="light">
-          <p className="overview__intro t-h2" data-fade>
-            Perencanaan, desain, dan manajemen pelaksanaan dalam satu pintu.
-          </p>
-          <div className="overview__grid" data-stagger="0.08">
-            <div className="overview__col">
-              <p className="t-label overview__label">Disiplin desain</p>
-              <ul className="overview__list">
-                {disciplines.map((d) => (
-                  <li key={d}>{d}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="overview__col">
-              <p className="t-label overview__label">Perencanaan</p>
-              <ul className="overview__list">
-                {managementServices.perencanaan.map((m) => (
-                  <li key={m}>{m}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="overview__col">
-              <p className="t-label overview__label">Perawatan</p>
-              <ul className="overview__list">
-                {managementServices.perawatan.map((m) => (
-                  <li key={m}>{m}</li>
-                ))}
-              </ul>
-              <p className="overview__note">Untuk bangunan yang sudah ada, menjaga fungsi dan nilainya tetap hidup.</p>
-            </div>
+        {/* Overview: every service in one numbered run (after Telha Clarke's services line), lit as you read */}
+        <section className="overview wrap" data-theme="light" aria-labelledby="overview-title">
+          <div className="overview__head">
+            <h2 id="overview-title" className="t-label">
+              Layanan kami
+            </h2>
+            <span className="t-serif overview__count" data-fade>
+              {serviceNo} layanan, {serviceRun.length} kelompok
+            </span>
           </div>
+          <p className="overview__run" data-scrub>
+            {serviceRun.map((g) => (
+              <span key={g.group} className="overview__line">
+                <span className="overview__group">{g.group}</span>{' '}
+                {g.items.map((s, i) => {
+                  const words = s.name.split(' ')
+                  const last = words.pop()
+                  return (
+                    <Fragment key={s.name}>
+                      {words.length > 0 && `${words.join(' ')} `}
+                      {/* the last word keeps its number and the slash with it, so neither starts a line */}
+                      <span className="overview__tail">
+                        {last}
+                        <sup>({s.no})</sup>
+                        {i < g.items.length - 1 && (
+                          <span className="overview__sep" aria-hidden="true">
+                            {' /'}
+                          </span>
+                        )}
+                      </span>{' '}
+                    </Fragment>
+                  )
+                })}
+              </span>
+            ))}
+          </p>
         </section>
 
         {/* Service categories */}
@@ -265,15 +278,6 @@ export default function Services() {
             <div className="process__progress wrap" aria-hidden="true">
               <span />
             </div>
-          </div>
-        </section>
-
-        <section className="mantra" data-theme="accent">
-          <div className="wrap">
-            <p className="t-h1 mantra__text" data-split>
-              Desain kontekstual. Workflow yang efektif. Bangunan yang tuntas. Satu pintu dari perencanaan hingga
-              pelaksanaan.
-            </p>
           </div>
         </section>
 

@@ -2524,42 +2524,76 @@
   margin-top: 24px;
 }
 
+/* Services overview: every service in one numbered run (after Telha Clarke's services line), lit word by word */
 .overview {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
-  gap: clamp(32px, 5vw, 80px);
-  padding-block: 40px var(--sec);
-  border-top: 1px solid var(--line);
+  padding-bottom: var(--sec);
 }
 
-.overview__intro {
-  max-width: 15ch;
-}
-
-.overview__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 32px;
-}
-
-.overview__label {
-  padding-bottom: 12px;
+.overview__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 18px;
   border-bottom: 1px solid var(--line-strong);
-  color: var(--color-mute);
 }
 
-.overview__list li {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: clamp(1.05rem, 1.35vw, 1.3rem);
+.overview__count {
+  color: var(--color-mute);
+  font-size: clamp(15px, 1.3vw, 19px);
+  white-space: nowrap;
+}
+
+.overview__run {
+  margin-top: clamp(28px, 3.5vw, 48px);
+  font-size: clamp(1.9rem, 4vw, 4.4rem);
+  font-weight: 640;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  text-wrap: pretty;
+}
+
+/* the number rides at cap height without opening up the line */
+.overview__run sup {
+  margin-left: 0.15em;
+  font-size: 0.3em;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+  line-height: 0;
+  vertical-align: 1.7em;
 }
 
-.overview__note {
-  margin-top: 14px;
+/* one line per group: design, management, care */
+.overview__line {
+  display: block;
+}
+
+.overview__line + .overview__line {
+  margin-top: 0.28em;
+}
+
+.overview__tail {
+  white-space: nowrap;
+}
+
+.overview__sep {
   color: var(--color-mute);
-  font-size: 14px;
+  font-weight: 300;
+}
+
+/* group name: a small pill set into the run */
+.overview__group {
+  display: inline-block;
+  margin-right: 0.25em;
+  padding-inline: 0.8em;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.2em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 2;
+  text-transform: uppercase;
+  vertical-align: 1.2em;
 }
 
 .statement {
@@ -2569,24 +2603,6 @@
 .statement__text {
   max-width: 1180px;
   margin-top: 28px;
-}
-
-.big-list {
-  margin-top: 14px;
-}
-
-.big-list li {
-  padding: 2px 0;
-  font-size: clamp(1.25rem, 2vw, 2rem);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: -0.02em;
-}
-
-.big-list--lg li {
-  font-size: clamp(1.8rem, 3.4vw, 3.4rem);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
 }
 
 .cats {
@@ -2838,16 +2854,6 @@
     left: 0;
     margin-top: 0;
   }
-}
-
-.mantra {
-  padding-block: var(--sec);
-  background: var(--color-orange-deep);
-  color: #fff;
-}
-
-.mantra__text {
-  max-width: 22ch;
 }
 
 .start {
@@ -4213,8 +4219,7 @@
 /* ------------------------------------------------------------ responsive */
 
 @media (max-width: 899px) {
-  .work-group,
-  .overview {
+  .work-group {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -4337,10 +4342,6 @@
   .cat {
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
-  }
-
-  .overview__grid {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .intro-logo__svg {
