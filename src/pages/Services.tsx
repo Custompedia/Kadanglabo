@@ -2,7 +2,7 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img, type ImgKey } from '../components/Img'
-import { SectionLabel } from '../components/Bits'
+import { SectionLabel, TeamStack } from '../components/Bits'
 import { InquiryForm } from '../components/InquiryForm'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
@@ -326,6 +326,7 @@ export default function Services() {
             <p className="t-body-lg max-w-[40ch] opacity-75 mt-6" data-fade>
               Isi singkat kebutuhan Anda, tim kami akan menghubungi Anda kembali.
             </p>
+            <TeamStack />
             <TLink to="/contact" className="link-line t-label mt-6 inline-block">
               Kontak lainnya <ArrowRight className="ml-1 inline h-[0.7em] w-auto" />
             </TLink>

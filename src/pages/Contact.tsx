@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
-import { SectionLabel } from '../components/Bits'
+import { SectionLabel, TeamStack } from '../components/Bits'
 import { InquiryForm } from '../components/InquiryForm'
 import { ArrowRight, Instagram, Mail, MapPin, WhatsApp } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
@@ -50,6 +50,7 @@ export default function Contact() {
             <p className="t-body-lg max-w-[40ch] opacity-75 mt-6" data-fade>
               Konsultasi dan project inquiry: ceritakan rencana Anda, kami siapkan langkah pertamanya.
             </p>
+            <TeamStack />
           </div>
           <div data-fade>
             <InquiryForm />

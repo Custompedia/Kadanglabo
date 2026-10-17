@@ -2,6 +2,7 @@ import { useRef, type ReactNode } from 'react'
 import { gsap, useGSAP, reducedMotion } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { categoryLabel, type Project } from '../data/projects'
+import { team } from '../data/site'
 import { Img } from './Img'
 
 /** Numbered section label, e.g. "(01) Introduction". */
@@ -37,6 +38,26 @@ export function Counter({ to, suffix = '', className }: { to: number; suffix?: s
       {to}
       {suffix}
     </span>
+  )
+}
+
+/** The people behind the form: overlapping team portraits and a line about who answers (next to inquiry forms). */
+export function TeamStack({ shown = 5 }: { shown?: number }) {
+  const rest = team.length - shown
+  return (
+    <div className="team-stack" data-fade>
+      <div className="team-stack__faces">
+        {team.slice(0, shown).map((m) => (
+          <span key={m.name} className="team-stack__face" title={`${m.name}, ${m.role}`}>
+            <Img id={m.img} alt={m.name} sizes="52px" />
+          </span>
+        ))}
+        {rest > 0 && <span className="team-stack__more">+{rest}</span>}
+      </div>
+      <p className="team-stack__text">
+        Dijawab langsung oleh tim kami: arsitek, drafter, sampai pengawas lapangan.
+      </p>
+    </div>
   )
 }
 

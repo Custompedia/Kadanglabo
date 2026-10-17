@@ -3048,6 +3048,56 @@
   }
 }
 
+/* team portraits next to the inquiry forms: overlapping circles, faces centred on the upper part of the photo */
+.team-stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 18px;
+  margin-top: 28px;
+}
+
+.team-stack__faces {
+  display: flex;
+  padding-left: 10px;
+}
+
+.team-stack__face,
+.team-stack__more {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-left: -10px;
+  overflow: hidden;
+  border: 2px solid var(--color-paper);
+  border-radius: 50%;
+  background: var(--color-sand);
+}
+
+.team-stack__face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 14%;
+  transform: scale(1.35);
+  transform-origin: 50% 18%;
+}
+
+.team-stack__more {
+  background: var(--color-ink);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.team-stack__text {
+  max-width: 26ch;
+  color: var(--color-mute);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 /* --------------------------------------------------------------- inquiry */
 
 /* open form, no panel: labels above, inputs on a hairline, like a native iOS form */
