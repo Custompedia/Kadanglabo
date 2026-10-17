@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { Page } from '../components/Page'
-import { SectionLabel } from '../components/Bits'
+import { Counter, SectionLabel } from '../components/Bits'
 import { HomeHero } from '../components/HomeHero'
 import { ShowReel } from '../components/ShowReel'
 import { SectorShowcase } from '../components/SectorShowcase'
@@ -10,7 +10,7 @@ import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { TLink } from '../lib/transition'
 import { about } from '../data/site'
-import { archive } from '../data/projects'
+import { archive, categoryLabel, categoryOrder } from '../data/projects'
 import { sortedNews } from '../data/news'
 
 export default function Home() {
@@ -79,13 +79,27 @@ export default function Home() {
 
         {/* ---------- (03) OUR WORK — Coeval-style mosaic per category ---------- */}
         <WorkMosaic />
-        <div className="wrap wm-foot" data-theme="light">
-          <p className="t-serif wm-foot__text" data-fade>
-            Commercial, hospitality, dan residential: {archive.length} proyek dalam arsip kami.
-          </p>
-          <TLink to="/work" className="btn-pill btn-pill--dark btn-pill--lg" data-fade>
-            Lihat detail Our Work <ArrowRight className="h-[0.8em] w-auto" />
-          </TLink>
+        {/* the whole archive in one line: the count runs up, the split per sector beside it */}
+        <div className="wrap" data-theme="light">
+          <div className="wm-foot">
+            <Counter to={archive.length} className="wm-foot__count" />
+            <div className="wm-foot__text" data-fade>
+              <p className="wm-foot__lead">proyek dalam arsip kami, sejak 2020</p>
+              <p className="t-serif wm-foot__split">
+                {categoryOrder.map((c, i) => (
+                  <span key={c}>
+                    {i > 0 && ' · '}
+                    <span className="whitespace-nowrap">
+                      {categoryLabel[c]} {archive.filter((a) => a.category === c).length}
+                    </span>
+                  </span>
+                ))}
+              </p>
+            </div>
+            <TLink to="/work" className="btn-pill btn-pill--dark btn-pill--lg wm-foot__btn" data-fade>
+              Lihat semua proyek <ArrowRight className="h-[0.8em] w-auto" />
+            </TLink>
+          </div>
         </div>
 
         {/* ---------- (04) LATEST UPDATES ---------- */}

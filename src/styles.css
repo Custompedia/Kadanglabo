@@ -1667,18 +1667,58 @@
   margin-top: 16px;
 }
 
+/* Home, after Our Work: the archive as one band - big count, what it covers, the way in */
 .wm-foot {
   display: grid;
-  justify-items: center;
-  gap: 22px;
-  padding-block: clamp(56px, 7vw, 104px) 0;
-  text-align: center;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 16px clamp(20px, 3vw, 48px);
+  margin-top: clamp(56px, 7vw, 104px);
+  padding-block: 22px;
+  border-block: 1px solid var(--line-strong);
+}
+
+.wm-foot__count {
+  font-weight: 800;
+  font-family: var(--font-display);
+  font-stretch: 90%;
+  font-size: clamp(5rem, 11vw, 11.5rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
 }
 
 .wm-foot__text {
-  max-width: 34ch;
-  font-size: clamp(1.25rem, 2vw, 1.9rem);
-  line-height: 1.2;
+  display: grid;
+  gap: 6px;
+  padding-bottom: 4px;
+}
+
+.wm-foot__lead {
+  font-size: clamp(1.15rem, 1.8vw, 1.7rem);
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.wm-foot__split {
+  color: var(--color-mute);
+  font-size: clamp(16px, 1.3vw, 19px);
+}
+
+.wm-foot__btn {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 767px) {
+  .wm-foot {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .wm-foot__btn {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
 }
 
 .latest {
