@@ -1,6 +1,7 @@
 import { useRef, type CSSProperties } from 'react'
 import { gsap, ScrollTrigger, useGSAP, reducedMotion } from '../lib/gsap'
 import { TLink } from '../lib/transition'
+import { whenGateOpen } from '../lib/gate'
 import { useMediaQuery } from '../lib/media'
 import { categoryTitle, getProject, type Category } from '../data/projects'
 import { Img, type ImgKey } from './Img'
@@ -81,8 +82,39 @@ export function WorkMosaic() {
  * screen edge), so the same three categories become a calm stack: counter, title, three photos, link.
  */
 function WorkStack() {
+  const root = useRef<HTMLElement>(null)
+
+  // Photos come in as on archidomo.fr: each opens from its top-left corner out to the full frame while the
+  // picture settles from a slight zoom; the second photo of a row follows a beat later. Set up here (not via
+  // data-reveal) so it also runs when the stack only mounts after the screen narrows.
+  useGSAP(
+    (_ctx, contextSafe) => {
+      const el = root.current
+      if (!el || !contextSafe) return
+      const run = contextSafe(() => {
+        if (reducedMotion()) return
+        el.querySelectorAll<HTMLElement>('.wms__grid').forEach((grid) => {
+          grid.querySelectorAll<HTMLElement>('.wms__tile').forEach((tile, i) => {
+            const at = i === 2 ? 0.12 : 0
+            gsap
+              .timeline({ scrollTrigger: { trigger: tile, start: 'top 92%', once: true } })
+              .fromTo(
+                tile,
+                { clipPath: 'polygon(0% 0%, 0% 0%, 0% 0%, 0% 0%)' },
+                { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', duration: 1.4, ease: 'power4.inOut', clearProps: 'clipPath' },
+                at,
+              )
+              .fromTo(tile.querySelector('img'), { scale: 1.2 }, { scale: 1, duration: 1.5, ease: 'power3.out' }, at)
+          })
+        })
+      })
+      return whenGateOpen(run)
+    },
+    { scope: root },
+  )
+
   return (
-    <section className="wms wrap" data-theme="light" aria-label="Our work: proyek terpilih per kategori">
+    <section ref={root} className="wms wrap" data-theme="light" aria-label="Our work: proyek terpilih per kategori">
       <span className="pill" data-fade>
         (03) Our work
       </span>
@@ -98,7 +130,7 @@ function WorkStack() {
             {g.tiles.slice(0, 3).map((t, i) => {
               const p = getProject(t.slug)
               return (
-                <TLink key={t.img} to={`/work/${t.slug}`} className={i === 0 ? 'wms__tile wms__tile--wide' : 'wms__tile'} data-reveal>
+                <TLink key={t.img} to={`/work/${t.slug}`} className={i === 0 ? 'wms__tile wms__tile--wide' : 'wms__tile'}>
                   <Img id={t.img} alt={p?.title ?? ''} sizes={i === 0 ? '100vw' : '50vw'} />
                 </TLink>
               )
