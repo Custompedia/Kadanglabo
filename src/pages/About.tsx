@@ -18,16 +18,26 @@ export default function About() {
     gsap.fromTo('.vision__frame', { clipPath: 'inset(0% 6% 0% 6%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: st })
     gsap.fromTo('.vision__img', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: st })
 
-    // Mission / goals: each card rises in as an orange block that then lifts away to show the card,
-    // the number slides up and the text follows; one card after another
+    // Mission / goals: each card rises in as a sand card (number slides up, text follows), then lights up:
+    // the orange rises from the bottom and the type turns white as it passes. The cards stay orange.
+    const theme = getComputedStyle(document.documentElement)
+    const ink = theme.getPropertyValue('--color-ink').trim()
+    const orange = theme.getPropertyValue('--color-orange-deep').trim()
     gsap.utils.toArray<HTMLElement>('.vmg__cards').forEach((list) => {
-      const tl = gsap.timeline({ scrollTrigger: { trigger: list, start: 'top 85%', once: true } })
       list.querySelectorAll<HTMLElement>('.vmg-card').forEach((card, i) => {
-        const at = i * 0.18
-        tl.fromTo(card, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.9, ease: 'expo.inOut' }, at)
-          .fromTo(card.querySelector('.vmg-card__wipe'), { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.9, ease: 'expo.inOut' }, at + 0.6)
-          .from(card.querySelector('.vmg-card__num > span'), { yPercent: 110, duration: 0.9, ease: 'power4.out' }, at + 0.95)
-          .from(card.querySelector('.vmg-card__text'), { y: 26, autoAlpha: 0, duration: 0.9, ease: 'power3.out' }, at + 1)
+        const d = i * 0.15 // one card after another, also when a whole row enters at once
+        const sand = card.querySelector('.vmg-card__sand')
+        const num = card.querySelector('.vmg-card__num')
+        const text = card.querySelector('.vmg-card__text')
+        gsap
+          .timeline({ scrollTrigger: { trigger: card, start: 'top 88%', once: true } })
+          .fromTo(card, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.8, ease: 'expo.inOut' }, d)
+          .from(card.querySelector('.vmg-card__num > span'), { yPercent: 110, duration: 0.8, ease: 'power4.out' }, d + 0.3)
+          .from(text, { y: 24, autoAlpha: 0, duration: 0.8, ease: 'power3.out' }, d + 0.38)
+          .fromTo(sand, { autoAlpha: 1, clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.9, ease: 'expo.inOut' }, d + 0.85)
+          .fromTo(text, { color: ink }, { color: '#fff', duration: 0.3, ease: 'power1.inOut' }, d + 1.12)
+          .fromTo(num, { color: orange }, { color: '#fff', duration: 0.3, ease: 'power1.inOut' }, d + 1.28)
+          .set(sand, { autoAlpha: 0 })
       })
     })
   })
@@ -158,7 +168,7 @@ export default function About() {
               <ol className="vmg__cards" style={{ '--n': g.items.length } as CSSProperties}>
                 {g.items.map((t, i) => (
                   <li key={t} className="vmg-card">
-                    <span className="vmg-card__wipe" aria-hidden="true" />
+                    <span className="vmg-card__sand" aria-hidden="true" />
                     <span className="vmg-card__num">
                       <span>0{i + 1}</span>
                     </span>
