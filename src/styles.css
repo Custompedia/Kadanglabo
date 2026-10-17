@@ -970,7 +970,7 @@
   }
 }
 
-/* --------------------------------------------------------------- marquee */
+/* ------------------------------------------------------------- keyframes */
 
 @keyframes marquee {
   to {
@@ -995,43 +995,6 @@
   from {
     transform: scaleX(0);
   }
-}
-
-.marquee {
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.marquee__track {
-  display: inline-flex;
-  animation: marquee var(--marquee-time, 40s) linear infinite;
-}
-
-.marquee__item {
-  display: inline-flex;
-  gap: 0.5em;
-  padding-right: 0.5em;
-}
-
-.band {
-  padding: 0.22em 0 0.16em;
-  font-weight: 800;
-  font-family: var(--font-display);
-  font-stretch: 90%;
-  font-size: clamp(2.2rem, 6vw, 6rem);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-}
-
-.band--orange {
-  background: var(--color-orange-deep);
-  color: #fff;
-}
-
-.band--navy {
-  background: var(--color-navy);
-  color: #fff;
 }
 
 /* ------------------------------------------------------------------ hero */
@@ -2169,6 +2132,7 @@
 
 .team {
   padding-block: var(--sec);
+  border-top: 1px solid var(--line);
 }
 
 .team__head {
@@ -4265,7 +4229,6 @@
 /* ------------------------------------------------------- reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee__track,
   .header-ticker__track,
   .hero-scroll__ring {
     animation: none;

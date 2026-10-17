@@ -2,7 +2,7 @@ import { useRef, type CSSProperties } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img } from '../components/Img'
-import { Marquee, SectionLabel } from '../components/Bits'
+import { SectionLabel } from '../components/Bits'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { gsap } from '../lib/gsap'
@@ -169,13 +169,6 @@ export default function About() {
             </div>
           ))}
         </section>
-
-        <Marquee className="band band--orange" seconds={30} theme="accent">
-          <span>A Collaborative Architectural Solution</span>
-          <span>✦</span>
-          <span>Arsitektur untuk semua</span>
-          <span>✦</span>
-        </Marquee>
 
         {/* Team */}
         <section id="team" className="team wrap" data-theme="light">

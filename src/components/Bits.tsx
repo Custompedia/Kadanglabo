@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { gsap, useGSAP, reducedMotion } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { categoryLabel, type Project } from '../data/projects'
@@ -37,30 +37,6 @@ export function Counter({ to, suffix = '', className }: { to: number; suffix?: s
       {to}
       {suffix}
     </span>
-  )
-}
-
-/** Endless horizontal ticker (pure CSS animation). */
-export function Marquee({
-  children,
-  seconds = 40,
-  className = '',
-  theme,
-}: {
-  children: ReactNode
-  seconds?: number
-  className?: string
-  theme?: 'light' | 'dark' | 'accent'
-}) {
-  return (
-    <div className={`marquee ${className}`} data-theme={theme} style={{ '--marquee-time': `${seconds}s` } as CSSProperties}>
-      <div className="marquee__track">
-        <div className="marquee__item">{children}</div>
-        <div className="marquee__item" aria-hidden="true">
-          {children}
-        </div>
-      </div>
-    </div>
   )
 }
 
