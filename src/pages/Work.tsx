@@ -4,6 +4,7 @@ import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img } from '../components/Img'
 import { ProjectCard, SectionLabel } from '../components/Bits'
+import { Plus } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger, finePointer, reducedMotion } from '../lib/gsap'
 import { scrollToElement } from '../lib/smooth'
@@ -30,6 +31,8 @@ import {
 type Filters = { category: string; location: string; year: string; status: string }
 const EMPTY: Filters = { category: 'all', location: 'all', year: 'all', status: 'all' }
 const LETTERS = ['a', 'b', 'c']
+const PEEK = 12 // archive rows shown before "Tampilkan semua"
+const keyOf = (f: Filters) => `${f.category}|${f.location}|${f.year}|${f.status}`
 
 const uniq = <T,>(xs: (T | null)[]) => Array.from(new Set(xs.filter((x): x is T => x !== null)))
 
@@ -58,7 +61,9 @@ export default function Work() {
     year: params.get('year') ?? 'all',
     status: params.get('status') ?? 'all',
   }
-  const filterKey = `${f.category}|${f.location}|${f.year}|${f.status}`
+  const filterKey = keyOf(f)
+  // the archive opens past PEEK rows for the result set it was opened on; a new filter starts folded again
+  const [openFor, setOpenFor] = useState<string | null>(null)
 
   const apply = (next: Filters) => {
     const p = new URLSearchParams()
@@ -66,9 +71,11 @@ export default function Work() {
     setParams(p, { replace: true, preventScrollReset: true })
   }
   const set = (key: keyof Filters, value: string) => apply({ ...f, [key]: value })
-  /** jump from a category group into the archive with a fresh filter */
+  /** jump from a category group into the archive with a fresh filter, already open ("Lihat semua") */
   const showInArchive = (next: Partial<Filters>) => {
-    apply({ ...EMPTY, ...next })
+    const target = { ...EMPTY, ...next }
+    apply(target)
+    setOpenFor(keyOf(target))
     scrollToElement('#arsip', -60)
   }
   const jump = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -85,6 +92,8 @@ export default function Work() {
   )
 
   const rows = archive.filter(matches(f))
+  const open = openFor === filterKey || rows.length <= PEEK
+  const shown = open ? rows : rows.slice(0, PEEK)
   const hasYears = options.years.length > 0
   const hasActiveFilter = filterKey !== 'all|all|all|all'
 
@@ -102,6 +111,18 @@ export default function Work() {
     const items = results.current.querySelectorAll('.index-row:not(.index-row--head)')
     gsap.fromTo(items, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.025, ease: 'expo.out' })
   }, [filterKey])
+
+  // Opening the archive: the rows past the first PEEK follow in one after another
+  const wasOpen = useRef(open)
+  useEffect(() => {
+    const opened = open && !wasOpen.current
+    wasOpen.current = open
+    if (!opened) return
+    ScrollTrigger.refresh()
+    if (reducedMotion() || !results.current) return
+    const items = [...results.current.querySelectorAll('.index-row:not(.index-row--head)')].slice(PEEK)
+    gsap.fromTo(items, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.02, ease: 'expo.out' })
+  }, [open])
 
   // Archive: floating preview that trails the cursor over rows that have a project page.
   useEffect(() => {
@@ -263,7 +284,7 @@ export default function Work() {
               {hasYears && <span role="columnheader">Tahun</span>}
               <span role="columnheader">Status</span>
             </div>
-            {rows.map((e, i) => {
+            {shown.map((e, i) => {
               const cells = (
                 <>
                   <span role="cell" className="index-row__no">
@@ -298,6 +319,14 @@ export default function Work() {
             })}
             {!rows.length && <p className="work__empty">Tidak ada proyek dengan filter ini.</p>}
           </div>
+          {!open && (
+            <button type="button" className="archive__more" onClick={() => setOpenFor(filterKey)}>
+              <span>
+                Tampilkan semua <b>{rows.length}</b> proyek
+              </span>
+              <Plus className="archive__more-icon" />
+            </button>
+          )}
         </section>
 
         <div ref={preview} className="index-preview" data-on={hoveredProject ? '' : undefined} aria-hidden="true">

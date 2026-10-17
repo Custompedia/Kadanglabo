@@ -3290,6 +3290,45 @@
   }
 }
 
+/* the folded archive: one wide row that opens the rest */
+.archive__more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line-strong);
+  font-size: clamp(1.15rem, 1.8vw, 1.6rem);
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  text-align: left;
+  transition:
+    color 0.35s,
+    padding 0.5s var(--ease-expo);
+}
+
+.archive__more b {
+  color: var(--color-orange-text);
+}
+
+.archive__more-icon {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.5s var(--ease-expo);
+}
+
+@media (hover: hover) {
+  .archive__more:hover {
+    padding-inline: 12px;
+    color: var(--color-orange-text);
+  }
+
+  .archive__more:hover .archive__more-icon {
+    transform: rotate(90deg);
+  }
+}
+
 .index-preview {
   position: fixed;
   top: 0;
