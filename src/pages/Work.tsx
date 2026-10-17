@@ -5,6 +5,7 @@ import { PageHero } from '../components/PageHero'
 import { Img, type ImgKey } from '../components/Img'
 import { SectionLabel } from '../components/Bits'
 import { Plus } from '../components/Icons'
+import { ProjectMap, STUDIO_AT } from '../components/ProjectMap'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger, finePointer, reducedMotion } from '../lib/gsap'
 import { scrollToElement } from '../lib/smooth'
@@ -65,18 +66,8 @@ const pillItems: { id: string; label: string; jump: string }[] = [
   { id: 'archive', label: 'Arsip', jump: '#arsip' },
 ]
 
-// Project locations as a route (after ERA Residence's coast line): west to east, the studio's home stop in orange.
-// Stops sit evenly on a gentle wave; x / y in % of the route box.
-const ROUTE_ORDER = ['palembang', 'diy', 'klaten', 'jepara', 'surabaya', 'bali']
-const wave = (x: number) => 50 + 28 * Math.sin((x / 100) * Math.PI * 2.2 + 0.5)
-const routePath = Array.from({ length: 101 }, (_, i) => `${i ? 'L' : 'M'}${i * 10} ${wave(i).toFixed(2)}`).join(' ')
-const routeStops = areaStats
-  .filter((a) => ROUTE_ORDER.includes(a.key))
-  .sort((a, b) => ROUTE_ORDER.indexOf(a.key) - ROUTE_ORDER.indexOf(b.key))
-  .map((a, i, all) => {
-    const x = 6 + (i * 88) / Math.max(1, all.length - 1)
-    return { ...a, x, y: wave(x) }
-  })
+// Project locations, studio first, then by number of projects (ProjectMap draws them on the dot map)
+const places = [...areaStats].sort((a, b) => (a.key === 'diy' ? -1 : b.key === 'diy' ? 1 : b.count - a.count))
 
 /** One selected project in the staggered layout (after Kononenko's Work page): photo, name, typology · place */
 function WorkPiece({ p }: { p: Project }) {
@@ -153,13 +144,15 @@ export default function Work() {
   const hasActiveFilter = filterKey !== 'all|all|all|all'
 
   usePageAnimations(root, (page) => {
-    // Locations route: the line draws from west to east, the stops pop in one after another (like the logo pieces)
-    const route = page.querySelector<HTMLElement>('.route')!
+    // Locations map: the land appears from Yogyakarta outwards, the pins pop in, then the arcs run out to each place
+    const at = `${STUDIO_AT.x.toFixed(2)}% ${STUDIO_AT.y.toFixed(2)}%`
     gsap
-      .timeline({ scrollTrigger: { trigger: route, start: 'top 85%', once: true } })
-      .fromTo('.route__line', { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.6, ease: 'power2.inOut' })
-      .from('.route__dot', { scale: 0, duration: 0.6, stagger: 0.16, ease: 'back.out(2.2)' }, 0.15)
-      .from('.route__label', { y: 10, autoAlpha: 0, duration: 0.7, stagger: 0.16, ease: 'power3.out' }, 0.3)
+      .timeline({ scrollTrigger: { trigger: '.pmap', start: 'top 80%', once: true } })
+      .fromTo('.pmap__land', { clipPath: `circle(0% at ${at})` }, { clipPath: `circle(120% at ${at})`, duration: 2, ease: 'power2.inOut' })
+      .from('.pmap__dot', { scale: 0, duration: 0.6, stagger: 0.1, ease: 'back.out(2.2)' }, 0.5)
+      .fromTo('.pmap__arc', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.2, stagger: 0.14, ease: 'power2.inOut' }, 0.8)
+      .from('.pmap__tag', { y: 6, autoAlpha: 0, duration: 0.6, stagger: 0.08, ease: 'power3.out' }, 1.1)
+      .from('.pmap__row', { x: -16, autoAlpha: 0, duration: 0.7, stagger: 0.07, ease: 'power3.out' }, 0.2)
 
     // Selected projects: the second picture of each pair drifts a little faster than the first (wide screens)
     const wide = window.matchMedia('(min-width: 900px)')
@@ -293,37 +286,12 @@ export default function Work() {
           <p className="t-lead work-intro__text" data-scrub>
             {intro}
           </p>
-          {/* where the work is, as a route from Sumatra to Bali; each stop opens the archive filtered to it */}
+          {/* where the work is: a dot map from South Sumatra to Bali, the studio in Yogyakarta, an arc to every place */}
           <div className="work-intro__places">
             <p className="t-label work-intro__label" data-fade>
               Lokasi proyek
             </p>
-            <div className="route">
-              <svg className="route__line" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
-                <path d={routePath} vectorEffect="non-scaling-stroke" />
-              </svg>
-              <ol className="route__stops">
-                {routeStops.map((s, i) => (
-                  <li
-                    key={s.key}
-                    className={`route__stop ${i % 2 ? 'route__stop--down' : 'route__stop--up'}`}
-                    style={{ '--x': `${s.x}%`, '--y': `${s.y}%` } as CSSProperties}
-                    data-home={s.key === 'diy' ? '' : undefined}
-                  >
-                    <button type="button" className="route__btn" onClick={() => showInArchive({ location: s.key })}>
-                      <span className="route__dot" aria-hidden="true" />
-                      <span className="route__label">
-                        <span className="route__city">
-                          {s.label}
-                          {s.key === 'diy' && <span className="route__home">Studio</span>}
-                        </span>
-                        <span className="t-serif route__count">{s.count} proyek</span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            </div>
+            <ProjectMap stops={places} onPick={(key) => showInArchive({ location: key })} />
           </div>
         </section>
 

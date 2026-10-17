@@ -3296,109 +3296,56 @@
   color: var(--color-mute);
 }
 
-/* Locations route (Work intro), after ERA Residence: a thin wave from west to east, labelled stops above / below */
-.route {
-  position: relative;
-  height: clamp(190px, 17vw, 250px);
-  margin-top: 8px;
+/* Locations map (Work intro): the list of places on the left, a dot map of South Sumatra, Java and Bali on the
+   right with the studio pulsing in orange and an arc out to every place (ProjectMap.tsx) */
+.pmap {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 4vw, 72px);
+  margin-top: 14px;
 }
 
-.route__line {
-  position: absolute;
-  inset: 22% 0;
-  width: 100%;
-  height: 56%;
-  overflow: visible;
-}
-
-.route__line path {
-  fill: none;
-  stroke: var(--line-strong);
-  stroke-width: 1.2;
-}
-
-.route__stops {
-  position: absolute;
-  inset: 22% 0;
+.pmap__list {
+  border-top: 1px solid var(--line);
   list-style: none;
 }
 
-.route__stop {
-  position: absolute;
-  top: var(--y);
-  left: var(--x);
-}
-
-/* each stop is a real button: label + dot stacked, placed so the dot's centre sits on the stop point */
-.route__btn {
-  --d: 12px; /* dot size */
-  position: absolute;
-  left: 0;
+.pmap__row {
   display: grid;
-  justify-items: center;
-  gap: 10px;
-  padding: 6px 8px;
-  white-space: nowrap;
-  text-align: center;
-  translate: -50% 0;
-}
-
-.route__stop[data-home] .route__btn {
-  --d: 18px;
-}
-
-.route__stop--up .route__btn {
-  bottom: calc(var(--d) / -2 - 6px);
-}
-
-.route__stop--down .route__btn {
-  top: calc(var(--d) / -2 - 6px);
-}
-
-.route__stop--up .route__dot {
-  order: 2;
-}
-
-/* the dot box pops in (GSAP scales it); the circle itself is the ::after, which takes the hover */
-.route__dot {
-  position: relative;
-  width: var(--d);
-  height: var(--d);
-}
-
-.route__dot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 1.5px solid var(--color-ink);
-  border-radius: 50%;
-  background: var(--color-paper);
+  grid-template-columns: 26px minmax(0, 1fr) auto 16px;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
   transition:
-    background 0.3s,
-    transform 0.4s var(--ease-expo);
+    padding 0.5s var(--ease-expo),
+    color 0.3s;
 }
 
-.route__stop[data-home] .route__dot::after {
-  border-color: var(--color-orange-deep);
-  background: var(--color-orange-deep);
+.pmap__row[data-on] {
+  padding-inline: 10px;
+  color: var(--color-orange-text);
 }
 
-.route__label {
-  display: grid;
-  justify-items: center;
-  gap: 2px;
+.pmap__no {
+  color: var(--color-mute);
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.route__city {
+.pmap__city {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: clamp(13px, 1.1vw, 15px);
+  gap: 8px;
+  font-size: clamp(16px, 1.25vw, 18px);
   font-weight: 650;
-  transition: color 0.3s;
+  letter-spacing: -0.01em;
 }
 
-.route__home {
+.pmap__home {
   padding: 1px 7px;
   border-radius: 999px;
   background: var(--color-orange-deep);
@@ -3409,87 +3356,234 @@
   text-transform: uppercase;
 }
 
-.route__count {
+.pmap__count {
   color: var(--color-mute);
   font-size: clamp(15px, 1.15vw, 17px);
+  white-space: nowrap;
 }
 
-@media (hover: hover) {
-  .route__btn:hover .route__dot::after {
-    transform: scale(1.35);
-    background: var(--color-ink);
+.pmap__arrow {
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  transition:
+    opacity 0.3s,
+    translate 0.5s var(--ease-expo);
+  translate: -6px 0;
+}
+
+.pmap__row[data-on] .pmap__arrow {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.pmap__map {
+  position: relative;
+  aspect-ratio: 1400 / 760;
+}
+
+.pmap__land,
+.pmap__routes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* every dot is a zero-length segment with a round cap */
+.pmap__land path {
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-linecap: round;
+  stroke-opacity: 0.2;
+  stroke-width: 5;
+  transition: stroke-opacity 0.4s;
+}
+
+.pmap[data-hl] .pmap__land path {
+  stroke-opacity: 0.14;
+}
+
+.pmap__arc {
+  fill: none;
+  stroke: var(--color-orange-deep);
+  stroke-dasharray: 1;
+  stroke-linecap: round;
+  stroke-opacity: 0.65;
+  stroke-width: 2.6;
+  transition:
+    stroke-opacity 0.3s,
+    stroke-width 0.3s;
+}
+
+.pmap__arc[data-on] {
+  stroke-opacity: 1;
+  stroke-width: 4.5;
+}
+
+.pmap[data-hl] .pmap__arc:not([data-on]) {
+  stroke-opacity: 0.18;
+}
+
+/* the studio breathes: a ring that grows and fades, over and over */
+.pmap__pulse {
+  fill: none;
+  stroke: var(--color-orange-deep);
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pmap-pulse 2.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+@keyframes pmap-pulse {
+  from {
+    opacity: 0.75;
+    transform: scale(1);
   }
 
-  .route__stop[data-home] .route__btn:hover .route__dot::after {
-    background: var(--color-orange-deep);
-  }
-
-  .route__btn:hover .route__city {
-    color: var(--color-orange-text);
+  to {
+    opacity: 0;
+    transform: scale(3.4);
   }
 }
 
-/* phones: the route turns into a vertical line, like a transit map */
+/* pins: a zero box at the place, the dot centred on it and the name to one side */
+.pmap__pin {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  width: 0;
+  height: 0;
+}
+
+.pmap__dot {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  width: 14px;
+  height: 14px;
+}
+
+.pmap__dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-ink);
+  border-radius: 50%;
+  background: var(--color-paper);
+  transition:
+    background 0.3s,
+    transform 0.4s var(--ease-expo);
+}
+
+.pmap__pin[data-home] .pmap__dot {
+  top: -10px;
+  left: -10px;
+  width: 20px;
+  height: 20px;
+}
+
+.pmap__pin[data-home] .pmap__dot::after {
+  border-color: var(--color-orange-deep);
+  background: var(--color-orange-deep);
+}
+
+.pmap__pin[data-on] .pmap__dot::after {
+  transform: scale(1.3);
+  background: var(--color-ink);
+}
+
+.pmap__pin[data-home][data-on] .pmap__dot::after {
+  background: var(--color-orange-deep);
+}
+
+.pmap__tag {
+  position: absolute;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--color-paper);
+  box-shadow: 0 0 0 1px var(--line);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+.pmap__pin[data-on] .pmap__tag {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.pmap__pin--r .pmap__tag {
+  top: 0;
+  left: 16px;
+  translate: 0 -50%;
+}
+
+.pmap__pin--t .pmap__tag {
+  bottom: 14px;
+  left: 0;
+  translate: -50% 0;
+}
+
+.pmap__pin--bl .pmap__tag {
+  top: 16px;
+  right: 2px;
+}
+
+@media (max-width: 899px) {
+  .pmap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pmap__map {
+    order: -1;
+  }
+}
+
 @media (max-width: 767px) {
-  .route {
-    height: auto;
-    margin-top: 14px;
+  .pmap__land path {
+    stroke-width: 7;
   }
 
-  .route__line {
-    display: none;
+  .pmap__tag {
+    padding: 2px 7px;
+    font-size: 11px;
   }
 
-  .route__stops {
-    position: relative;
-    inset: auto;
-    display: grid;
+  .pmap__pin--r .pmap__tag {
+    left: 11px;
   }
 
-  .route__stops::before {
-    content: '';
-    position: absolute;
-    top: 22px;
-    bottom: 22px;
-    left: 8px;
-    width: 1px;
-    background: var(--line-strong);
+  .pmap__pin--t .pmap__tag {
+    bottom: 10px;
   }
 
-  .route__stop {
-    position: static;
+  .pmap__pin--bl .pmap__tag {
+    top: 11px;
   }
 
-  .route__btn,
-  .route__stop--up .route__btn,
-  .route__stop--down .route__btn {
-    position: static;
-    grid-template-columns: 18px minmax(0, 1fr);
-    justify-items: start;
-    align-items: center;
-    gap: 14px;
-    width: 100%;
-    padding: 12px 0;
-    text-align: left;
-    translate: none;
+  .pmap__dot {
+    top: -5px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
   }
 
-  .route__dot,
-  .route__stop--up .route__dot {
-    order: 0;
-    justify-self: center;
+  .pmap__pin[data-home] .pmap__dot {
+    top: -7px;
+    left: -7px;
+    width: 14px;
+    height: 14px;
   }
+}
 
-  .route__label {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .route__city {
-    font-size: 16px;
+@media (prefers-reduced-motion: reduce) {
+  .pmap__pulse {
+    animation: none;
   }
 }
 
