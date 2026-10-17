@@ -65,13 +65,29 @@ const pillItems: { id: string; label: string; jump: string }[] = [
   { id: 'archive', label: 'Arsip', jump: '#arsip' },
 ]
 
+// Project locations as a route (after ERA Residence's coast line): west to east, the studio's home stop in orange.
+// Stops sit evenly on a gentle wave; x / y in % of the route box.
+const ROUTE_ORDER = ['palembang', 'diy', 'klaten', 'jepara', 'surabaya', 'bali']
+const wave = (x: number) => 50 + 28 * Math.sin((x / 100) * Math.PI * 2.2 + 0.5)
+const routePath = Array.from({ length: 101 }, (_, i) => `${i ? 'L' : 'M'}${i * 10} ${wave(i).toFixed(2)}`).join(' ')
+const routeStops = areaStats
+  .filter((a) => ROUTE_ORDER.includes(a.key))
+  .sort((a, b) => ROUTE_ORDER.indexOf(a.key) - ROUTE_ORDER.indexOf(b.key))
+  .map((a, i, all) => {
+    const x = 6 + (i * 88) / Math.max(1, all.length - 1)
+    return { ...a, x, y: wave(x) }
+  })
+
 /** One selected project in the staggered layout (after Kononenko's Work page): photo, name, typology · place */
 function WorkPiece({ p }: { p: Project }) {
   return (
     <TLink to={`/work/${p.slug}`} className="wp" data-cursor="Lihat">
       <span className="wp__inner">
         <span className="wp__media" data-reveal>
-          <Img id={p.cover} alt={p.title} sizes="(min-width: 900px) 56vw, 100vw" />
+          {/* the reveal settles the image; the hover zoom lives on this wrapper so the two never fight */}
+          <span className="wp__zoom">
+            <Img id={p.cover} alt={p.title} sizes="(min-width: 900px) 56vw, 100vw" />
+          </span>
         </span>
         <span className="wp__cap">
           <span className="wp__name">{p.title}</span>
@@ -137,6 +153,14 @@ export default function Work() {
   const hasActiveFilter = filterKey !== 'all|all|all|all'
 
   usePageAnimations(root, (page) => {
+    // Locations route: the line draws from west to east, the stops pop in one after another (like the logo pieces)
+    const route = page.querySelector<HTMLElement>('.route')!
+    gsap
+      .timeline({ scrollTrigger: { trigger: route, start: 'top 85%', once: true } })
+      .fromTo('.route__line', { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.6, ease: 'power2.inOut' })
+      .from('.route__dot', { scale: 0, duration: 0.6, stagger: 0.16, ease: 'back.out(2.2)' }, 0.15)
+      .from('.route__label', { y: 10, autoAlpha: 0, duration: 0.7, stagger: 0.16, ease: 'power3.out' }, 0.3)
+
     // Selected projects: the second picture of each pair drifts a little faster than the first (wide screens)
     const wide = window.matchMedia('(min-width: 900px)')
     gsap.utils.toArray<HTMLElement>('.wp:nth-child(even) .wp__inner', page).forEach((el) => {
@@ -269,16 +293,36 @@ export default function Work() {
           <p className="t-lead work-intro__text" data-scrub>
             {intro}
           </p>
-          {/* where the work is: each place opens the archive filtered to it */}
-          <div className="work-intro__places" data-fade>
-            <p className="t-label work-intro__label">Lokasi proyek</p>
-            <div className="work-intro__chips">
-              {areaStats.map((a) => (
-                <button key={a.key} type="button" className="chip-btn" onClick={() => showInArchive({ location: a.key })}>
-                  {a.label}
-                  <span className="chip-btn__count">{a.count}</span>
-                </button>
-              ))}
+          {/* where the work is, as a route from Sumatra to Bali; each stop opens the archive filtered to it */}
+          <div className="work-intro__places">
+            <p className="t-label work-intro__label" data-fade>
+              Lokasi proyek
+            </p>
+            <div className="route">
+              <svg className="route__line" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+                <path d={routePath} vectorEffect="non-scaling-stroke" />
+              </svg>
+              <ol className="route__stops">
+                {routeStops.map((s, i) => (
+                  <li
+                    key={s.key}
+                    className={`route__stop ${i % 2 ? 'route__stop--down' : 'route__stop--up'}`}
+                    style={{ '--x': `${s.x}%`, '--y': `${s.y}%` } as CSSProperties}
+                    data-home={s.key === 'diy' ? '' : undefined}
+                  >
+                    <button type="button" className="route__btn" onClick={() => showInArchive({ location: s.key })}>
+                      <span className="route__dot" aria-hidden="true" />
+                      <span className="route__label">
+                        <span className="route__city">
+                          {s.label}
+                          {s.key === 'diy' && <span className="route__home">Studio</span>}
+                        </span>
+                        <span className="t-serif route__count">{s.count} proyek</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </section>

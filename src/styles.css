@@ -3224,10 +3224,6 @@
 }
 
 .work-intro__places {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px 24px;
   margin-top: clamp(32px, 4vw, 52px);
   padding-top: 18px;
   border-top: 1px solid var(--line);
@@ -3237,10 +3233,201 @@
   color: var(--color-mute);
 }
 
-.work-intro__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* Locations route (Work intro), after ERA Residence: a thin wave from west to east, labelled stops above / below */
+.route {
+  position: relative;
+  height: clamp(190px, 17vw, 250px);
+  margin-top: 8px;
+}
+
+.route__line {
+  position: absolute;
+  inset: 22% 0;
+  width: 100%;
+  height: 56%;
+  overflow: visible;
+}
+
+.route__line path {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1.2;
+}
+
+.route__stops {
+  position: absolute;
+  inset: 22% 0;
+  list-style: none;
+}
+
+.route__stop {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+}
+
+/* each stop is a real button: label + dot stacked, placed so the dot's centre sits on the stop point */
+.route__btn {
+  --d: 12px; /* dot size */
+  position: absolute;
+  left: 0;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  white-space: nowrap;
+  text-align: center;
+  translate: -50% 0;
+}
+
+.route__stop[data-home] .route__btn {
+  --d: 18px;
+}
+
+.route__stop--up .route__btn {
+  bottom: calc(var(--d) / -2 - 6px);
+}
+
+.route__stop--down .route__btn {
+  top: calc(var(--d) / -2 - 6px);
+}
+
+.route__stop--up .route__dot {
+  order: 2;
+}
+
+/* the dot box pops in (GSAP scales it); the circle itself is the ::after, which takes the hover */
+.route__dot {
+  position: relative;
+  width: var(--d);
+  height: var(--d);
+}
+
+.route__dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--color-ink);
+  border-radius: 50%;
+  background: var(--color-paper);
+  transition:
+    background 0.3s,
+    transform 0.4s var(--ease-expo);
+}
+
+.route__stop[data-home] .route__dot::after {
+  border-color: var(--color-orange-deep);
+  background: var(--color-orange-deep);
+}
+
+.route__label {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+
+.route__city {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: clamp(13px, 1.1vw, 15px);
+  font-weight: 650;
+  transition: color 0.3s;
+}
+
+.route__home {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--color-orange-deep);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.route__count {
+  color: var(--color-mute);
+  font-size: clamp(15px, 1.15vw, 17px);
+}
+
+@media (hover: hover) {
+  .route__btn:hover .route__dot::after {
+    transform: scale(1.35);
+    background: var(--color-ink);
+  }
+
+  .route__stop[data-home] .route__btn:hover .route__dot::after {
+    background: var(--color-orange-deep);
+  }
+
+  .route__btn:hover .route__city {
+    color: var(--color-orange-text);
+  }
+}
+
+/* phones: the route turns into a vertical line, like a transit map */
+@media (max-width: 767px) {
+  .route {
+    height: auto;
+    margin-top: 14px;
+  }
+
+  .route__line {
+    display: none;
+  }
+
+  .route__stops {
+    position: relative;
+    inset: auto;
+    display: grid;
+  }
+
+  .route__stops::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    bottom: 22px;
+    left: 8px;
+    width: 1px;
+    background: var(--line-strong);
+  }
+
+  .route__stop {
+    position: static;
+  }
+
+  .route__btn,
+  .route__stop--up .route__btn,
+  .route__stop--down .route__btn {
+    position: static;
+    grid-template-columns: 18px minmax(0, 1fr);
+    justify-items: start;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 12px 0;
+    text-align: left;
+    translate: none;
+  }
+
+  .route__dot,
+  .route__stop--up .route__dot {
+    order: 0;
+    justify-self: center;
+  }
+
+  .route__label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .route__city {
+    font-size: 16px;
+  }
 }
 
 /* Selected projects, one block per category (a / b / c): a head band, then a staggered layout (Kononenko) */
@@ -3317,11 +3504,17 @@
   overflow: hidden;
 }
 
+.wp__zoom {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 1.3s var(--ease-expo);
+}
+
 .wp__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 1.3s var(--ease-expo);
 }
 
 .wp__cap {
@@ -3346,7 +3539,7 @@
 }
 
 @media (hover: hover) {
-  .wp:hover .wp__media img {
+  .wp:hover .wp__zoom {
     transform: scale(1.05);
   }
 
