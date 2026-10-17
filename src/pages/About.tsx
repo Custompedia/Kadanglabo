@@ -47,6 +47,20 @@ export default function About() {
   const root = useRef<HTMLDivElement>(null)
 
   usePageAnimations(root, (page) => {
+    // The doorway: a narrow arch in the middle widens to the full frame while the photo scrolls in
+    const door = page.querySelector<HTMLElement>('.wide-media__frame')!
+    const arch = () => Math.round(door.offsetWidth * 0.19)
+    gsap.fromTo(
+      door,
+      { clipPath: () => `inset(0% 31% 0% 31% round ${arch()}px ${arch()}px 0px 0px)` },
+      {
+        clipPath: 'inset(0% 0% 0% 0% round 0px 0px 0px 0px)',
+        ease: 'power1.inOut',
+        scrollTrigger: { trigger: '.wide-media', start: 'top 80%', end: 'top 8%', scrub: true, invalidateOnRefresh: true },
+      },
+    )
+    gsap.fromTo('.wide-media__frame img', { scale: 1.3 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.wide-media', start: 'top 80%', end: 'top 8%', scrub: true } })
+
     // Kadanglabo in numbers, wide screens: the stage holds while the ring of photos turns, the intro steps aside
     // and the figures roll past the centre like a drum. Built once; the CSS media query switches the layout,
     // so crossing the breakpoint only re-renders (no triggers are created during a breakpoint change).
@@ -136,8 +150,9 @@ export default function About() {
           sub="Konsultan arsitektur berbasis komunitas di Yogyakarta, didirikan oleh Raditya Alvin pada akhir September 2020."
         />
 
+        {/* "satu pintu": the first photo opens from a doorway (an arch, after ERA Residence) to the full frame */}
         <section className="wide-media" data-theme="dark">
-          <div className="wide-media__frame" data-reveal>
+          <div className="wide-media__frame">
             <div className="wide-media__inner" data-parallax="9">
               <Img id="labarka-garden" alt="La Barka Resort - taman dan massa bangunan" sizes="100vw" />
             </div>
