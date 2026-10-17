@@ -60,6 +60,47 @@ export default function Services() {
         geo.forEach(([left, width], i) => setX[i](120 * (1 - gsap.utils.clamp(0, 1, (stage.clientWidth - left - x) / width))))
       },
     })
+
+    // The cards rest lit (orange, white type). They wait as the sand cards they used to be and light up once
+    // half of a card is on screen: the orange rises from the bottom and the type turns white as it passes.
+    // Works the same in the moving track (wide screens) and in the swipe rail (phones).
+    const theme = getComputedStyle(document.documentElement)
+    const ink = theme.getPropertyValue('--color-ink').trim()
+    const orange = theme.getPropertyValue('--color-orange-deep').trim()
+    const lights = cards.map((card) => {
+      const sand = card.querySelector('.step__sand')
+      const num = card.querySelector('.step__num')
+      const lead = card.querySelector('.step__lead')
+      const rules = card.querySelectorAll('.step__points li')
+      gsap.set(sand, { autoAlpha: 1, clipPath: 'inset(0% 0% 0% 0%)' })
+      gsap.set(card, { color: ink })
+      gsap.set(num, { color: orange })
+      gsap.set(lead, { opacity: 0.75 })
+      gsap.set(rules, { borderColor: 'rgba(21, 21, 21, 0.14)' })
+      return gsap
+        .timeline({ paused: true })
+        .to(sand, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.9, ease: 'expo.inOut' })
+        .to(rules, { borderColor: 'rgba(255, 255, 255, 0.35)', duration: 0.3, ease: 'power1.inOut' }, 0.28)
+        .to(card, { color: '#fff', duration: 0.3, ease: 'power1.inOut' }, 0.32)
+        .to(lead, { opacity: 1, duration: 0.3, ease: 'power1.inOut' }, 0.32)
+        .to(num, { color: '#fff', duration: 0.3, ease: 'power1.inOut' }, 0.46)
+        .set(sand, { autoAlpha: 0 })
+    })
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries
+          .filter((e) => e.isIntersecting)
+          .map((e) => cards.indexOf(e.target as HTMLElement))
+          .sort((a, b) => a - b)
+          .forEach((i, k) => {
+            io.unobserve(cards[i])
+            lights[i].delay(k * 0.15).restart(true) // cards that arrive together light up one after another
+          })
+      },
+      { threshold: 0.5 },
+    )
+    cards.forEach((card) => io.observe(card))
+    return () => io.disconnect()
   })
 
   // Swipe rail (narrow screens, reduced motion): the bar under the cards follows the swipe
@@ -203,6 +244,7 @@ export default function Services() {
                 {process.map((step, i) => (
                   <li key={step.title} className="step">
                     <div className="step__card">
+                      <span className="step__sand" aria-hidden="true" />
                       <span className="step__num" aria-hidden="true">
                         0{i + 1}
                       </span>

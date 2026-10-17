@@ -2477,7 +2477,10 @@
   scroll-snap-align: start;
 }
 
+/* resting state: lit, orange with white type (white on orange-deep is 4.5:1); the sand look is the entrance */
 .step__card {
+  position: relative;
+  isolation: isolate; /* keeps the sand layer under the type */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -2485,21 +2488,27 @@
   height: 100%;
   min-height: 420px;
   padding: clamp(20px, 2vw, 32px);
+  background: var(--color-orange-deep);
+  color: #fff;
+}
+
+/* the sand card a step waits as; it drains away when the card lights up (Services.tsx) */
+.step__sand {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--color-sand);
-  transition:
-    background-color 0.5s var(--ease-expo),
-    color 0.5s var(--ease-expo);
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .step__num {
-  color: var(--color-orange-deep);
   font-weight: 800;
   font-family: var(--font-display);
   font-stretch: 90%;
   font-size: clamp(3.4rem, 6vw, 6.4rem);
   line-height: 0.85;
   letter-spacing: -0.03em;
-  transition: color 0.5s var(--ease-expo);
 }
 
 .step__title {
@@ -2515,7 +2524,6 @@
   margin-top: 12px;
   font-size: clamp(14px, 1.1vw, 16px);
   line-height: 1.55;
-  opacity: 0.75;
 }
 
 .step__points {
@@ -2525,29 +2533,9 @@
 
 .step__points li {
   padding-block: 9px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid rgb(255 255 255 / 0.35);
   font-size: 13.5px;
   font-weight: 560;
-  transition: border-color 0.5s var(--ease-expo);
-}
-
-@media (hover: hover) {
-  .step__card:hover {
-    background: var(--color-orange-deep);
-    color: #fff;
-  }
-
-  .step__card:hover .step__num {
-    color: #fff;
-  }
-
-  .step__card:hover .step__lead {
-    opacity: 1;
-  }
-
-  .step__card:hover .step__points li {
-    border-color: rgb(255 255 255 / 0.35);
-  }
 }
 
 .process__progress {

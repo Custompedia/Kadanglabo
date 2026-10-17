@@ -103,23 +103,29 @@ export function attachReveals(root: HTMLElement) {
 
 /**
  * Sets up a page's animations once the intro gate opens (after the preloader / transition curtain).
- * `setup` is for bespoke timelines; data-attribute reveals inside `scope` are attached automatically.
+ * `setup` is for bespoke timelines and may return a cleanup (e.g. an observer to disconnect);
+ * data-attribute reveals inside `scope` are attached automatically.
  */
 export function usePageAnimations(
   scope: RefObject<HTMLElement | null>,
-  setup?: (root: HTMLElement) => void,
+  setup?: (root: HTMLElement) => void | (() => void),
   deps: unknown[] = [],
 ) {
   useGSAP(
     (_ctx, contextSafe) => {
       const root = scope.current
       if (!root || !contextSafe) return
+      let undo: void | (() => void)
       const run = contextSafe(() => {
         if (reducedMotion()) return
-        setup?.(root)
+        undo = setup?.(root)
         attachReveals(root)
       })
-      return whenGateOpen(run)
+      const off = whenGateOpen(run)
+      return () => {
+        off()
+        if (typeof undo === 'function') undo()
+      }
     },
     { scope, dependencies: deps, revertOnUpdate: true },
   )
