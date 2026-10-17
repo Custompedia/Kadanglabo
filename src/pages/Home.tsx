@@ -49,7 +49,8 @@ export default function Home() {
             </span>
             <div className="spirit__bottom">
               <p className="spirit__text" data-fade>
-                {about.ethos}
+                Kadanglabo menargetkan setiap proyek yang didesain harus terbangun. Etos inilah yang menjaga dua parameter
+                keberhasilan proyek kami.
               </p>
               <TLink to="/about" className="spirit__link" data-fade>
                 Tentang kami

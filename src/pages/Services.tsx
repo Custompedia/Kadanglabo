@@ -156,12 +156,24 @@ export default function Services() {
           </div>
         </section>
 
+        {/* the promise, next to the whole of a site planned in one go (La Barka: plan, landscape, buildings) */}
         <section className="statement wrap" data-theme="light">
-          <SectionLabel n="01">Our services</SectionLabel>
-          <p className="t-h1 statement__text" data-split>
-            Desain kontekstual. Workflow yang efektif. Bangunan yang tuntas. Satu pintu dari perencanaan hingga
-            pelaksanaan.
-          </p>
+          <div className="statement__main">
+            <SectionLabel n="01">Our services</SectionLabel>
+            <p className="t-h1 statement__text" data-split>
+              Desain kontekstual. Workflow yang efektif. Bangunan yang tuntas. Satu pintu dari perencanaan hingga
+              pelaksanaan.
+            </p>
+          </div>
+          <div className="statement__media" data-reveal>
+            <div className="statement__parallax" data-parallax="6">
+              <Img
+                id="labarka-exterior"
+                alt="La Barka Resort - tapak, lanskap, dan bangunan dalam satu rencana"
+                sizes="(min-width: 900px) 38vw, 100vw"
+              />
+            </div>
+          </div>
         </section>
 
         {/* Overview: every service in one numbered run (after Telha Clarke's services line), lit as you read */}
@@ -218,9 +230,6 @@ export default function Services() {
                 <h2 className="cat__title" data-split>
                   {s.label}
                 </h2>
-                <p className="cat__tags" data-fade>
-                  <span className="pill">New Building &amp; Renovation / Development</span>
-                </p>
                 <p className="t-body-lg cat__desc" data-fade>
                   {s.desc}
                 </p>

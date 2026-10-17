@@ -37,7 +37,7 @@ export default function Contact() {
       <div ref={root}>
         <PageHero
           title="Contact"
-          sub="Kami bangga dapat bekerja sama dengan klien dari berbagai kota di Indonesia dengan lokasi kami yang berada di Daerah Istimewa Yogyakarta. Silakan mampir jika Anda sedang berada di sekitar sini atau hubungi kami; kami sangat menantikan kabar dari Anda."
+          sub="Studio kami di Yogyakarta, klien kami dari berbagai kota di Indonesia. Mampir atau hubungi kami, kami menantikan kabar Anda."
         />
 
         {/* Start a project: the form comes first */}

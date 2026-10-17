@@ -42,11 +42,7 @@ const matches = (f: Filters) => (e: ArchiveEntry) =>
   (f.year === 'all' || String(e.year) === f.year) &&
   (f.status === 'all' || e.status === f.status)
 
-const joinId = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')}, dan ${xs[xs.length - 1]}`)
-
-const intro = `Sejak 2020, Kadanglabo telah mengerjakan lebih dari ${Math.floor(archive.length / 10) * 10} proyek: rumah tinggal dan kawasan perumahan, resort dan villa, restoran, kantor, hingga fasilitas kesehatan. Sebagian besar berada di D.I. Yogyakarta, juga di ${joinId(
-  areaStats.filter((a) => a.key !== 'diy').map((a) => a.label),
-)}.`
+const intro = `Lebih dari ${Math.floor(archive.length / 10) * 10} proyek sejak 2020, dari rumah tinggal dan perumahan sampai resort, kantor, dan fasilitas kesehatan.`
 
 export default function Work() {
   const root = useRef<HTMLDivElement>(null)
@@ -109,6 +105,7 @@ export default function Work() {
     ScrollTrigger.refresh()
     if (reducedMotion() || !results.current) return
     const items = results.current.querySelectorAll('.index-row:not(.index-row--head)')
+    if (!items.length) return
     gsap.fromTo(items, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.025, ease: 'expo.out' })
   }, [filterKey])
 
@@ -121,6 +118,7 @@ export default function Work() {
     ScrollTrigger.refresh()
     if (reducedMotion() || !results.current) return
     const items = [...results.current.querySelectorAll('.index-row:not(.index-row--head)')].slice(PEEK)
+    if (!items.length) return // a short result set is open by default: nothing past the first rows
     gsap.fromTo(items, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.02, ease: 'expo.out' })
   }, [open])
 
@@ -165,6 +163,18 @@ export default function Work() {
           <p className="t-lead work-intro__text" data-scrub>
             {intro}
           </p>
+          {/* where the work is: each place opens the archive filtered to it */}
+          <div className="work-intro__places" data-fade>
+            <p className="t-label work-intro__label">Lokasi proyek</p>
+            <div className="work-intro__chips">
+              {areaStats.map((a) => (
+                <button key={a.key} type="button" className="chip-btn" onClick={() => showInArchive({ location: a.key })}>
+                  {a.label}
+                  <span className="chip-btn__count">{a.count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* Selected projects — Category Project a / b / c */}
