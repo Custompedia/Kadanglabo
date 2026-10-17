@@ -1989,7 +1989,7 @@
 
 @media (min-width: 1024px) {
   .numbers[data-motion] {
-    height: 340svh; /* scroll distance of the held scene */
+    height: 400svh; /* scroll distance of the held scene: photos in, figures, photos out */
     padding-block: 0;
   }
 
@@ -2018,7 +2018,8 @@
     width: var(--pw);
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    transform: translate(-50%, -50%) rotate(calc(var(--i) * 360deg / var(--n))) translateY(calc(-1 * var(--r)));
+    /* --k pushes a photo out along its spoke: 1 = on the ring, beyond ~2.4 = off screen (set while scrolling) */
+    transform: translate(-50%, -50%) rotate(calc(var(--i) * 360deg / var(--n))) translateY(calc(-1 * var(--r) * var(--k, 1)));
   }
 
   .numbers[data-motion] .numbers__photo img {

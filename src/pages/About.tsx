@@ -61,27 +61,44 @@ export default function About() {
     )
     gsap.fromTo('.wide-media__frame img', { scale: 1.3 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.wide-media', start: 'top 80%', end: 'top 8%', scrub: true } })
 
-    // Kadanglabo in numbers, wide screens: the stage holds while the ring of photos turns, the intro steps aside
-    // and the figures roll past the centre like a drum. Built once; the CSS media query switches the layout,
-    // so crossing the breakpoint only re-renders (no triggers are created during a breakpoint change).
+    // Kadanglabo in numbers, wide screens: the stage holds; the project photos fly in from beyond the screen edges
+    // into a turning ring, the intro steps aside and the figures roll past the centre like a drum, then the photos
+    // fly back out. Built once; the CSS media query switches the layout, so crossing the breakpoint only
+    // re-renders (no triggers are created during a breakpoint change).
     const numbers = page.querySelector<HTMLElement>('.numbers')!
     const stage = numbers.querySelector<HTMLElement>('.numbers__stage')!
     const ring = numbers.querySelector<HTMLElement>('.numbers__ring')!
     const intro = numbers.querySelector<HTMLElement>('.numbers__intro')!
     const items = gsap.utils.toArray<HTMLElement>('.numbers__item', numbers)
+    const photos = gsap.utils.toArray<HTMLElement>('.numbers__photo', numbers)
+    // each photo gets its own moment to arrive and to leave, in a shuffled order around the ring
+    const order = photos.map((_, i) => ((i * 7) % photos.length) / photos.length)
+    const ease = gsap.parseEase('power3.out')
+    const easeIn = gsap.parseEase('power3.in')
     const wide = window.matchMedia(NUMBERS_WIDE)
     numbers.dataset.motion = ''
     let still = false
     const render = (p: number) => {
       if (!wide.matches) {
-        if (!still) gsap.set([ring, intro, ...items], { clearProps: 'transform,opacity' })
+        if (!still) {
+          gsap.set([ring, intro, ...items], { clearProps: 'transform,opacity' })
+          photos.forEach((ph) => ph.style.removeProperty('--k'))
+        }
         still = true
         return
       }
       still = false
-      const out = clamp01((p - 0.03) / 0.06) // the intro steps up and away first
-      const show = clamp01((p - 0.075) / 0.06) // and the first figure rises in right behind it
-      const pos = clamp01((p - 0.14) / 0.74) * (items.length - 1) // which figure sits in the centre
+      // photos: from far outside (k = 2.6 x the ring radius) into the ring, and out again at the end
+      photos.forEach((ph, i) => {
+        const inAt = order[i] * 0.12
+        const outAt = 0.8 + order[i] * 0.1
+        const arrive = ease(clamp01((p - inAt) / 0.12))
+        const leave = easeIn(clamp01((p - outAt) / 0.1))
+        ph.style.setProperty('--k', (1 + 1.6 * (1 - arrive) + 1.6 * leave).toFixed(4))
+      })
+      const out = clamp01((p - 0.16) / 0.06) // the intro holds while the photos gather, then steps away
+      const show = clamp01((p - 0.2) / 0.05) // and the first figure rises in right behind it
+      const pos = clamp01((p - 0.25) / 0.53) * (items.length - 1) // which figure sits in the centre
       const step = stage.clientHeight * 0.42
       gsap.set(ring, { rotation: -150 * p })
       gsap.set(intro, { opacity: 1 - out, y: -70 * out })
