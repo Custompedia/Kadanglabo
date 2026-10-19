@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { ScrollTrigger, useGSAP, finePointer } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { sectors } from '../data/site'
+import { archive } from '../data/projects'
 import { Img } from './Img'
 
 /**
@@ -55,6 +56,12 @@ export function SectorShowcase() {
             onBlur={() => setLit(null)}
           >
             <span className="sector-row__title">{s.title}</span>
+            <span className="sector-row__more">
+              <span>
+                <span className="sector-row__desc">{s.desc}</span>
+                <span className="sector-row__count">{archive.filter((a) => a.category === s.key).length} proyek</span>
+              </span>
+            </span>
           </TLink>
         ))}
       </div>

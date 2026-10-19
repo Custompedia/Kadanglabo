@@ -7,6 +7,7 @@ const num = (v: string | undefined, fallback: number) => (v === undefined || v =
 /**
  * Declarative scroll animations, driven by data attributes:
  *  data-split            heading revealed line by line (masked)    data-split="now" → plays immediately
+ *  data-split="chars"    page titles: the letters arrive from scattered spots and settle into the word (Saisei)
  *  data-fade             fade + rise                                data-delay="0.2"
  *  data-stagger          children fade + rise in sequence
  *  data-reveal           image wrapper wiped open, inner <img> settles from a zoom
@@ -14,7 +15,27 @@ const num = (v: string | undefined, fallback: number) => (v === undefined || v =
  *  data-scrub            words light up as you scroll through the paragraph
  */
 export function attachReveals(root: HTMLElement) {
-  root.querySelectorAll<HTMLElement>('[data-split]').forEach((el) => {
+  root.querySelectorAll<HTMLElement>('[data-split="chars"]').forEach((el) => {
+    SplitText.create(el, {
+      type: 'chars,words',
+      charsClass: 'split-char',
+      aria: 'none',
+      autoSplit: true,
+      onSplit: (self) =>
+        gsap.from(self.chars, {
+          x: () => gsap.utils.random(-140, 140),
+          y: () => gsap.utils.random(-90, 90),
+          rotation: () => gsap.utils.random(-28, 28),
+          autoAlpha: 0,
+          duration: 1.4,
+          ease: 'expo.out',
+          delay: num(el.dataset.delay, 0.1),
+          stagger: { each: 0.028, from: 'random' },
+        }),
+    })
+  })
+
+  root.querySelectorAll<HTMLElement>('[data-split]:not([data-split="chars"])').forEach((el) => {
     const now = el.dataset.split === 'now'
     const delay = num(el.dataset.delay, 0)
     SplitText.create(el, {

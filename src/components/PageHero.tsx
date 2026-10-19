@@ -13,7 +13,7 @@ type Props = {
 export function PageHero({ title, sub, theme = 'light', className = '', style, children }: Props) {
   return (
     <section className={`page-hero wrap ${className}`} data-theme={theme} style={style}>
-      <h1 className="t-display page-hero__title" data-split="now">
+      <h1 className="t-display page-hero__title" data-split="chars">
         {title}
       </h1>
       {sub && (

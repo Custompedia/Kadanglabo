@@ -1,11 +1,10 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { useSearchParams } from 'react-router'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img, type ImgKey } from '../components/Img'
-import { SectionLabel } from '../components/Bits'
+import { Counter, SectionLabel } from '../components/Bits'
 import { Plus } from '../components/Icons'
-import { ProjectMap, STUDIO_AT } from '../components/ProjectMap'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger, finePointer, reducedMotion } from '../lib/gsap'
 import { scrollToElement } from '../lib/smooth'
@@ -32,7 +31,6 @@ import {
 
 type Filters = { category: string; location: string; year: string; status: string }
 const EMPTY: Filters = { category: 'all', location: 'all', year: 'all', status: 'all' }
-const LETTERS = ['a', 'b', 'c']
 const PEEK = 12 // archive rows shown before "Tampilkan semua"
 const keyOf = (f: Filters) => `${f.category}|${f.location}|${f.year}|${f.status}`
 
@@ -60,14 +58,9 @@ const scatter: { id: ImgKey; x: number; y: number; w: string; ar: string; s: num
   { id: 'berbah-front', x: 67, y: 85, w: 'clamp(90px, 10vw, 180px)', ar: '4 / 3', s: 0.72 },
 ]
 
-// sections the floating pill moves between (ids on the page), Kononenko's bottom switcher
-const pillItems: { id: string; label: string; jump: string }[] = [
-  ...categoryOrder.map((c) => ({ id: c, label: categoryLabel[c], jump: `#${c}` })),
-  { id: 'archive', label: 'Arsip', jump: '#arsip' },
-]
-
-// Project locations, studio first, then by number of projects (ProjectMap draws them on the dot map)
+// Project locations: the studio's home first, then the other cities by number of projects
 const places = [...areaStats].sort((a, b) => (a.key === 'diy' ? -1 : b.key === 'diy' ? 1 : b.count - a.count))
+const elsewhere = places.filter((p) => p.key !== 'diy')
 
 /** One selected project in the staggered layout (after Kononenko's Work page): photo, name, typology · place */
 function WorkPiece({ p }: { p: Project }) {
@@ -97,9 +90,6 @@ export default function Work() {
   const preview = useRef<HTMLDivElement>(null)
   const [params, setParams] = useSearchParams()
   const [hovered, setHovered] = useState<string | null>(null)
-  const [pillOn, setPillOn] = useState(false)
-  const [section, setSection] = useState(0)
-  const pill = useRef<HTMLElement>(null)
 
   const f: Filters = {
     category: params.get('category') ?? 'all',
@@ -144,16 +134,11 @@ export default function Work() {
   const hasActiveFilter = filterKey !== 'all|all|all|all'
 
   usePageAnimations(root, (page) => {
-    // Locations map: the land appears from Yogyakarta outwards, the pins pop in, then the arcs run out to each place
-    const at = `${STUDIO_AT.x.toFixed(2)}% ${STUDIO_AT.y.toFixed(2)}%`
+    // Where the work is: the cities land one after another as big words, each with its count
     gsap
-      .timeline({ scrollTrigger: { trigger: '.pmap', start: 'top 80%', once: true } })
-      .fromTo('.pmap__land', { clipPath: `circle(0% at ${at})` }, { clipPath: `circle(120% at ${at})`, duration: 2, ease: 'power2.inOut' })
-      .from('.pmap__dot', { scale: 0, duration: 0.6, stagger: 0.1, ease: 'back.out(2.2)' }, 0.5)
-      .fromTo('.pmap__arc', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.2, stagger: 0.14, ease: 'power2.inOut' }, 0.8)
-      .from('.pmap__tag', { y: 6, autoAlpha: 0, duration: 0.6, stagger: 0.08, ease: 'power3.out' }, 1.1)
-      .from('.pmap__row', { x: -16, autoAlpha: 0, duration: 0.7, stagger: 0.07, ease: 'power3.out' }, 0.2)
-
+      .timeline({ scrollTrigger: { trigger: '.reach', start: 'top 80%', once: true } })
+      .from('.reach__city', { yPercent: 110, duration: 1, stagger: 0.09, ease: 'power4.out' }, 0.2)
+      .from('.reach__count', { autoAlpha: 0, duration: 0.5, stagger: 0.09, ease: 'power2.out' }, 0.5)
     // Selected projects: the second picture of each pair drifts a little faster than the first (wide screens)
     const wide = window.matchMedia('(min-width: 900px)')
     gsap.utils.toArray<HTMLElement>('.wp:nth-child(even) .wp__inner', page).forEach((el) => {
@@ -184,39 +169,7 @@ export default function Work() {
       )
     })
 
-    // Floating section pill: shows once the selected projects begin, follows the section in view
-    const first = page.querySelector<HTMLElement>(`#${categoryOrder[0]}`)!
-    const archiveEnd = page.querySelector<HTMLElement>('#arsip')!
-    ScrollTrigger.create({
-      trigger: first,
-      start: 'top 70%',
-      endTrigger: archiveEnd,
-      end: 'bottom 85%',
-      onToggle: (self) => setPillOn(self.isActive),
-    })
-    pillItems.forEach((it, i) => {
-      const el = page.querySelector<HTMLElement>(`#${it.id}`)
-      if (!el) return
-      const last = i === pillItems.length - 1
-      ScrollTrigger.create({
-        trigger: el,
-        start: 'top 55%',
-        endTrigger: last ? archiveEnd : el,
-        end: 'bottom 55%',
-        onToggle: (self) => self.isActive && setSection(i),
-      })
-    })
   })
-
-  // the pill's orange marker slides under the item of the section in view
-  useLayoutEffect(() => {
-    const nav = pill.current
-    const item = nav?.querySelectorAll<HTMLElement>('.wpill__item')[section]
-    const ind = nav?.querySelector<HTMLElement>('.wpill__ind')
-    if (!item || !ind) return
-    ind.style.width = `${item.offsetWidth}px`
-    ind.style.transform = `translateX(${item.offsetLeft}px)`
-  }, [section, pillOn])
 
   // Re-animate the archive rows whenever a filter changes (the page intro handles the first render).
   const firstRun = useRef(true)
@@ -269,9 +222,9 @@ export default function Work() {
           sub="Proyek terpilih dari tiga kategori: Commercial Design, Hospitality Design, dan Selected Residential Design."
         >
           <nav className="work-nav" aria-label="Bagian halaman" data-fade="now" data-delay="0.6">
-            {categoryOrder.map((c, i) => (
+            {categoryOrder.map((c) => (
               <a key={c} href={`#${c}`} className="chip-btn" onClick={(e) => jump(e, `#${c}`)}>
-                {LETTERS[i]}. {categoryTitle[c]}
+                {categoryTitle[c]}
               </a>
             ))}
             <a href="#arsip" className="chip-btn" onClick={(e) => jump(e, '#arsip')}>
@@ -286,12 +239,29 @@ export default function Work() {
           <p className="t-lead work-intro__text" data-scrub>
             {intro}
           </p>
-          {/* where the work is: a dot map from South Sumatra to Bali, the studio in Yogyakarta, an arc to every place */}
-          <div className="work-intro__places">
+          {/* where the work is: from the studio in Yogyakarta out to the other cities, each a word with its count;
+              every city opens the archive filtered to it */}
+          <div className="reach">
             <p className="t-label work-intro__label" data-fade>
               Lokasi proyek
             </p>
-            <ProjectMap stops={places} onPick={(key) => showInArchive({ location: key })} />
+            <h3 className="reach__lead" data-split>
+              Dari Yogyakarta ke <Counter to={elsewhere.length} /> kota lain.
+            </h3>
+            <ul className="reach__list">
+              {places.map((pl) => (
+                <li key={pl.key} className="reach__item">
+                  <button type="button" className="reach__btn" onClick={() => showInArchive({ location: pl.key })}>
+                    <span className="reach__mask">
+                      <span className="reach__city" data-home={pl.key === 'diy' ? '' : undefined}>
+                        {pl.key === 'diy' ? 'Yogyakarta' : pl.label}
+                      </span>
+                    </span>
+                    <span className="t-serif reach__count">{pl.count} proyek</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
@@ -304,8 +274,8 @@ export default function Work() {
             <section key={cat} id={cat} className="work-group wrap" data-theme="light">
               <header className="work-group__head">
                 <div className="work-group__name">
-                  <span className="work-group__letter" data-fade>
-                    {LETTERS[gi]}.
+                  <span className="t-serif work-group__index" data-fade>
+                    {gi + 1} / {categoryOrder.length}
                   </span>
                   <h2 className="work-group__title" data-split>
                     {categoryTitle[cat]}
@@ -488,25 +458,10 @@ export default function Work() {
           )}
         </section>
 
-        {/* floating section pill (Kononenko's bottom switcher): jump between the categories and the archive */}
-        <nav ref={pill} className="wpill" data-on={pillOn ? '' : undefined} aria-label="Pindah bagian" inert={!pillOn}>
-          <span className="wpill__ind" aria-hidden="true" />
-          {pillItems.map((it, i) => (
-            <button
-              key={it.id}
-              type="button"
-              className="wpill__item"
-              aria-current={i === section ? 'true' : undefined}
-              onClick={() => scrollToElement(it.jump, it.id === 'archive' ? -60 : -70)}
-            >
-              {it.label}
-            </button>
-          ))}
-        </nav>
-
         <div ref={preview} className="index-preview" data-on={hoveredProject ? '' : undefined} aria-hidden="true">
           {hoveredProject && <Img id={hoveredProject.cover} sizes="300px" />}
         </div>
+
       </div>
     </Page>
   )

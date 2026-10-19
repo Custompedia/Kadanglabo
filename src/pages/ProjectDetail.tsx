@@ -15,6 +15,18 @@ import {
 } from '../data/projects'
 import NotFound from './NotFound'
 
+/** the four facts worth saying big: what, where, how large, and the state it is in */
+function facts(p: Project): [string, string][] {
+  const out: [string, string][] = [['Tipologi', p.typology]]
+  if (p.region) out.push(['Lokasi', p.region])
+  if (p.landArea) out.push(['Luas lahan', p.landArea])
+  if (p.buildingArea) out.push(['Luas bangunan', p.buildingArea])
+  if (out.length < 4 && p.scope.length) out.push(['Cakupan', p.scope.length > 2 ? `${p.scope.length} lingkup` : p.scope.join(' & ')])
+  if (out.length < 4 && p.status) out.push(['Status', p.status])
+  if (out.length < 4 && p.delivery) out.push(['Skema', p.delivery])
+  return out.slice(0, 4)
+}
+
 function Meta({ p }: { p: Project }) {
   const rows: [string, string | null | undefined][] = [
     ['Lokasi', p.location],
@@ -143,7 +155,7 @@ function ProjectView({ p }: { p: Project }) {
       <div ref={root} style={vars}>
         <section className="p-hero" data-theme={heroTheme}>
           <div className="p-hero__inner wrap">
-            <h1 className="t-display p-hero__title" data-split="now">
+            <h1 className="t-display p-hero__title" data-split="chars">
               {p.title}
             </h1>
             <p className="t-serif p-hero__sub" data-fade="now" data-delay="0.45">
@@ -161,6 +173,18 @@ function ProjectView({ p }: { p: Project }) {
           <div className="p-teaser__frame">
             <Img id={p.hero} alt={p.title} priority sizes="100vw" />
           </div>
+        </section>
+
+        {/* the project's key facts in one big band (STANZZA's project figures), the finer rows below */}
+        <section className="p-facts wrap" data-theme="light" aria-label="Fakta proyek">
+          <dl className="p-facts__list" data-stagger="0.08">
+            {facts(p).map(([k, v]) => (
+              <div key={k} className="p-facts__item">
+                <dt className="t-label p-facts__key">{k}</dt>
+                <dd className="p-facts__val">{v}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         <section className="p-intro wrap" data-theme="light">

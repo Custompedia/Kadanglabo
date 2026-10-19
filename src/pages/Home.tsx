@@ -79,24 +79,21 @@ export default function Home() {
 
         {/* ---------- (03) OUR WORK — Coeval-style mosaic per category ---------- */}
         <WorkMosaic />
-        {/* the whole archive in one line: the count runs up, the split per sector beside it */}
+        {/* after the mosaic: a calm, centred close - the three sectors with their counts, one line, the way in */}
         <div className="wrap" data-theme="light">
           <div className="wm-foot">
-            <Counter to={archive.length} className="wm-foot__count" />
-            <div className="wm-foot__text" data-fade>
-              <p className="wm-foot__lead">proyek dalam arsip kami, sejak 2020</p>
-              <p className="t-serif wm-foot__split">
-                {categoryOrder.map((c, i) => (
-                  <span key={c}>
-                    {i > 0 && ' · '}
-                    <span className="whitespace-nowrap">
-                      {categoryLabel[c]} {archive.filter((a) => a.category === c).length}
-                    </span>
-                  </span>
-                ))}
-              </p>
+            <div className="wm-foot__chips" data-stagger="0.08">
+              {categoryOrder.map((c) => (
+                <TLink key={c} to={`/work#${c}`} className="chip-btn">
+                  {categoryLabel[c]}
+                  <span className="chip-btn__count">{archive.filter((a) => a.category === c).length}</span>
+                </TLink>
+              ))}
             </div>
-            <TLink to="/work" className="btn-pill btn-pill--dark btn-pill--lg wm-foot__btn" data-fade>
+            <p className="t-serif wm-foot__text" data-fade>
+              <Counter to={archive.length} /> proyek dalam arsip kami sejak 2020, dari rumah tinggal sampai fasilitas kesehatan.
+            </p>
+            <TLink to="/work" className="btn-pill btn-pill--dark btn-pill--lg" data-fade>
               Lihat semua proyek <ArrowRight className="h-[0.8em] w-auto" />
             </TLink>
           </div>

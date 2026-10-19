@@ -44,6 +44,12 @@ const figures = [
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
+// Mission and goals: two columns of statements, each lit word by word as it scrolls through (data-scrub)
+const creed = [
+  { label: 'Mission', items: mission },
+  { label: 'Our goals', items: goals },
+]
+
 export default function About() {
   const root = useRef<HTMLDivElement>(null)
 
@@ -122,41 +128,27 @@ export default function About() {
       onRefresh: (self) => render(self.progress),
     })
 
-    // One table: client, planner and builder close in on one another until the shared core ("satu pintu") lights up
-    const venn = page.querySelector<HTMLElement>('.venn')!
-    gsap
-      .timeline({ scrollTrigger: { trigger: venn, start: 'top 85%', end: 'center 50%', scrub: 0.6 } })
-      .fromTo('.venn__ring--a', { xPercent: -55, yPercent: -12, autoAlpha: 0 }, { xPercent: 0, yPercent: 0, autoAlpha: 1, ease: 'power2.out' }, 0)
-      .fromTo('.venn__ring--b', { xPercent: 55, yPercent: -12, autoAlpha: 0 }, { xPercent: 0, yPercent: 0, autoAlpha: 1, ease: 'power2.out' }, 0)
-      .fromTo('.venn__ring--c', { yPercent: 45, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, ease: 'power2.out' }, 0)
-      .fromTo('.venn__core', { scale: 0 }, { scale: 1, duration: 0.45, ease: 'back.out(1.6)' }, 0.75)
-
     // Vision: the photo opens out to full bleed while it scrolls in; it is fully open before the text line rises
     const st = { trigger: '.vision', start: 'top bottom', end: 'top 25%', scrub: true }
     gsap.fromTo('.vision__frame', { clipPath: 'inset(0% 6% 0% 6%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: st })
     gsap.fromTo('.vision__img', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: st })
 
-    // Mission / goals: each card rises in as a sand card (number slides up, text follows), then lights up:
-    // the orange rises from the bottom and the type turns white as it passes. The cards stay orange.
-    const theme = getComputedStyle(document.documentElement)
-    const ink = theme.getPropertyValue('--color-ink').trim()
-    const orange = theme.getPropertyValue('--color-orange-deep').trim()
-    gsap.utils.toArray<HTMLElement>('.vmg__cards').forEach((list) => {
-      list.querySelectorAll<HTMLElement>('.vmg-card').forEach((card, i) => {
-        const d = i * 0.15 // one card after another, also when a whole row enters at once
-        const sand = card.querySelector('.vmg-card__sand')
-        const num = card.querySelector('.vmg-card__num')
-        const text = card.querySelector('.vmg-card__text')
-        gsap
-          .timeline({ scrollTrigger: { trigger: card, start: 'top 88%', once: true } })
-          .fromTo(card, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.8, ease: 'expo.inOut' }, d)
-          .from(card.querySelector('.vmg-card__num > span'), { yPercent: 110, duration: 0.8, ease: 'power4.out' }, d + 0.3)
-          .from(text, { y: 24, autoAlpha: 0, duration: 0.8, ease: 'power3.out' }, d + 0.38)
-          .fromTo(sand, { autoAlpha: 1, clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.9, ease: 'expo.inOut' }, d + 0.85)
-          .fromTo(text, { color: ink }, { color: '#fff', duration: 0.3, ease: 'power1.inOut' }, d + 1.12)
-          .fromTo(num, { color: orange }, { color: '#fff', duration: 0.3, ease: 'power1.inOut' }, d + 1.28)
-          .set(sand, { autoAlpha: 0 })
-      })
+    // One table: the three strips (client, planner, builder) wipe in from alternating sides one after another;
+    // the photo settles from a zoom, the role rises from under the strip's edge and the rest fades in
+    const strips = gsap.utils.toArray<HTMLElement>('.table__strip', page)
+    const tl = gsap.timeline({ scrollTrigger: { trigger: '.table', start: 'top 78%', once: true } })
+    strips.forEach((strip, i) => {
+      const fromLeft = i % 2 === 0
+      const at = i * 0.28
+      tl.fromTo(
+        strip,
+        { clipPath: fromLeft ? 'inset(0% 100% 0% 0%)' : 'inset(0% 0% 0% 100%)' },
+        { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'expo.inOut' },
+        at,
+      )
+        .fromTo(strip.querySelector('img'), { scale: 1.3, xPercent: fromLeft ? -6 : 6 }, { scale: 1, xPercent: 0, duration: 1.8, ease: 'power3.out' }, at + 0.1)
+        .from(strip.querySelector('.table__who'), { yPercent: 120, duration: 0.9, ease: 'power4.out' }, at + 0.55)
+        .from([strip.querySelector('.table__no'), strip.querySelector('.table__brings')], { autoAlpha: 0, y: 10, duration: 0.6, ease: 'power2.out' }, at + 0.8)
     })
   })
 
@@ -222,17 +214,22 @@ export default function About() {
           <h2 className="t-h1 collab__title mt-6" data-split>
             Satu meja untuk klien, perencana, dan pelaksana.
           </h2>
-          <div className="venn" aria-hidden="true">
-            <span className="venn__ring venn__ring--a">
-              <span className="venn__label">Klien</span>
-            </span>
-            <span className="venn__ring venn__ring--b">
-              <span className="venn__label">Perencana</span>
-            </span>
-            <span className="venn__ring venn__ring--c">
-              <span className="venn__label">Pelaksana</span>
-            </span>
-            <span className="venn__core">Satu pintu</span>
+          <div className="table" aria-hidden="true">
+            {(
+              [
+                ['Klien', 'Kebutuhan, anggaran, dan impian', 'hmw-dining'],
+                ['Perencana', 'Desain yang membaca tapak', 'draw-model'],
+                ['Pelaksana', 'Bangunan yang benar-benar berdiri', 'klinik-front'],
+              ] as const
+            ).map(([who, brings, img], i) => (
+              <div key={who} className="table__strip">
+                <Img id={img} sizes="(min-width: 768px) 70vw, 100vw" />
+                <span className="table__strip-shade" />
+                <span className="table__no">0{i + 1}</span>
+                <span className="table__who">{who}</span>
+                <span className="t-serif table__brings">{brings}</span>
+              </div>
+            ))}
           </div>
           <p className="t-body-lg collab__body opacity-75" data-fade>
             Perencanaan dan pelaksanaan terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.
@@ -283,29 +280,26 @@ export default function About() {
           </div>
         </section>
 
-        {/* Mission / goals: title over a hairline, cards stepping down from left to right */}
-        <section className="vmg wrap" data-theme="light">
-          {[
-            { label: 'Mission', unit: 'misi', items: mission },
-            { label: 'Our goals', unit: 'tujuan', items: goals },
-          ].map((g) => (
-            <div key={g.label} className="vmg__row">
-              <div className="vmg__head">
-                <h3 className="t-h1" data-split>
-                  {g.label}
-                </h3>
-                <span className="t-serif vmg__count" data-fade>
-                  {g.items.length} {g.unit}
-                </span>
-              </div>
-              <ol className="vmg__cards" style={{ '--n': g.items.length } as CSSProperties}>
+        {/* Mission and goals: two columns of numbered statements, lit word by word as you read; a giant faint
+            serif number sits behind each column */}
+        <section className="creed wrap" data-theme="light" aria-label="Misi dan tujuan">
+          {creed.map((g, gi) => (
+            <div key={g.label} className="creed__col">
+              <span className="creed__big" aria-hidden="true">
+                0{gi + 1}
+              </span>
+              <h3 className="t-h1 creed__title" data-split>
+                {g.label}
+              </h3>
+              <ol className="creed__list">
                 {g.items.map((t, i) => (
-                  <li key={t} className="vmg-card">
-                    <span className="vmg-card__sand" aria-hidden="true" />
-                    <span className="vmg-card__num">
-                      <span>0{i + 1}</span>
+                  <li key={t} className="creed__item">
+                    <span className="creed__no" data-fade>
+                      0{i + 1}
                     </span>
-                    <p className="vmg-card__text">{t}</p>
+                    <p className="creed__text" data-scrub>
+                      {t}
+                    </p>
                   </li>
                 ))}
               </ol>

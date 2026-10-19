@@ -26,16 +26,18 @@ export default function Services() {
   const [cat, setCat] = useState(0) // service category in view (the sticky photo on wide screens follows it)
 
   usePageAnimations(root, (page) => {
-    // The drawing beside the services is drawn in from the top, like ink on paper, while the list is read
-    gsap.fromTo(
-      '.overview__art-draw',
-      { clipPath: 'inset(0% 0% 100% 0%)' },
-      {
-        clipPath: 'inset(0% 0% 0% 0%)',
-        ease: 'none',
-        scrollTrigger: { trigger: '.overview__body', start: 'top 80%', end: 'center 45%', scrub: 0.6 },
-      },
-    )
+    // Our services opener: one held scene. The photo starts as a small frame in the middle and zooms out to fill
+    // the screen, each line of the promise rising onto it in turn; the label and copy sit on the photo once it is full
+    const stm = page.querySelector<HTMLElement>('.statement')!
+    const lines = gsap.utils.toArray<HTMLElement>('.statement__line > span', stm)
+    gsap
+      .timeline({ scrollTrigger: { trigger: stm, start: 'top top', end: 'bottom bottom', scrub: 0.6 } })
+      .fromTo('.statement__frame', { clipPath: 'inset(32% 32% 32% 32% round 16px)' }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'power2.inOut', duration: 1.2 }, 0)
+      .fromTo('.statement__frame img', { scale: 1.3 }, { scale: 1, ease: 'none', duration: 3 }, 0)
+      .fromTo('.statement__shade', { opacity: 0 }, { opacity: 1, duration: 0.8 }, 0.5)
+      .from('.statement__copy .pill', { y: 20, autoAlpha: 0, duration: 0.4 }, 1)
+      .from(lines, { yPercent: 110, duration: 0.6, stagger: 0.35, ease: 'power3.out' }, 1.1)
+      .to({}, { duration: 0.6 })
 
     // Service categories (archi-malin): each category's text sets which photo and number the sticky stage shows
     gsap.utils.toArray<HTMLElement>('.cat', page).forEach((el, i) => {
@@ -173,22 +175,23 @@ export default function Services() {
           </div>
         </section>
 
-        {/* the promise, next to the whole of a site planned in one go (La Barka: plan, landscape, buildings) */}
-        <section className="statement wrap" data-theme="light">
-          <div className="statement__main">
-            <SectionLabel n="01">Our services</SectionLabel>
-            <p className="t-h1 statement__text" data-split>
-              Desain kontekstual. Workflow yang efektif. Bangunan yang tuntas. Satu pintu dari perencanaan hingga
-              pelaksanaan.
-            </p>
-          </div>
-          <div className="statement__media" data-reveal>
-            <div className="statement__parallax" data-parallax="6">
-              <Img
-                id="labarka-exterior"
-                alt="La Barka Resort - tapak, lanskap, dan bangunan dalam satu rencana"
-                sizes="(min-width: 900px) 38vw, 100vw"
-              />
+        {/* the promise as a held zoom scene: the photo grows from a small frame to the full screen while the four
+            lines land on it, one by one, in white */}
+        <section className="statement" data-theme="light" aria-labelledby="statement-title">
+          <div className="statement__stage">
+            <div className="statement__frame">
+              <Img id="labarka-exterior" alt="La Barka Resort - tapak, lanskap, dan bangunan dalam satu rencana" sizes="100vw" />
+              <div className="statement__shade" />
+            </div>
+            <div className="statement__copy wrap">
+              <SectionLabel n="01">Our services</SectionLabel>
+              <p id="statement-title" className="t-h1 statement__text">
+                {['Desain kontekstual.', 'Workflow yang efektif.', 'Bangunan yang tuntas.', 'Satu pintu dari perencanaan hingga pelaksanaan.'].map((line) => (
+                  <span key={line} className="statement__line">
+                    <span>{line}</span>
+                  </span>
+                ))}
+              </p>
             </div>
           </div>
         </section>
@@ -235,7 +238,7 @@ export default function Services() {
                 </div>
               ))}
             </div>
-            {/* the studio's own drawing (Drive): an exploded axonometric house, drawn in as you scroll */}
+            {/* the studio's own drawing (Drive): an exploded axonometric house, simply there */}
             <figure className="overview__art">
               <div className="overview__art-draw">
                 <Img
@@ -349,7 +352,7 @@ export default function Services() {
           </div>
         </section>
 
-        <section id="start" className="start wrap" data-theme="light">
+        <section id="start" className="start start--after-process wrap" data-theme="light">
           <div className="start__head">
             <SectionLabel n="04">Start a project</SectionLabel>
             <h2 className="t-display start__title" data-split>
