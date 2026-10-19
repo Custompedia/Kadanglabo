@@ -7,3 +7,4 @@ dist
 # design preview renders (local only)
 output/
 *.tsbuildinfo
+.env*
