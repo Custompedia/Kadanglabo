@@ -46,10 +46,10 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 
 | Route | Isi |
 | --- | --- |
-| `/` | Sesuai urutan brief: Hero "KADANGLABO" (gaya shed.design) → (01) About → Kadanglabo spirit (showreel kiri, etos kanan — layout "Shed spirit") → (02) Core services & sectors → (03) Our work: mosaik foto per kategori yang bergerak saat scroll (ref. Coeval; di HP tumpukan per kategori, foto terbuka dari pojok ala Archidomo) + pita arsip (angka 61 menghitung naik, rincian per sektor) → (04) Latest updates → footer "See work" |
+| `/` | Sesuai urutan brief: Hero "KADANGLABO" (gaya shed.design) dengan tagline di bawah nama → (01) About → Kadanglabo spirit (showreel kiri, etos kanan — layout "Shed spirit") → (02) Core services & sectors (ref. Archidomo): model 3D tapak dari sampul company profile (latarnya dipotong, berdiri langsung di atas warna halaman) di samping judul, lalu gambar aksonometri interior (juga dipotong, tanpa bingkai) sejajar dengan visual 3D Perum Firlatata, dan tiga kelompok layanan (Desain, Manajemen, Perawatan) sebagai catatan "+". Sektor proyek tidak diulang di sini, cukup di (03) → (03) Our work: mosaik foto per kategori yang bergerak saat scroll (ref. Coeval; di HP tumpukan per kategori, foto terbuka dari pojok ala Archidomo) + pita arsip (angka 61 menghitung naik, rincian per sektor) → (04) Latest updates → footer "See work" |
 | `/about` (`/about#team`) | About (tanpa section biru): foto pertama terbuka dari bentuk pintu ("satu pintu", ref. ERA Residence) → Kadanglabo dalam angka (cincin 16 foto proyek berputar, angka bergulir; ref. Kononenko; angka dihitung dari data) → Satu meja: tiga pita foto lebar (Klien · Perencana · Pelaksana, nama peran di dalam foto + apa yang dibawa ke meja) menyapu masuk dari sisi bergantian satu per satu, nama peran naik dari tepi pita, foto zoom-out (ref. panel Saisei) → Etos + 2 parameter keberhasilan → Vision (foto full-bleed) → Mission & Our goals: dua kolom sejajar berisi pernyataan bernomor yang menyala kata demi kata saat scroll, angka serif raksasa oranye tipis di belakang tiap kolom → tim in-house (`#team`) → CTA. `/studio` dialihkan ke sini |
 | `/services` | Skema brief: (01) Our services: adegan zoom tertahan, foto La Barka membesar dari bingkai kecil sampai penuh layar sementara empat baris janji mendarat satu per satu (ref. hero Archidomo), lalu 11 layanan bernomor per kelompok (ref. Telha Clarke) → (02) Service categories (desktop: foto menempel + angka italic 01-03 bergulir, ref. archi-malin) → (03) Service detail: empat tahap dalam kartu oranye yang bergeser ke samping saat di-scroll (desktop) / di-swipe (mobile) → (04) Start a project (form + foto tim) |
-| `/work` | Skema brief: Introduction ("Dari Yogyakarta ke 5 kota lain": nama kota sebagai kata besar yang masuk satu per satu, tiap kota memfilter arsip) & Selected projects per kategori (Commercial Design, Hospitality Design, Selected Residential Design; penanda 1 / 3, foto zig-zag ala Kononenko) → **Project archive**: pembuka "Arsip proyek (61)" dengan foto melayang (ref. Telha Clarke), tabel terlipat 12 baris (filter Category · Location · Year · Status) |
+| `/work` | Skema brief: Introduction + Lokasi proyek ("Dari Yogyakarta ke 5 kota lain": judul di atas, lalu satu baris penuh per kota berisi nomor, nama, jumlah proyek, panah; garis baris tergambar, nama naik, angka menghitung naik; tiap baris memfilter arsip) & Selected projects per kategori (Commercial Design, Hospitality Design, Selected Residential Design; penanda 1 / 3, foto zig-zag ala Kononenko) → **Project archive**: pembuka "Arsip proyek (61)" dengan foto melayang (ref. Telha Clarke), tabel terlipat 12 baris (filter Category · Location · Year · Status) |
 | `/work/:slug` | Halaman proyek: hero warna (judul tersusun dari huruf yang berhamburan), header image, pita fakta (tipologi · lokasi · luas), info, Context → Challenge → Concept → Development → Outcome, galeri, related projects, Next up |
 | `/news`, `/news/:slug` | News & Events: kartu artikel seragam (2 kolom) + sidebar kanan (cari artikel, Kategori, Topik, Terbaru, CTA), filter tersimpan di URL (`?type=`, `?tag=`, `?q=`); detail: Konteks · Isi utama · Visual · Informasi lanjutan · Explore more |
 | `/contact` | Form inquiry dengan foto tim (tombol "Kirim" membuka chat WhatsApp studio dengan pesan terisi) → How to find us (email, telepon, alamat, Instagram/WhatsApp/email/Maps, peta Google Maps) → FAQ 8 pertanyaan (`src/data/faq.ts`, plus data terstruktur FAQPage) |
@@ -57,7 +57,7 @@ git reset --hard <hash>      # kembali total ke commit tertentu (riwayat sesudah
 ## Interaksi kecil di seluruh situs (17 Okt 2026)
 
 - Judul halaman (`data-split="chars"`): huruf datang dari titik acak lalu tersusun (ref. Saisei).
-- Home: baris sektor membuka deskripsi + jumlah proyek saat hover; footer "See work": thumbnail membulat dan zoom saat hover (lebar baris tetap, panah selalu di layar).
+- Home: footer "See work": thumbnail membulat dan zoom saat hover (lebar baris tetap, panah selalu di layar).
 
 ## Mengubah konten
 
@@ -73,7 +73,7 @@ Menambah/mengganti gambar:
 npm run img -- <key> "<path/ke/gambar.png>"
 ```
 
-Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src/data/images.json`. Pakai key tersebut di `projects.ts` (mis. `hero`, `cover`, `gallery`) atau `<Img id="key" />`.
+Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src/data/images.json`. Untuk gambar potongan yang latarnya transparan (PNG), tambahkan `--alpha` di akhir perintah agar transparansinya tetap ada. Pakai key tersebut di `projects.ts` (mis. `hero`, `cover`, `gallery`) atau `<Img id="key" />`.
 
 ## Performa & pengujian
 

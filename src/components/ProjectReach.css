@@ -1,0 +1,186 @@
+/* Project locations (Work intro): one column. The statement on top (title left, the line about context to
+   its right), then the places, one full-width row each: number, name, project count, arrow. */
+.reach {
+  margin-top: clamp(64px, 8vw, 120px);
+}
+.reach__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'pill pill'
+    'lead intro';
+  align-items: end;
+  gap: 0 clamp(32px, 5vw, 96px);
+  margin-bottom: clamp(32px, 4vw, 56px);
+}
+.reach__header > .pill {
+  grid-area: pill;
+  justify-self: start;
+}
+.reach__lead {
+  grid-area: lead;
+}
+.reach__intro {
+  grid-area: intro;
+}
+.reach__lead {
+  margin-top: 22px;
+  font-size: clamp(32px, 3.6vw, 56px);
+  font-weight: 550;
+  line-height: 1.06;
+  letter-spacing: -0.045em;
+}
+.reach__intro {
+  max-width: 30ch;
+  margin-top: 22px;
+  padding-bottom: 6px;
+  font-family: var(--font-serif);
+  font-size: clamp(17px, 1.35vw, 21px);
+  line-height: 1.4;
+}
+.reach__intro > span {
+  display: block;
+  margin-top: 14px;
+  color: var(--color-mute);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+.reach__locations {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.reach-place {
+  position: relative;
+}
+.reach-place__rule {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--line);
+}
+.reach-place:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.reach-place__button {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto 24px;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 20px 0;
+  text-align: left;
+}
+.reach-place__index {
+  color: var(--color-mute);
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+.reach-place__identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  min-width: 0;
+}
+.reach-place__mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+.reach-place__name {
+  display: block;
+  font-size: clamp(26px, 2.6vw, 40px);
+  font-weight: 550;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  transition: color 0.3s;
+}
+.reach-place[data-home] .reach-place__name {
+  color: var(--color-orange-text);
+}
+.reach-place__note {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--color-orange-deep);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.reach-place__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.reach-place__count {
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 2.3vw, 36px);
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1;
+}
+.reach-place__unit {
+  color: var(--color-mute);
+  font-size: 13px;
+}
+.reach-place__arrow {
+  justify-self: end;
+  color: var(--color-mute);
+  font-size: 20px;
+  transition: color 0.3s;
+}
+/* the hover nudge lives on the glyph; GSAP animates the arrow box itself on entry */
+.reach-place__arrow-glyph {
+  display: inline-block;
+  transition: transform 0.5s var(--ease-expo);
+}
+@media (hover: hover) {
+  .reach-place__button:hover .reach-place__name,
+  .reach-place__button:hover .reach-place__arrow {
+    color: var(--color-orange-text);
+  }
+  .reach-place__button:hover .reach-place__arrow-glyph {
+    transform: translate(3px, -3px);
+  }
+}
+.reach-place__button[data-selected='true'] .reach-place__name,
+.reach-place__button[data-selected='true'] .reach-place__arrow {
+  color: var(--color-orange-text);
+}
+.reach-place__button:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 4px;
+}
+@media (max-width: 899px) {
+  .reach__header {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'pill'
+      'lead'
+      'intro';
+  }
+}
+@media (max-width: 700px) {
+  .reach-place__button {
+    grid-template-columns: 26px minmax(0, 1fr) auto 16px;
+    gap: 12px;
+    padding: 18px 0;
+  }
+  .reach-place__index {
+    font-size: 13px;
+  }
+  .reach-place__name {
+    font-size: clamp(22px, 6vw, 30px);
+  }
+  .reach-place__count {
+    font-size: 26px;
+  }
+  .reach-place__unit {
+    font-size: 11px;
+  }
+  .reach-place__arrow {
+    font-size: 17px;
+  }
+}

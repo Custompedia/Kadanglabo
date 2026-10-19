@@ -875,5 +875,23 @@
    1280,
    1672
   ]
+ },
+ "draw-model-cut": {
+  "w": 1138,
+  "h": 520,
+  "c": "transparent",
+  "s": [
+   640,
+   1138
+  ]
+ },
+ "draw-interior-cut": {
+  "w": 811,
+  "h": 575,
+  "c": "transparent",
+  "s": [
+   640,
+   811
+  ]
  }
 }

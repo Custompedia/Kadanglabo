@@ -8,7 +8,8 @@ import { BrandMark } from '../components/BrandMark'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger } from '../lib/gsap'
 import { TLink } from '../lib/transition'
-import { company, goals, mission, parametersDetail, team, vision } from '../data/site'
+import { company, parametersDetail, team, vision } from '../data/site'
+import { MissionGoals, animateMissionGoals } from '../components/MissionGoals'
 import { archive, areaStats, categoryLabel, categoryOrder } from '../data/projects'
 
 const NUMBERS_WIDE = '(min-width: 1024px)' // the ring scene holds the screen from here up (see .numbers in styles.css)
@@ -43,12 +44,6 @@ const figures = [
 ]
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
-
-// Mission and goals: two columns of statements, each lit word by word as it scrolls through (data-scrub)
-const creed = [
-  { label: 'Mission', items: mission },
-  { label: 'Our goals', items: goals },
-]
 
 export default function About() {
   const root = useRef<HTMLDivElement>(null)
@@ -135,7 +130,7 @@ export default function About() {
 
     // One table: the three strips (client, planner, builder) wipe in from alternating sides one after another;
     // the photo settles from a zoom, the role rises from under the strip's edge and the rest fades in
-    const strips = gsap.utils.toArray<HTMLElement>('.table__strip', page)
+    const strips = gsap.utils.toArray<HTMLElement>('.collab .table__strip', page)
     const tl = gsap.timeline({ scrollTrigger: { trigger: '.table', start: 'top 78%', once: true } })
     strips.forEach((strip, i) => {
       const fromLeft = i % 2 === 0
@@ -150,6 +145,9 @@ export default function About() {
         .from(strip.querySelector('.table__who'), { yPercent: 120, duration: 0.9, ease: 'power4.out' }, at + 0.55)
         .from([strip.querySelector('.table__no'), strip.querySelector('.table__brings')], { autoAlpha: 0, y: 10, duration: 0.6, ease: 'power2.out' }, at + 0.8)
     })
+
+    // The numbers scene changes document height. Measure later sections only after that layout is established.
+    animateMissionGoals(page)
   })
 
   return (
@@ -280,32 +278,7 @@ export default function About() {
           </div>
         </section>
 
-        {/* Mission and goals: two columns of numbered statements, lit word by word as you read; a giant faint
-            serif number sits behind each column */}
-        <section className="creed wrap" data-theme="light" aria-label="Misi dan tujuan">
-          {creed.map((g, gi) => (
-            <div key={g.label} className="creed__col">
-              <span className="creed__big" aria-hidden="true">
-                0{gi + 1}
-              </span>
-              <h3 className="t-h1 creed__title" data-split>
-                {g.label}
-              </h3>
-              <ol className="creed__list">
-                {g.items.map((t, i) => (
-                  <li key={t} className="creed__item">
-                    <span className="creed__no" data-fade>
-                      0{i + 1}
-                    </span>
-                    <p className="creed__text" data-scrub>
-                      {t}
-                    </p>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
-        </section>
+        <MissionGoals />
 
         {/* Team */}
         <section id="team" className="team wrap" data-theme="light">

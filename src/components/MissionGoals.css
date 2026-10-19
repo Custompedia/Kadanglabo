@@ -1,0 +1,64 @@
+/* Share the collaboration section's centred heading, photo strips, and spacing. */
+.purpose {
+  --title: clamp(2.1rem, 4.8vw, 5.2rem);
+  padding-block: var(--sec);
+  background: var(--color-paper);
+}
+.purpose-chapter {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  text-wrap: balance;
+}
+.purpose-chapter + .purpose-chapter {
+  margin-top: var(--sec);
+}
+.purpose-strips {
+  margin-bottom: 0;
+  list-style: none;
+  padding: 0;
+}
+.purpose-strip {
+  grid-template-columns: 32px minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 24px;
+  height: auto;
+  min-height: clamp(170px, 16vw, 210px);
+  padding-block: 30px;
+  text-align: left;
+}
+.purpose-strip .table__who {
+  font-size: clamp(26px, 3.2vw, 48px);
+}
+.purpose-strip__title {
+  display: block;
+}
+.purpose-strip .table__brings {
+  max-width: 43ch;
+  justify-self: start;
+  font-size: clamp(17px, 1.4vw, 21px);
+  line-height: 1.45;
+  text-align: left;
+  text-wrap: pretty;
+}
+.purpose-strip .table__strip-shade {
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.65), rgb(0 0 0 / 0.52) 42%, rgb(0 0 0 / 0.74));
+}
+@media (max-width: 767px) {
+  .purpose-strip {
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 12px;
+    min-height: 180px;
+    padding-block: 28px;
+  }
+  .purpose-strip .table__who {
+    font-size: clamp(27px, 6vw, 40px);
+  }
+  .purpose-strip .table__brings {
+    justify-self: start;
+    font-size: 17px;
+    max-width: 43ch;
+  }
+  .purpose-strip .table__strip-shade {
+    background: rgb(0 0 0 / 0.66);
+  }
+}

@@ -3,12 +3,11 @@ import { useLocation } from 'react-router'
 import { TLink } from '../lib/transition'
 import { BrandMark } from './BrandMark'
 
-// Hero tagline exactly as in the brief (slide 03), repeated like shed.design's header ticker
+// Hero tagline exactly as in the brief (slide 03); it now sits still under the hero wordmark
 export const TAGLINE = 'A Collaborative Architectural Solutions.'
-const ticker = `${TAGLINE}\u2002•\u2002`.repeat(3)
 
 function centerFor(pathname: string): { label: string; to?: string } | null {
-  if (pathname === '/') return null
+  if (pathname === '/') return null // home: the hero carries the one message (tagline under the name)
   if (pathname.startsWith('/work/')) return { label: '← Back to work', to: '/work' }
   if (pathname.startsWith('/news/')) return { label: '← Back to news', to: '/news' }
   const map: Record<string, string> = {
@@ -95,14 +94,7 @@ export function Header({ menuOpen, onToggleMenu }: Props) {
         <div className="site-header__center">
           {menuOpen ? (
             <span className="pill">Mau ke mana?</span>
-          ) : center === null ? (
-            <div className="header-ticker" aria-hidden="true">
-              <div className="header-ticker__track">
-                <span>{ticker}</span>
-                <span>{ticker}</span>
-              </div>
-            </div>
-          ) : center.to ? (
+          ) : center === null ? null : center.to ? (
             <TLink to={center.to} className="pill pill--link">
               {center.label}
             </TLink>

@@ -137,6 +137,13 @@ export const managementServices = {
   perawatan: ['Rehabilitasi', 'Restorasi'],
 }
 
+/** The eleven services in three groups (Services overview + the Home services list). */
+export const serviceGroups: { group: string; items: string[] }[] = [
+  { group: 'Desain', items: disciplines },
+  { group: 'Manajemen', items: managementServices.perencanaan },
+  { group: 'Perawatan', items: managementServices.perawatan },
+]
+
 export const process: { title: string; lead: string; points: string[] }[] = [
   {
     title: 'Pain Points / Goals',

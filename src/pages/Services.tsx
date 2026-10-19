@@ -8,16 +8,12 @@ import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger } from '../lib/gsap'
 import { TLink } from '../lib/transition'
-import { disciplines, managementServices, process, sectors } from '../data/site'
+import { process, sectors, serviceGroups } from '../data/site'
 
 const WIDE = '(min-width: 900px)' // Service detail travels sideways from here up (see .process in styles.css)
 // every service in one numbered run, in three groups: design disciplines, management, care of existing buildings
 let serviceNo = 0
-const serviceRun = [
-  { group: 'Desain', items: disciplines },
-  { group: 'Manajemen', items: managementServices.perencanaan },
-  { group: 'Perawatan', items: managementServices.perawatan },
-].map((g) => ({ group: g.group, items: g.items.map((name) => ({ name, no: String(++serviceNo).padStart(2, '0') })) }))
+const serviceRun = serviceGroups.map((g) => ({ group: g.group, items: g.items.map((name) => ({ name, no: String(++serviceNo).padStart(2, '0') })) }))
 
 const collage: ImgKey[] = ['labarka-path', 'klinik-corridor', 'labarka-balcony', 'balecatur-lobby', 'hmw-dining', 'balecatur-bed', 'firlatata-living']
 
@@ -184,7 +180,11 @@ export default function Services() {
               <div className="statement__shade" />
             </div>
             <div className="statement__copy wrap">
-              <SectionLabel n="01">Our services</SectionLabel>
+              {/* a plain label (no data-fade): the scene timeline above brings it in */}
+              <span className="pill">
+                <span className="pill__n">(01)</span>
+                Our services
+              </span>
               <p id="statement-title" className="t-h1 statement__text">
                 {['Desain kontekstual.', 'Workflow yang efektif.', 'Bangunan yang tuntas.', 'Satu pintu dari perencanaan hingga pelaksanaan.'].map((line) => (
                   <span key={line} className="statement__line">
@@ -248,9 +248,6 @@ export default function Services() {
                   style={{ backgroundColor: 'transparent' }}
                 />
               </div>
-              <figcaption className="t-serif overview__art-cap" data-fade>
-                Dari gambar kerja studio: rumah diurai lantai demi lantai.
-              </figcaption>
             </figure>
           </div>
         </section>

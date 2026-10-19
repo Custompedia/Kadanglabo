@@ -51,7 +51,7 @@ export function HomeHero() {
       if (!reducedMotion()) {
         const scrub = { trigger: el, start: 'top top', end: 'bottom top', scrub: true }
         gsap.to('.hero__media', { yPercent: 14, ease: 'none', scrollTrigger: scrub })
-        gsap.to('.hero__title', { yPercent: -28, ease: 'none', scrollTrigger: scrub })
+        gsap.to('.hero__top', { yPercent: -28, ease: 'none', scrollTrigger: scrub })
       }
 
       ScrollTrigger.create({
@@ -73,6 +73,7 @@ export function HomeHero() {
         // one calm sequence: letters rise in a wave → header settles in → controls fade up
         const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
         tl.from(el.querySelectorAll('.hero__char'), { yPercent: 105, duration: 1.3, stagger: 0.05 }, 0.1)
+        tl.from(el.querySelectorAll('.hero__tagline'), { y: 18, autoAlpha: 0, duration: 1 }, 0.75)
         if (line) tl.fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: 1.6, ease: 'power2.inOut' }, 0.2)
         tl.from(header, { yPercent: -60, autoAlpha: 0, duration: 1.1, stagger: 0.08 }, 0.45)
         tl.from(controls, { y: 24, autoAlpha: 0, duration: 1.1, stagger: 0.1 }, 0.9)
@@ -170,6 +171,8 @@ export function HomeHero() {
         <div className="hero__shade" />
       </div>
 
+      {/* top: the name, and the promise under it (one block, so they never overlap) */}
+      <div className="hero__top">
       <h1 className="hero__title" aria-label="Kadanglabo - A Collaborative Architectural Solution">
         <span ref={fit} className="hero__fit" aria-hidden="true">
           <span className="hero__mask">
@@ -192,7 +195,10 @@ export function HomeHero() {
           </span>
         </span>
       </h1>
-      <p className="hero__tagline-m">{TAGLINE}</p>
+        <div className="hero__lead">
+          <p className="hero__tagline">{TAGLINE}</p>
+        </div>
+      </div>
 
       <button
         type="button"

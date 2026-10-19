@@ -3,7 +3,8 @@ import { useSearchParams } from 'react-router'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
 import { Img, type ImgKey } from '../components/Img'
-import { Counter, SectionLabel } from '../components/Bits'
+import { SectionLabel } from '../components/Bits'
+import { ProjectReach, animateProjectReach } from '../components/ProjectReach'
 import { Plus } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger, finePointer, reducedMotion } from '../lib/gsap'
@@ -58,29 +59,40 @@ const scatter: { id: ImgKey; x: number; y: number; w: string; ar: string; s: num
   { id: 'berbah-front', x: 67, y: 85, w: 'clamp(90px, 10vw, 180px)', ar: '4 / 3', s: 0.72 },
 ]
 
-// Project locations: the studio's home first, then the other cities by number of projects
-const places = [...areaStats].sort((a, b) => (a.key === 'diy' ? -1 : b.key === 'diy' ? 1 : b.count - a.count))
-const elsewhere = places.filter((p) => p.key !== 'diy')
-
 /** One selected project in the staggered layout (after Kononenko's Work page): photo, name, typology · place */
-function WorkPiece({ p }: { p: Project }) {
+function WorkPiece({ p, img, extra }: { p: Project; img?: ImgKey; extra?: boolean }) {
   return (
-    <TLink to={`/work/${p.slug}`} className="wp" data-cursor="Lihat">
+    <TLink to={`/work/${p.slug}`} className="wp" data-cursor="Lihat" aria-label={extra ? `${p.title}, foto lainnya` : undefined}>
       <span className="wp__inner">
         <span className="wp__media" data-reveal>
           {/* the reveal settles the image; the hover zoom lives on this wrapper so the two never fight */}
           <span className="wp__zoom">
-            <Img id={p.cover} alt={p.title} sizes="(min-width: 900px) 56vw, 100vw" />
+            <Img id={img ?? p.cover} alt={extra ? '' : p.title} sizes="(min-width: 900px) 56vw, 100vw" />
           </span>
         </span>
-        <span className="wp__cap">
-          <span className="wp__name">{p.title}</span>
-          <span className="t-serif wp__meta">{[p.typology, p.region].filter(Boolean).join(' · ')}</span>
-        </span>
+        {!extra && (
+          <span className="wp__cap">
+            <span className="wp__name">{p.title}</span>
+            <span className="t-serif wp__meta">{[p.typology, p.region].filter(Boolean).join(' · ')}</span>
+          </span>
+        )}
       </span>
     </TLink>
   )
 }
+
+/** A category with a single selected project (Commercial: only Klinik UII in the client's Drive) shows more of
+    that project's own photos, so the group reads as a set instead of one lonely picture */
+const MORE_FROM_ONE = 4
+// a hand-picked mix where the gallery opens with near-identical views: one more exterior angle, then the inside
+const MORE_PICKS: Record<string, ImgKey[]> = {
+  'klinik-uii': ['klinik-side', 'klinik-corridor', 'klinik-waiting', 'klinik-dental'],
+}
+const moreFrom = (p: Project): ImgKey[] =>
+  MORE_PICKS[p.slug] ??
+  Array.from(new Set(p.gallery.flatMap((b) => (b.t === 'pair' ? b.imgs : b.t === 'full' || b.t === 'offset' ? [b.img] : []))))
+    .filter((id) => id !== p.cover)
+    .slice(0, MORE_FROM_ONE)
 
 const intro = `Lebih dari ${Math.floor(archive.length / 10) * 10} proyek sejak 2020, dari rumah tinggal dan perumahan sampai resort, kantor, dan fasilitas kesehatan.`
 
@@ -134,11 +146,7 @@ export default function Work() {
   const hasActiveFilter = filterKey !== 'all|all|all|all'
 
   usePageAnimations(root, (page) => {
-    // Where the work is: the cities land one after another as big words, each with its count
-    gsap
-      .timeline({ scrollTrigger: { trigger: '.reach', start: 'top 80%', once: true } })
-      .from('.reach__city', { yPercent: 110, duration: 1, stagger: 0.09, ease: 'power4.out' }, 0.2)
-      .from('.reach__count', { autoAlpha: 0, duration: 0.5, stagger: 0.09, ease: 'power2.out' }, 0.5)
+    animateProjectReach(page)
     // Selected projects: the second picture of each pair drifts a little faster than the first (wide screens)
     const wide = window.matchMedia('(min-width: 900px)')
     gsap.utils.toArray<HTMLElement>('.wp:nth-child(even) .wp__inner', page).forEach((el) => {
@@ -239,30 +247,7 @@ export default function Work() {
           <p className="t-lead work-intro__text" data-scrub>
             {intro}
           </p>
-          {/* where the work is: from the studio in Yogyakarta out to the other cities, each a word with its count;
-              every city opens the archive filtered to it */}
-          <div className="reach">
-            <p className="t-label work-intro__label" data-fade>
-              Lokasi proyek
-            </p>
-            <h3 className="reach__lead" data-split>
-              Dari Yogyakarta ke <Counter to={elsewhere.length} /> kota lain.
-            </h3>
-            <ul className="reach__list">
-              {places.map((pl) => (
-                <li key={pl.key} className="reach__item">
-                  <button type="button" className="reach__btn" onClick={() => showInArchive({ location: pl.key })}>
-                    <span className="reach__mask">
-                      <span className="reach__city" data-home={pl.key === 'diy' ? '' : undefined}>
-                        {pl.key === 'diy' ? 'Yogyakarta' : pl.label}
-                      </span>
-                    </span>
-                    <span className="t-serif reach__count">{pl.count} proyek</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ProjectReach selectedLocation={f.location} onChoose={(location) => showInArchive({ location })} />
         </section>
 
         {/* Selected projects, Category a / b / c: a head band, then the pictures in a staggered layout (Kononenko) */}
@@ -295,11 +280,19 @@ export default function Work() {
                   </button>
                 </div>
               </header>
-              <div className="work-flow" data-count={list.length}>
-                {list.map((p) => (
-                  <WorkPiece key={p.slug} p={p} />
-                ))}
-              </div>
+              {(() => {
+                const extras = list.length === 1 ? moreFrom(list[0]) : []
+                return (
+                  <div className="work-flow" data-count={list.length + extras.length}>
+                    {list.map((p) => (
+                      <WorkPiece key={p.slug} p={p} />
+                    ))}
+                    {extras.map((id) => (
+                      <WorkPiece key={id} p={list[0]} img={id} extra />
+                    ))}
+                  </div>
+                )
+              })()}
             </section>
           )
         })}

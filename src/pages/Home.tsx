@@ -3,7 +3,7 @@ import { Page } from '../components/Page'
 import { Counter, SectionLabel } from '../components/Bits'
 import { HomeHero } from '../components/HomeHero'
 import { ShowReel } from '../components/ShowReel'
-import { SectorShowcase } from '../components/SectorShowcase'
+import { ServiceSketch, animateServiceSketch } from '../components/ServiceSketch'
 import { WorkMosaic } from '../components/WorkMosaic'
 import { NewsCard } from '../components/NewsCard'
 import { ArrowRight } from '../components/Icons'
@@ -15,7 +15,9 @@ import { sortedNews } from '../data/news'
 
 export default function Home() {
   const root = useRef<HTMLDivElement>(null)
-  usePageAnimations(root)
+  usePageAnimations(root, (page) => {
+    animateServiceSketch(page)
+  })
 
   return (
     <Page>
@@ -59,23 +61,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ---------- (02) SERVICES & SECTORS ---------- */}
-        <section className="brand-section" data-theme="accent">
-          <div className="wrap brand-section__head">
-            <div>
-              <SectionLabel n="02">Core services & sectors</SectionLabel>
-              <p className="t-body-lg brand-section__intro" data-fade>
-                Kami merancang bangunan baru, renovasi, hingga pengembangan lahan, dibagi menjadi tiga sektor inti.
-              </p>
-              <TLink to="/services" className="link-line t-label mt-6 inline-block" data-fade>
-                Our services →
-              </TLink>
-            </div>
-          </div>
-          <div className="wrap">
-            <SectorShowcase />
-          </div>
-        </section>
+        {/* ---------- (02) SERVICES & SECTORS: studio drawing to finished space (ref. Archidomo) ---------- */}
+        <ServiceSketch />
 
         {/* ---------- (03) OUR WORK — Coeval-style mosaic per category ---------- */}
         <WorkMosaic />
