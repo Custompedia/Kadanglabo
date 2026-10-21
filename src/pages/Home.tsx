@@ -4,6 +4,7 @@ import { Counter, SectionLabel } from '../components/Bits'
 import { HomeHero } from '../components/HomeHero'
 import { ShowReel } from '../components/ShowReel'
 import { ServiceSketch, animateServiceSketch } from '../components/ServiceSketch'
+import { StudioNumbers, animateStudioNumbers } from '../components/StudioNumbers'
 import { WorkMosaic } from '../components/WorkMosaic'
 import { NewsCard } from '../components/NewsCard'
 import { ArrowRight } from '../components/Icons'
@@ -16,6 +17,7 @@ import { sortedNews } from '../data/news'
 export default function Home() {
   const root = useRef<HTMLDivElement>(null)
   usePageAnimations(root, (page) => {
+    animateStudioNumbers(page)
     animateServiceSketch(page)
   })
 
@@ -61,6 +63,9 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ---------- Kadanglabo dalam angka (moved from About): ring of photos, figures rolling past ---------- */}
+        <StudioNumbers />
+
         {/* ---------- (02) SERVICES & SECTORS: studio drawing to finished space (ref. Archidomo) ---------- */}
         <ServiceSketch />
 
@@ -71,7 +76,7 @@ export default function Home() {
           <div className="wm-foot">
             <div className="wm-foot__chips" data-stagger="0.08">
               {categoryOrder.map((c) => (
-                <TLink key={c} to={`/work#${c}`} className="chip-btn">
+                <TLink key={c} to={`/work/${c}`} className="chip-btn">
                   {categoryLabel[c]}
                   <span className="chip-btn__count">{archive.filter((a) => a.category === c).length}</span>
                 </TLink>

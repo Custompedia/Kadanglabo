@@ -1,49 +1,15 @@
-import { useRef, type CSSProperties } from 'react'
+import { useRef } from 'react'
 import { Page } from '../components/Page'
 import { PageHero } from '../components/PageHero'
-import { Img, type ImgKey } from '../components/Img'
+import { Img } from '../components/Img'
 import { SectionLabel } from '../components/Bits'
 import { ArrowRight } from '../components/Icons'
 import { BrandMark } from '../components/BrandMark'
 import { usePageAnimations } from '../lib/anim'
-import { gsap, ScrollTrigger } from '../lib/gsap'
+import { gsap } from '../lib/gsap'
 import { TLink } from '../lib/transition'
-import { company, parametersDetail, team, vision } from '../data/site'
+import { parametersDetail, team, vision } from '../data/site'
 import { MissionGoals, animateMissionGoals } from '../components/MissionGoals'
-import { archive, areaStats, categoryLabel, categoryOrder } from '../data/projects'
-
-const NUMBERS_WIDE = '(min-width: 1024px)' // the ring scene holds the screen from here up (see .numbers in styles.css)
-
-// project photos on the ring of "Kadanglabo dalam angka" (warm renders, no blue drawings)
-const ringPhotos: ImgKey[] = [
-  'labarka-river',
-  'hamzah-front',
-  'klinik-front',
-  'ivanna-front',
-  'balecatur-lobby',
-  'giripeni-aerial',
-  'labarka-teppanyaki',
-  'muji-front',
-  'draw-model',
-  'hmw-facade',
-  'labarka-koi',
-  'firlatata-street',
-  'balecatur-pool',
-  'berbah-front',
-  'labarka-gables',
-  'wira-front',
-]
-
-// every figure comes from the site data, so it stays true when projects or people are added
-const figures = [
-  { value: String(company.founded), label: 'Tahun berdiri', note: `Didirikan ${company.founder}, akhir September ${company.founded}` },
-  { value: `${Math.floor(archive.length / 10) * 10}+`, label: 'Proyek', note: 'Rumah, perumahan, resort, restoran, kantor, hingga klinik' },
-  { value: String(areaStats.length), label: 'Wilayah', note: areaStats.map((a) => a.label).join(' · ') },
-  { value: String(categoryOrder.length), label: 'Sektor', note: categoryOrder.map((c) => categoryLabel[c]).join(' · ') },
-  { value: String(team.length), label: 'Tim in-house', note: 'Arsitek, drafter, pengawas lapangan, hingga tim digital' },
-]
-
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
 export default function About() {
   const root = useRef<HTMLDivElement>(null)
@@ -69,60 +35,6 @@ export default function About() {
     )
     gsap.fromTo('.wide-media__frame img', { scale: 1.3 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.wide-media', start: 'top 80%', end: 'top 8%', scrub: true } })
 
-    // Kadanglabo in numbers, wide screens: the stage holds; the project photos fly in from beyond the screen edges
-    // into a turning ring, the intro steps aside and the figures roll past the centre like a drum, then the photos
-    // fly back out. Built once; the CSS media query switches the layout, so crossing the breakpoint only
-    // re-renders (no triggers are created during a breakpoint change).
-    const numbers = page.querySelector<HTMLElement>('.numbers')!
-    const stage = numbers.querySelector<HTMLElement>('.numbers__stage')!
-    const ring = numbers.querySelector<HTMLElement>('.numbers__ring')!
-    const intro = numbers.querySelector<HTMLElement>('.numbers__intro')!
-    const items = gsap.utils.toArray<HTMLElement>('.numbers__item', numbers)
-    const photos = gsap.utils.toArray<HTMLElement>('.numbers__photo', numbers)
-    // each photo gets its own moment to arrive and to leave, in a shuffled order around the ring
-    const order = photos.map((_, i) => ((i * 7) % photos.length) / photos.length)
-    const ease = gsap.parseEase('power3.out')
-    const easeIn = gsap.parseEase('power3.in')
-    const wide = window.matchMedia(NUMBERS_WIDE)
-    numbers.dataset.motion = ''
-    let still = false
-    const render = (p: number) => {
-      if (!wide.matches) {
-        if (!still) {
-          gsap.set([ring, intro, ...items], { clearProps: 'transform,opacity' })
-          photos.forEach((ph) => ph.style.removeProperty('--k'))
-        }
-        still = true
-        return
-      }
-      still = false
-      // photos: from far outside (k = 2.6 x the ring radius) into the ring, and out again at the end
-      photos.forEach((ph, i) => {
-        const inAt = order[i] * 0.12
-        const outAt = 0.8 + order[i] * 0.1
-        const arrive = ease(clamp01((p - inAt) / 0.12))
-        const leave = easeIn(clamp01((p - outAt) / 0.1))
-        ph.style.setProperty('--k', (1 + 1.6 * (1 - arrive) + 1.6 * leave).toFixed(4))
-      })
-      const out = clamp01((p - 0.16) / 0.06) // the intro holds while the photos gather, then steps away
-      const show = clamp01((p - 0.2) / 0.05) // and the first figure rises in right behind it
-      const pos = clamp01((p - 0.25) / 0.53) * (items.length - 1) // which figure sits in the centre
-      const step = stage.clientHeight * 0.42
-      gsap.set(ring, { rotation: -150 * p })
-      gsap.set(intro, { opacity: 1 - out, y: -70 * out })
-      items.forEach((item, i) => {
-        const d = i - pos + (1 - show) * 0.35 // the first figure rises into place as it appears
-        gsap.set(item, { y: d * step, opacity: clamp01(1 - Math.abs(d) * 0.85) * show, scale: 1 - Math.min(1, Math.abs(d)) * 0.1 })
-      })
-    }
-    ScrollTrigger.create({
-      trigger: numbers,
-      start: 'top top',
-      end: 'bottom bottom',
-      onUpdate: (self) => render(self.progress),
-      onRefresh: (self) => render(self.progress),
-    })
-
     // Vision: the photo opens out to full bleed while it scrolls in; it is fully open before the text line rises
     const st = { trigger: '.vision', start: 'top bottom', end: 'top 25%', scrub: true }
     gsap.fromTo('.vision__frame', { clipPath: 'inset(0% 6% 0% 6%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: st })
@@ -146,7 +58,6 @@ export default function About() {
         .from([strip.querySelector('.table__no'), strip.querySelector('.table__brings')], { autoAlpha: 0, y: 10, duration: 0.6, ease: 'power2.out' }, at + 0.8)
     })
 
-    // The numbers scene changes document height. Measure later sections only after that layout is established.
     animateMissionGoals(page)
   })
 
@@ -170,39 +81,6 @@ export default function About() {
             <div className="wide-media__inner" data-parallax="9">
               <Img id="labarka-garden" alt="La Barka Resort - taman dan massa bangunan" sizes="100vw" />
             </div>
-          </div>
-        </section>
-
-        {/* Kadanglabo in numbers: a ring of project photos turns while the figures roll past (wide screens);
-            a calm list of figures on tablets and phones */}
-        <section className="numbers" data-theme="light" aria-labelledby="numbers-title">
-          <div className="numbers__stage">
-            <div className="numbers__ring" style={{ '--n': ringPhotos.length } as CSSProperties} aria-hidden="true">
-              {ringPhotos.map((id, i) => (
-                <div key={id} className="numbers__photo" style={{ '--i': i } as CSSProperties}>
-                  <Img id={id} sizes="190px" />
-                </div>
-              ))}
-            </div>
-            <div className="numbers__intro wrap">
-              <SectionLabel>Kadanglabo dalam angka</SectionLabel>
-              <h2 id="numbers-title" className="t-h1 numbers__title" data-split>
-                Arsitektur kolaboratif, dari Yogyakarta ke berbagai kota.
-              </h2>
-            </div>
-            <ol className="numbers__list wrap">
-              {figures.map((f) => (
-                <li key={f.label} className="numbers__item">
-                  <span className="numbers__value" data-fade>
-                    {f.value}
-                  </span>
-                  <span className="numbers__text" data-fade data-delay="0.1">
-                    <span className="numbers__label">{f.label}</span>
-                    <span className="t-serif numbers__note">{f.note}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
           </div>
         </section>
 

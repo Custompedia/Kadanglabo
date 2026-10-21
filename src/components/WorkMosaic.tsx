@@ -136,7 +136,7 @@ function WorkStack() {
               )
             })}
           </div>
-          <TLink to={`/work#${g.key}`} className="link-line t-label wms__link" data-fade>
+          <TLink to={`/work/${g.key}`} className="link-line t-label wms__link" data-fade>
             Lihat {categoryTitle[g.key]} →
           </TLink>
         </div>
@@ -155,7 +155,13 @@ function Mosaic() {
       const pattern = el.querySelector<HTMLElement>('.wm__pattern')!
       const block = el.querySelector<HTMLElement>('.wm__block')!
       const stage = el.querySelector<HTMLElement>('.wm__stage')!
-      const titles = gsap.utils.toArray<HTMLElement>('.wm__title', el)
+      const titles = gsap.utils.toArray<HTMLElement>('.wm__titles--base .wm__title', el)
+      // the same words in orange, shown only where they cross a photo (clip-path set by paintHits below)
+      const hitLayer = el.querySelector<HTMLElement>('.wm__titles--hit')!
+      const baseLayer = el.querySelector<HTMLElement>('.wm__titles--base')!
+      const hitTitles = gsap.utils.toArray<HTMLElement>('.wm__title', hitLayer)
+      const tiles = gsap.utils.toArray<HTMLElement>('.wm__tile', el)
+      const charsOf = (i: number) => [titles[i], hitTitles[i]].map((t) => t.querySelectorAll('.wm__char'))
       const links = gsap.utils.toArray<HTMLElement>('.wm__explore', el)
       const count = el.querySelector<HTMLElement>('.wm__count-n')!
       let current = 0
@@ -174,18 +180,49 @@ function Mosaic() {
       const indexFromY = (y: number) =>
         Math.max(0, Math.min(N - 1, Math.floor((stage.clientHeight / 2 - y) / block.offsetHeight)))
 
-      gsap.set(titles.slice(1), { autoAlpha: 0 })
+      gsap.set([...titles.slice(1), ...hitTitles.slice(1)], { autoAlpha: 0 })
+
+      // Every frame the section is on screen: cut the photo rectangles out of the ink title and show the
+      // orange copy through them, so the colour follows the photos exactly as they drift under the word.
+      let lastHit = ''
+      const paintHits = () => {
+        const box = hitLayer.getBoundingClientRect()
+        const pad = box.height // glyphs reach a little past the 1em box
+        let rects = ''
+        for (const t of tiles) {
+          const r = t.getBoundingClientRect()
+          if (r.bottom < box.top - pad || r.top > box.bottom + pad || r.right < box.left || r.left > box.right) continue
+          if (Number(gsap.getProperty(t, 'opacity')) < 0.5) continue
+          const x = (r.left - box.left).toFixed(1)
+          const y = (r.top - box.top).toFixed(1)
+          rects += `M${x} ${y}h${r.width.toFixed(1)}v${r.height.toFixed(1)}h${(-r.width).toFixed(1)}Z`
+        }
+        if (rects === lastHit) return
+        lastHit = rects
+        const outer = `M${-box.width} ${-pad * 2}h${box.width * 3}v${pad * 5}h${-box.width * 3}Z`
+        hitLayer.style.clipPath = rects ? `path('${rects}')` : 'inset(50%)'
+        baseLayer.style.clipPath = rects ? `path(evenodd, '${outer}${rects}')` : ''
+      }
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top bottom',
+        end: 'bottom top',
+        onToggle: (s) => (s.isActive ? gsap.ticker.add(paintHits) : gsap.ticker.remove(paintHits)),
+      })
+      const stopHits = () => gsap.ticker.remove(paintHits)
       gsap.set(links.slice(1), { autoAlpha: 0 })
 
       const show = (next: number) => {
         if (next === current) return
-        const out = titles[current].querySelectorAll('.wm__char')
-        const inn = titles[next].querySelectorAll('.wm__char')
-        gsap.killTweensOf([...out, ...inn, ...links])
+        const out = charsOf(current)
+        const inn = charsOf(next)
+        gsap.killTweensOf([...out.flatMap((c) => [...c]), ...inn.flatMap((c) => [...c]), ...links])
         // outgoing letters flatten into a line, left to right; the new word grows back out of it
-        gsap.to(out, { scaleY: 0, duration: 0.45, stagger: 0.025, ease: 'power2.in', overwrite: true })
-        gsap.set(titles[next], { autoAlpha: 1 })
-        gsap.fromTo(inn, { scaleY: 0 }, { scaleY: 1, duration: 0.7, stagger: 0.035, ease: 'power3.out', delay: 0.3, overwrite: true })
+        out.forEach((c) => gsap.to(c, { scaleY: 0, duration: 0.45, stagger: 0.025, ease: 'power2.in', overwrite: true }))
+        gsap.set([titles[next], hitTitles[next]], { autoAlpha: 1 })
+        inn.forEach((c) =>
+          gsap.fromTo(c, { scaleY: 0 }, { scaleY: 1, duration: 0.7, stagger: 0.035, ease: 'power3.out', delay: 0.3, overwrite: true }),
+        )
         gsap.to(links[current], { autoAlpha: 0, y: -8, duration: 0.3 })
         gsap.fromTo(links[next], { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.5, delay: 0.45 })
         count.textContent = String(next + 1)
@@ -195,7 +232,7 @@ function Mosaic() {
       if (reducedMotion()) {
         gsap.set(pattern, { y: yStart })
         ScrollTrigger.create({ trigger: el, start: 'top top', end: 'bottom bottom', onUpdate: (s) => show(indexAt(s.progress)) })
-        return
+        return stopHits
       }
 
       gsap.fromTo(
@@ -227,8 +264,11 @@ function Mosaic() {
           stagger: 0.07,
           ease: 'power3.out',
         })
-        .from(titles[0].querySelectorAll('.wm__char'), { scaleY: 0, duration: 0.8, stagger: 0.04, ease: 'power3.out' }, 0.2)
+        .from(charsOf(0)[0], { scaleY: 0, duration: 0.8, stagger: 0.04, ease: 'power3.out' }, 0.2)
+        .from(charsOf(0)[1], { scaleY: 0, duration: 0.8, stagger: 0.04, ease: 'power3.out' }, 0.2)
         .from(el.querySelectorAll('.wm__count'), { autoAlpha: 0, y: 10, duration: 0.7 }, 0.5)
+
+      return stopHits
     },
     { scope: root },
   )
@@ -275,7 +315,7 @@ function Mosaic() {
           <p className="wm__count wm__fade" aria-hidden="true">
             <span className="wm__count-n">1</span> / {N}
           </p>
-          <h2 className="wm__titles">
+          <h2 className="wm__titles wm__titles--base">
             {groups.map((g) => (
               <span key={g.key} className="wm__title">
                 <span className="sr-only">{g.title}</span>
@@ -287,9 +327,20 @@ function Mosaic() {
               </span>
             ))}
           </h2>
+          <div className="wm__titles wm__titles--hit" aria-hidden="true">
+            {groups.map((g) => (
+              <span key={g.key} className="wm__title">
+                {g.title.split('').map((c, i) => (
+                  <span key={i} className="wm__char">
+                    {c}
+                  </span>
+                ))}
+              </span>
+            ))}
+          </div>
           <div className="wm__links">
             {groups.map((g) => (
-              <TLink key={g.key} to={`/work#${g.key}`} className="wm__explore">
+              <TLink key={g.key} to={`/work/${g.key}`} className="wm__explore">
                 Lihat {categoryTitle[g.key]}
               </TLink>
             ))}

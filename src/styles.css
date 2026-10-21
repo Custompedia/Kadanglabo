@@ -1521,6 +1521,11 @@
   text-align: center;
 }
 
+.wm__titles--hit {
+  color: var(--color-orange);
+  clip-path: inset(50%); /* nothing until paintHits finds a photo under the word */
+}
+
 .wm__title {
   position: absolute;
   inset: 0;
@@ -1855,8 +1860,8 @@
   font-weight: 560;
 }
 
-/* Kadanglabo in numbers (About): a calm list of figures; on wide screens a held stage where a ring of project
-   photos turns around the figure in the centre (motion in About.tsx, layout switch below) */
+/* Kadanglabo in numbers (Home): a calm list of figures; on wide screens a held stage where a ring of project
+   photos turns around the figure in the centre (motion in StudioNumbers.tsx, layout switch below) */
 .numbers {
   position: relative;
   padding-block: var(--sec);
@@ -3308,6 +3313,18 @@
 .work-group__meta {
   color: var(--color-mute);
   font-size: 13px;
+}
+
+.work-group__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+}
+
+@media (hover: hover) {
+  .work-group__title-link:hover {
+    color: var(--color-orange-text);
+  }
 }
 
 /* pairs on a 12-column grid: a big picture and a smaller one set lower, the next pair mirrored */

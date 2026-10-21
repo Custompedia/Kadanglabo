@@ -293,7 +293,7 @@ export default function Services() {
                         <li key={t}>{t}</li>
                       ))}
                     </ul>
-                    <TLink to={`/work#${s.key}`} className="link-line t-label mt-8 inline-block" data-fade>
+                    <TLink to={`/work/${s.key}`} className="link-line t-label mt-8 inline-block" data-fade>
                       Lihat proyek {s.title.toLowerCase()} →
                     </TLink>
                   </div>

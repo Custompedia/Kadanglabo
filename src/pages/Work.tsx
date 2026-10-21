@@ -231,9 +231,9 @@ export default function Work() {
         >
           <nav className="work-nav" aria-label="Bagian halaman" data-fade="now" data-delay="0.6">
             {categoryOrder.map((c) => (
-              <a key={c} href={`#${c}`} className="chip-btn" onClick={(e) => jump(e, `#${c}`)}>
+              <TLink key={c} to={`/work/${c}`} className="chip-btn">
                 {categoryTitle[c]}
-              </a>
+              </TLink>
             ))}
             <a href="#arsip" className="chip-btn" onClick={(e) => jump(e, '#arsip')}>
               Arsip proyek
@@ -263,7 +263,9 @@ export default function Work() {
                     {gi + 1} / {categoryOrder.length}
                   </span>
                   <h2 className="work-group__title" data-split>
-                    {categoryTitle[cat]}
+                    <TLink to={`/work/${cat}`} className="work-group__title-link">
+                      {categoryTitle[cat]}
+                    </TLink>
                   </h2>
                 </div>
                 <div className="work-group__side">
@@ -275,9 +277,14 @@ export default function Work() {
                   <p className="work-group__meta" data-fade>
                     {list.length} proyek terpilih · {inArchive} proyek di arsip
                   </p>
-                  <button type="button" className="link-line t-label" onClick={() => showInArchive({ category: cat })} data-fade>
-                    Lihat semua di arsip →
-                  </button>
+                  <div className="work-group__links" data-fade>
+                    <TLink to={`/work/${cat}`} className="link-line t-label">
+                      Buka halaman {categoryLabel[cat]} →
+                    </TLink>
+                    <button type="button" className="link-line t-label" onClick={() => showInArchive({ category: cat })}>
+                      Lihat di arsip
+                    </button>
+                  </div>
                 </div>
               </header>
               {(() => {

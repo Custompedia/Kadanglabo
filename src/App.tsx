@@ -8,13 +8,14 @@ import { Menu } from './components/Menu'
 import { Footer, type FooterCtaProps } from './components/Footer'
 import { Preloader } from './components/Preloader'
 import { Cursor } from './components/Cursor'
-import { nextProject, projects } from './data/projects'
+import { categoryOrder, nextProject, projects, type Category } from './data/projects'
 
 const pages = {
   home: () => import('./pages/Home'),
   about: () => import('./pages/About'),
   services: () => import('./pages/Services'),
   work: () => import('./pages/Work'),
+  category: () => import('./pages/Category'),
   project: () => import('./pages/ProjectDetail'),
   news: () => import('./pages/News'),
   article: () => import('./pages/NewsDetail'),
@@ -26,6 +27,7 @@ const Home = lazy(pages.home)
 const About = lazy(pages.about)
 const Services = lazy(pages.services)
 const Work = lazy(pages.work)
+const CategoryPage = lazy(pages.category)
 const ProjectDetail = lazy(pages.project)
 const News = lazy(pages.news)
 const NewsDetail = lazy(pages.article)
@@ -35,6 +37,9 @@ const NotFound = lazy(pages.notFound)
 const workThumbs = projects.slice(0, 8).map((p) => p.cover)
 
 function footerCta(pathname: string): FooterCtaProps {
+  if (categoryOrder.includes(pathname.split('/')[2] as Category)) {
+    return { words: 'Start a project', to: '/contact#start', imgs: ['labarka-path', 'hmw-dining', 'balecatur-lobby', 'klinik-waiting'] }
+  }
   if (pathname.startsWith('/work/')) {
     const next = nextProject(pathname.split('/')[2] ?? '')
     return { words: 'Next up', to: `/work/${next.slug}`, imgs: [next.cover], kicker: `Proyek berikutnya: ${next.title}` }
@@ -89,6 +94,9 @@ function Layout() {
           <Route path="/studio" element={<Navigate to="/about" replace />} />
           <Route path="/services" element={<Services />} />
           <Route path="/work" element={<Work />} />
+          {categoryOrder.map((c) => (
+            <Route key={c} path={`/work/${c}`} element={<CategoryPage cat={c} />} />
+          ))}
           <Route path="/work/:slug" element={<ProjectDetail />} />
           <Route path="/news" element={<News />} />
           <Route path="/news/:slug" element={<NewsDetail />} />
