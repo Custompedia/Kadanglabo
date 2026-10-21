@@ -5,8 +5,6 @@ import { gsap, ScrollTrigger } from '../lib/gsap'
 import { company, team } from '../data/site'
 import { archive, areaStats, categoryLabel, categoryOrder } from '../data/projects'
 
-const NUMBERS_WIDE = '(min-width: 1024px)' // the ring scene holds the screen from here up (see .numbers in styles.css)
-
 // project photos on the ring of "Kadanglabo dalam angka" (warm renders, no blue drawings)
 const ringPhotos: ImgKey[] = [
   'labarka-river',
@@ -40,10 +38,10 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
 /** Kadanglabo in numbers (Home, after the About block): sets up the ring scene inside `page` */
 export function animateStudioNumbers(page: HTMLElement) {
-  // Kadanglabo in numbers, wide screens: the stage holds; the project photos fly in from beyond the screen edges
-  // into a turning ring, the intro steps aside and the figures roll past the centre like a drum, then the photos
-  // fly back out. Built once; the CSS media query switches the layout, so crossing the breakpoint only
-  // re-renders (no triggers are created during a breakpoint change).
+  // Kadanglabo in numbers, on every screen size: the stage holds; the project photos fly in from beyond the screen
+  // edges into a turning ring, the intro steps aside and the figures roll past the centre like a drum, then the
+  // photos fly back out. Ring size and type scale per breakpoint in CSS (.numbers in styles.css); without motion
+  // (reduced motion) [data-motion] is never set and the figures stay a calm list.
   const numbers = page.querySelector<HTMLElement>('.numbers')
   if (!numbers) return
   const stage = numbers.querySelector<HTMLElement>('.numbers__stage')!
@@ -55,19 +53,8 @@ export function animateStudioNumbers(page: HTMLElement) {
   const order = photos.map((_, i) => ((i * 7) % photos.length) / photos.length)
   const ease = gsap.parseEase('power3.out')
   const easeIn = gsap.parseEase('power3.in')
-  const wide = window.matchMedia(NUMBERS_WIDE)
   numbers.dataset.motion = ''
-  let still = false
   const render = (p: number) => {
-    if (!wide.matches) {
-      if (!still) {
-        gsap.set([ring, intro, ...items], { clearProps: 'transform,opacity' })
-        photos.forEach((ph) => ph.style.removeProperty('--k'))
-      }
-      still = true
-      return
-    }
-    still = false
     // photos: from far outside (k = 2.6 x the ring radius) into the ring, and out again at the end
     photos.forEach((ph, i) => {
       const inAt = order[i] * 0.12
@@ -79,12 +66,15 @@ export function animateStudioNumbers(page: HTMLElement) {
     const out = clamp01((p - 0.16) / 0.06) // the intro holds while the photos gather, then steps away
     const show = clamp01((p - 0.2) / 0.05) // and the first figure rises in right behind it
     const pos = clamp01((p - 0.25) / 0.53) * (items.length - 1) // which figure sits in the centre
-    const step = stage.clientHeight * 0.42
+    // the drum step: on wide screens the ring's top and bottom are off screen, so the figures roll the full
+    // height; on phones the whole ring is visible and the figures stay inside it (the ring is --r wide in CSS)
+    const step = Math.min(stage.clientHeight * 0.42, ring.offsetWidth * 1.1)
+    const fade = step < stage.clientHeight * 0.42 ? 1.3 : 0.85
     gsap.set(ring, { rotation: -150 * p })
     gsap.set(intro, { opacity: 1 - out, y: -70 * out })
     items.forEach((item, i) => {
       const d = i - pos + (1 - show) * 0.35 // the first figure rises into place as it appears
-      gsap.set(item, { y: d * step, opacity: clamp01(1 - Math.abs(d) * 0.85) * show, scale: 1 - Math.min(1, Math.abs(d)) * 0.1 })
+      gsap.set(item, { y: d * step, opacity: clamp01(1 - Math.abs(d) * fade) * show, scale: 1 - Math.min(1, Math.abs(d)) * 0.1 })
     })
   }
   ScrollTrigger.create({
@@ -94,13 +84,13 @@ export function animateStudioNumbers(page: HTMLElement) {
     onUpdate: (self) => render(self.progress),
     onRefresh: (self) => render(self.progress),
   })
-  // [data-motion] makes the section 400svh tall on wide screens: every trigger below it (the Our Work mosaic,
+  // [data-motion] makes the section 400svh tall: every trigger below it (the Our Work mosaic,
   // created when the page mounted) has to measure again, or it thinks the page is already past it
   ScrollTrigger.refresh()
 }
 
-/* Kadanglabo in numbers: a ring of project photos turns while the figures roll past (wide screens);
-   a calm list of figures on tablets and phones */
+/* Kadanglabo in numbers: a ring of project photos turns while the figures roll past (phones to wide screens);
+   a calm list of figures when motion is reduced */
 export function StudioNumbers() {
   return (
     <section className="numbers" data-theme="light" aria-labelledby="numbers-title">
