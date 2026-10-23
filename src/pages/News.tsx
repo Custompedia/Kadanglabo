@@ -8,20 +8,18 @@ import { ArrowRight, Plus, Search } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger, reducedMotion } from '../lib/gsap'
 import { TLink } from '../lib/transition'
-import { formatDate, sortedNews, type NewsType } from '../data/news'
-import { waLink } from '../data/site'
+import { formatDate, sortedNews, typePlural, type NewsType } from '../data/news'
+import { waHello, waLink } from '../data/site'
+import { locale, t, tr } from '../lib/i18n'
 
-const types: { key: 'all' | NewsType; label: string }[] = [
-  { key: 'all', label: 'Semua' },
-  { key: 'news', label: 'News' },
-  { key: 'event', label: 'Events' },
-]
-const typeLabel = { news: 'News', event: 'Events' } as const
+const typeKeys: ('all' | NewsType)[] = ['all', 'news', 'event']
 
-// every topic once, with its type (a topic belongs to one type) and how many articles carry it
-const topics = Array.from(new Set(sortedNews.map((n) => n.tag)))
-  .map((tag) => ({ tag, type: sortedNews.find((n) => n.tag === tag)!.type, count: sortedNews.filter((n) => n.tag === tag).length }))
-  .sort((a, b) => a.tag.localeCompare(b.tag, 'id'))
+// every topic once, keyed by its English name (stable in the URL), with its type (a topic belongs to one type)
+// and how many articles carry it. The label is resolved at render time.
+const topicKeys = Array.from(new Set(sortedNews.map((n) => n.tag.en))).map((tag) => {
+  const first = sortedNews.find((n) => n.tag.en === tag)!
+  return { tag, label: first.tag, type: first.type, count: sortedNews.filter((n) => n.tag.en === tag).length }
+})
 
 /** lower case, accents dropped, so "kontekstual" also finds "Kontekstual" */
 const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -34,29 +32,37 @@ export default function News() {
   const type: 'all' | NewsType = rawType === 'news' || rawType === 'event' ? rawType : 'all'
   const tag = params.get('tag')
   const q = params.get('q') ?? ''
+  const topics = [...topicKeys].sort((a, b) => t(a.label).localeCompare(t(b.label), locale()))
+  const activeTopic = topics.find((x) => x.tag === tag)
 
   const words = fold(q).split(/\s+/).filter(Boolean)
   const items = sortedNews.filter(
     (n) =>
       (type === 'all' || n.type === type) &&
-      (!tag || n.tag === tag) &&
-      words.every((w) => fold(`${n.title} ${n.excerpt} ${n.tag} ${typeLabel[n.type]} ${n.context}`).includes(w)),
+      (!tag || n.tag.en === tag) &&
+      words.every((w) => fold(`${t(n.title)} ${t(n.excerpt)} ${t(n.tag)} ${typePlural(n.type)} ${t(n.context)}`).includes(w)),
   )
   const filtered = type !== 'all' || !!tag || words.length > 0
-  const heading = words.length ? `Hasil untuk “${q.trim()}”` : (tag ?? (type === 'all' ? 'Semua artikel' : typeLabel[type]))
+  const heading = words.length
+    ? tr(`Results for “${q.trim()}”`, `Hasil untuk “${q.trim()}”`)
+    : activeTopic
+      ? t(activeTopic.label)
+      : type === 'all'
+        ? tr('All articles', 'Semua artikel')
+        : typePlural(type)
 
   const update = (next: { type?: 'all' | NewsType; tag?: string | null; q?: string }) => {
     const p = new URLSearchParams()
-    const t = next.type ?? type
+    const ty = next.type ?? type
     const tg = next.tag === undefined ? tag : next.tag
     const s = next.q ?? q
-    if (t !== 'all') p.set('type', t)
+    if (ty !== 'all') p.set('type', ty)
     if (tg) p.set('tag', tg)
     if (s) p.set('q', s)
     setParams(p, { replace: true, preventScrollReset: true })
   }
   // a topic implies its type; picking a type drops a topic from the other type
-  const pickType = (t: 'all' | NewsType) => update({ type: t, tag: tag && topics.find((x) => x.tag === tag)?.type === t ? tag : null })
+  const pickType = (ty: 'all' | NewsType) => update({ type: ty, tag: tag && activeTopic?.type === ty ? tag : null })
   const pickTopic = (x: (typeof topics)[number]) => update(tag === x.tag ? { tag: null } : { tag: x.tag, type: x.type })
   const reset = () => setParams(new URLSearchParams(), { replace: true, preventScrollReset: true })
 
@@ -85,16 +91,14 @@ export default function News() {
   }, [resultKey])
 
   return (
-    <Page title="News & Events">
+    <Page title={tr('Articles', 'Artikel')}>
       <div ref={root}>
         <PageHero
-          title={
-            <>
-              News
-              <br />& events
-            </>
-          }
-          sub="Latest updates from the studio: berita, publikasi, aktivitas studio, juga agenda, pameran, talk, dan workshop."
+          title={tr('Articles', 'Artikel')}
+          sub={tr(
+            'News, events and ideas from Kadanglabo, a community-based architecture consultancy in Yogyakarta.',
+            'Kabar, ide, dan acara Kadanglabo, konsultan arsitektur berbasis komunitas di Yogyakarta.',
+          )}
         />
 
         <section className="news wrap" data-theme="light">
@@ -102,19 +106,19 @@ export default function News() {
               The search shares the first row with the heading, so both hairlines run on one line. */}
           <form role="search" className="news-search" onSubmit={(e) => e.preventDefault()} data-fade>
             <label htmlFor="news-q" className="news-side__label">
-              Cari artikel
+              {tr('Search articles', 'Cari artikel')}
             </label>
             <div className="news-search__box">
               <input
                 id="news-q"
                 type="search"
                 value={q}
-                placeholder="Mis. talk, open studio, Klinik UII"
+                placeholder={tr('E.g. talk, open studio, Klinik UII', 'Mis. talk, open studio, Klinik UII')}
                 autoComplete="off"
                 onChange={(e) => update({ q: e.target.value })}
               />
               {q ? (
-                <button type="button" className="news-search__btn" aria-label="Hapus pencarian" onClick={() => update({ q: '' })}>
+                <button type="button" className="news-search__btn" aria-label={tr('Clear search', 'Hapus pencarian')} onClick={() => update({ q: '' })}>
                   <Plus className="news-search__clear" />
                 </button>
               ) : (
@@ -127,13 +131,13 @@ export default function News() {
 
           <div className="news__filters" data-fade>
             <div className="news-side__block">
-              <p className="news-side__label">Kategori</p>
-              <div className="news-side__chips" role="group" aria-label="Kategori">
-                {types.map((t) => (
-                  <button key={t.key} type="button" className="chip-btn" aria-pressed={type === t.key} onClick={() => pickType(t.key)}>
-                    {t.label}
+              <p className="news-side__label">{tr('Category', 'Kategori')}</p>
+              <div className="news-side__chips" role="group" aria-label={tr('Category', 'Kategori')}>
+                {typeKeys.map((k) => (
+                  <button key={k} type="button" className="chip-btn" aria-pressed={type === k} onClick={() => pickType(k)}>
+                    {k === 'all' ? tr('All', 'Semua') : typePlural(k)}
                     <span className="chip-btn__count">
-                      {t.key === 'all' ? sortedNews.length : sortedNews.filter((n) => n.type === t.key).length}
+                      {k === 'all' ? sortedNews.length : sortedNews.filter((n) => n.type === k).length}
                     </span>
                   </button>
                 ))}
@@ -141,11 +145,11 @@ export default function News() {
             </div>
 
             <div className="news-side__block">
-              <p className="news-side__label">Topik</p>
-              <div className="news-side__chips" role="group" aria-label="Topik">
+              <p className="news-side__label">{tr('Topic', 'Topik')}</p>
+              <div className="news-side__chips" role="group" aria-label={tr('Topic', 'Topik')}>
                 {topics.map((x) => (
                   <button key={x.tag} type="button" className="chip-btn" aria-pressed={tag === x.tag} onClick={() => pickTopic(x)}>
-                    {x.tag}
+                    {t(x.label)}
                     <span className="chip-btn__count">{x.count}</span>
                   </button>
                 ))}
@@ -156,10 +160,10 @@ export default function News() {
           <div className="news__head">
             <h2 className="news__title">{heading}</h2>
             <p className="news__count" aria-live="polite">
-              <b>{items.length}</b> artikel
+              <b>{items.length}</b> {tr(items.length === 1 ? 'article' : 'articles', 'artikel')}
               {filtered && (
                 <button type="button" className="link-line t-label news__reset" onClick={reset}>
-                  Reset
+                  {tr('Reset', 'Reset')}
                 </button>
               )}
             </p>
@@ -174,24 +178,26 @@ export default function News() {
 
             {items.length === 0 && (
               <div className="news__empty">
-                <p className="t-serif news__empty-text">Belum ada artikel yang cocok dengan pencarian ini.</p>
+                <p className="t-serif news__empty-text">
+                  {tr('No articles match your search.', 'Tidak ada artikel yang sesuai pencarian Anda.')}
+                </p>
                 <button type="button" className="btn-pill btn-pill--dark" onClick={reset}>
-                  Tampilkan semua artikel
+                  {tr('Show all articles', 'Tampilkan semua artikel')}
                 </button>
               </div>
             )}
           </div>
 
-          <aside className="news__extras" aria-label="Lainnya">
+          <aside className="news__extras" aria-label={tr('More', 'Lainnya')}>
             <div className="news-side__block news-latest">
-              <p className="news-side__label">Terbaru</p>
+              <p className="news-side__label">{tr('Latest', 'Terbaru')}</p>
               <ol>
                 {sortedNews.slice(0, 3).map((n, i) => (
                   <li key={n.slug}>
                     <TLink to={`/news/${n.slug}`} className="news-latest__link">
                       <span className="news-latest__no">0{i + 1}</span>
                       <span>
-                        <span className="news-latest__title">{n.title}</span>
+                        <span className="news-latest__title">{t(n.title)}</span>
                         <span className="t-label news-latest__date">{formatDate(n.date)}</span>
                       </span>
                     </TLink>
@@ -203,17 +209,19 @@ export default function News() {
             <div className="news-cta" data-fade>
               <BrandMark className="news-cta__mark" />
               <img src="/brand/kadanglabo-logo-white.svg" alt="Kadanglabo" width={1400} height={324} className="news-cta__logo" />
-              <p className="news-cta__title">Mari berkolaborasi.</p>
+              <p className="news-cta__title">{tr('Let’s work together.', 'Mari berkolaborasi.')}</p>
               <p className="news-cta__text">
-                Ceritakan rencana Anda: rumah, usaha, atau kawasan. Kami bantu dari pertanyaan pertama sampai bangunan
-                berdiri.
+                {tr(
+                  'A home, a business or an estate: bring us your plans. Design and construction under one roof, from brief to completion.',
+                  'Rumah, usaha, atau kawasan: ceritakan rencana Anda. Desain dan pelaksanaan satu pintu, dari brief hingga bangunan selesai.',
+                )}
               </p>
               <div className="news-cta__actions">
                 <TLink to="/contact#start" className="btn-pill news-cta__btn">
-                  Start a project <ArrowRight className="h-[0.8em] w-auto" />
+                  {tr('Start a project', 'Mulai proyek')} <ArrowRight className="h-[0.8em] w-auto" />
                 </TLink>
                 <a
-                  href={waLink('Halo Kadanglabo, saya ingin konsultasi proyek.')}
+                  href={waLink(waHello())}
                   target="_blank"
                   rel="noreferrer"
                   className="btn-pill news-cta__btn news-cta__btn--ghost"

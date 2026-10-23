@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { Fragment, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Page } from '../components/Page'
 import { Img, imgMeta, type ImgKey } from '../components/Img'
-import { Counter, SectionLabel } from '../components/Bits'
-import { Plus } from '../components/Icons'
+import { Counter, SectionLabel, TeamStack } from '../components/Bits'
+import { WaFloat } from '../components/WaFloat'
+import { InquiryForm } from '../components/InquiryForm'
+import { ArrowRight, Plus } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger, finePointer, reducedMotion } from '../lib/gsap'
 import { TLink } from '../lib/transition'
-import { sectors } from '../data/site'
+import { scrollToElement } from '../lib/smooth'
+import { sectors, waHello, waLink, workLanding } from '../data/site'
 import {
   archive,
   areaOf,
@@ -16,14 +19,18 @@ import {
   getProject,
   projects,
   type Category,
+  fmtArea,
   type Project,
 } from '../data/projects'
+import { t, tr } from '../lib/i18n'
 import './Category.css'
 
 /*
- * One page per category (/work/commercial, /work/hospitality, /work/residential), opened from the Home mosaic,
- * Services and Our Work: the category name big, its photo opening to full width, the typologies as one running
- * line, every selected project as a chapter, a sideways gallery, then only this category's archive.
+ * One landing page per category (/work/commercial, /work/hospitality, /work/residential): the page an ad points to,
+ * opened from the Home mosaic, Services and Our Work. In order: a cinematic hero with the promise and two ways to
+ * act, one statement with photos set into the line, the selected projects as chapters, what we design (a photo per
+ * typology), why clients choose us told sideways between the photos, this category's archive, the other two, and the inquiry
+ * form last; a WhatsApp button waits in the corner.
  */
 
 const heroImg: Record<Category, ImgKey> = {
@@ -32,7 +39,7 @@ const heroImg: Record<Category, ImgKey> = {
   residential: 'hmw-facade-hd',
 }
 
-const PEEK = 10 // archive rows shown before "Tampilkan semua"
+const PEEK = 10 // archive rows shown before "Show all"
 const GALLERY_MAX = 10
 
 /** every photo of a project, cover first, without the -hd duplicates */
@@ -48,13 +55,47 @@ const photosOf = (p: Project): ImgKey[] =>
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
+/** The statement: words and inline photos ([[img-key]] in the copy), each word its own span so the line can rise in. */
+function Statement({ text }: { text: string }) {
+  return (
+    <p className="lp-st__text">
+      {text.split(/(\[\[[a-z0-9-]+\]\])/).map((part, i) => {
+        const img = part.match(/^\[\[([a-z0-9-]+)\]\]$/)
+        if (img)
+          return (
+            <span key={i} className="lp-st__img" aria-hidden="true">
+              <span className="lp-st__img-in">
+                <Img id={img[1] as ImgKey} sizes="200px" />
+              </span>
+            </span>
+          )
+        return (
+          <Fragment key={i}>
+            {part
+              .split(/\s+/)
+              .filter(Boolean)
+              .map((w, k) => (
+                <Fragment key={k}>
+                  <span className="lp-st__w">{w}</span>{' '}
+                </Fragment>
+              ))}
+          </Fragment>
+        )
+      })}
+    </p>
+  )
+}
+
 /** A selected project as a chapter: a big photo with a second one tucked over its corner, the facts beside it */
 function Chapter({ p, n, flip }: { p: Project; n: number; flip: boolean }) {
   const [main, second] = photosOf(p)
-  const size = [p.landArea && ['Lahan', p.landArea], p.buildingArea && ['Bangunan', p.buildingArea]].filter(Boolean) as [string, string][]
+  const size = [
+    p.landArea && [tr('Site', 'Lahan'), fmtArea(p.landArea)],
+    p.buildingArea && [tr('Building', 'Bangunan'), fmtArea(p.buildingArea)],
+  ].filter(Boolean) as [string, string][]
   return (
     <article className={`cat-ch${flip ? ' cat-ch--flip' : ''}${second ? '' : ' cat-ch--single'}`}>
-      <TLink to={`/work/${p.slug}`} className="cat-ch__media" data-cursor="Lihat" aria-label={p.title}>
+      <TLink to={`/work/${p.slug}`} className="cat-ch__media" data-cursor={tr('View', 'Lihat')} aria-label={p.title}>
         <span className="cat-ch__frame" data-reveal>
           {/* the reveal settles the image; the hover zoom lives on this wrapper so the two never fight */}
           <span className="cat-ch__zoom">
@@ -77,10 +118,10 @@ function Chapter({ p, n, flip }: { p: Project; n: number; flip: boolean }) {
           {p.title}
         </h3>
         <p className="cat-ch__meta" data-fade>
-          {[p.typology, p.region].filter(Boolean).join(' · ')}
+          {[t(p.typology), p.region].filter(Boolean).join(' · ')}
         </p>
         <p className="t-serif cat-ch__tag" data-fade>
-          {p.tagline}
+          {t(p.tagline)}
         </p>
         {size.length > 0 && (
           <dl className="cat-ch__facts" data-fade>
@@ -93,7 +134,7 @@ function Chapter({ p, n, flip }: { p: Project; n: number; flip: boolean }) {
           </dl>
         )}
         <TLink to={`/work/${p.slug}`} className="link-line t-label cat-ch__link" data-fade>
-          Lihat proyek →
+          {tr('View project', 'Lihat proyek')} →
         </TLink>
       </div>
     </article>
@@ -109,6 +150,7 @@ export default function CategoryPage({ cat }: { cat: Category }) {
 
   const ci = categoryOrder.indexOf(cat)
   const sector = sectors.find((s) => s.key === cat)!
+  const lp = workLanding[cat]
   const list = projects.filter((p) => p.category === cat)
   const rows = archive
     .filter((a) => a.category === cat)
@@ -123,29 +165,38 @@ export default function CategoryPage({ cat }: { cat: Category }) {
   const gallery: { id: ImgKey; p: Project }[] = []
   for (let i = 0; gallery.length < GALLERY_MAX && pools.some((pool) => pool.length > i); i++)
     for (const pool of pools) if (pool[i] && gallery.length < GALLERY_MAX) gallery.push(pool[i])
+  // the sideways "why" track: a reason card, then a few photos, and so on; reasons left over close the row
+  type WallItem = { kind: 'why'; n: number; b: (typeof sector.benefits)[number] } | { kind: 'photo'; id: ImgKey; p: Project }
+  const wallItems: WallItem[] = []
+  const per = Math.max(1, Math.ceil(gallery.length / sector.benefits.length))
+  sector.benefits.forEach((b, n) => {
+    wallItems.push({ kind: 'why', n, b })
+    gallery.slice(n * per, (n + 1) * per).forEach((g) => wallItems.push({ kind: 'photo', ...g }))
+  })
 
   usePageAnimations(
     root,
     (page) => {
-      // the category photo opens from a framed picture to the full width while it comes up the screen
-      const st = { trigger: '.cat-teaser', start: 'top bottom', end: 'top top', scrub: true }
-      gsap.fromTo('.cat-teaser__frame', { clipPath: 'inset(0% 8% 0% 8%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: st })
-      gsap.fromTo('.cat-teaser__frame img', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: st })
+      // hero: the photo settles from a slow zoom as the page opens, then drifts and the words lift away on scroll
+      const hero = page.querySelector<HTMLElement>('.lp-h')!
+      gsap.fromTo('.lp-h__media img', { scale: 1.18 }, { scale: 1, duration: 2.6, ease: 'expo.out' })
+      gsap.to('.lp-h__media', { yPercent: 16, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } })
+      gsap.to('.lp-h__body', { y: -90, autoAlpha: 0.15, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } })
 
-      // the typologies run sideways as you scroll, the second line against the first
-      gsap.utils.toArray<HTMLElement>('.cat-run__line', page).forEach((line, i) => {
-        gsap.fromTo(
-          line,
-          { xPercent: i % 2 ? -28 : 0 },
-          {
-            xPercent: i % 2 ? 0 : -28,
-            ease: 'none',
-            scrollTrigger: { trigger: '.cat-run', start: 'top bottom', end: 'bottom top', scrub: true },
-          },
+      // statement: the words rise in order and each photo opens out of its slot in the line
+      const st = page.querySelector<HTMLElement>('.lp-st__text')!
+      gsap
+        .timeline({ scrollTrigger: { trigger: st, start: 'top 78%', once: true } })
+        .from(st.querySelectorAll('.lp-st__w'), { yPercent: 60, autoAlpha: 0, duration: 0.9, stagger: 0.035, ease: 'power3.out' })
+        .fromTo(
+          st.querySelectorAll('.lp-st__img'),
+          { clipPath: 'inset(0% 50% 0% 50% round 999px)' },
+          { clipPath: 'inset(0% 0% 0% 0% round 999px)', duration: 1.2, stagger: 0.25, ease: 'expo.inOut' },
+          0.3,
         )
-      })
+        .from(st.querySelectorAll('.lp-st__img img'), { scale: 1.5, duration: 1.6, stagger: 0.25, ease: 'power3.out' }, 0.3)
 
-      // gallery: the section is as tall as the sideways travel; the track slides left while it is stuck
+      // why us + gallery: the section is as tall as the sideways travel; the track slides left while it is stuck
       const wall = page.querySelector<HTMLElement>('.cat-wall')
       const track = page.querySelector<HTMLElement>('.cat-wall__track')
       if (!wall || !track) return
@@ -192,146 +243,198 @@ export default function CategoryPage({ cat }: { cat: Category }) {
   }, [])
 
   const hoveredProject = hovered ? getProject(hovered) : undefined
-  const run = sector.typologies
+  const name = categoryLabel[cat]
 
   return (
     <Page title={categoryTitle[cat]}>
       <div ref={root}>
-        <section className="cat-hero wrap" data-theme="light">
-          <div className="cat-hero__top">
-            <span className="pill" data-fade="now">
-              <span className="pill__n">
-                ({pad(ci + 1)} / {pad(categoryOrder.length)})
-              </span>
-              {categoryTitle[cat]}
-            </span>
-            <nav className="cat-hero__switch" aria-label="Kategori" data-fade="now" data-delay="0.15">
-              {categoryOrder.map((c) => (
-                <TLink key={c} to={`/work/${c}`} className="chip-btn" aria-current={c === cat ? 'page' : undefined}>
-                  {categoryLabel[c]}
-                </TLink>
-              ))}
-            </nav>
+        {/* ---------- hero: the promise on the category's photo, two ways to act, the numbers ---------- */}
+        <section className="lp-h" data-theme="dark" aria-labelledby="lp-h-title">
+          <div className="lp-h__media">
+            <Img id={heroImg[cat]} alt={t(sector.imgAlt)} priority sizes="100vw" />
           </div>
-          <h1 className="cat-hero__title">
-            <span className="t-display cat-hero__word" data-split="chars">
-              {categoryLabel[cat]}
-            </span>
-            <span className="t-serif cat-hero__design" data-fade="now" data-delay="0.7">
-              design
-            </span>
-          </h1>
-          <div className="cat-hero__foot">
-            <p className="t-serif cat-hero__desc" data-fade="now" data-delay="0.5">
-              {sector.desc}
-            </p>
-            <dl className="cat-hero__stats" data-fade="now" data-delay="0.6">
+          <div className="lp-h__shade" aria-hidden="true" />
+          <div className="lp-h__body wrap">
+            <div className="lp-h__top">
+              <span className="pill" data-fade="now">
+                <span className="pill__n">
+                  ({pad(ci + 1)} / {pad(categoryOrder.length)})
+                </span>
+                {categoryTitle[cat]}
+              </span>
+              <nav className="lp-h__switch" aria-label={tr('Sectors', 'Sektor')} data-fade="now" data-delay="0.15">
+                {categoryOrder.map((c) => (
+                  <TLink key={c} to={`/work/${c}`} className="chip-btn" aria-current={c === cat ? 'page' : undefined}>
+                    {categoryLabel[c]}
+                  </TLink>
+                ))}
+              </nav>
+            </div>
+            <div className="lp-h__main">
+              <h1 id="lp-h-title" className="lp-h__title" data-split="now" data-delay="0.25">
+                {t(lp.headline)}
+              </h1>
+              <div className="lp-h__side">
+                <p className="lp-h__sub" data-fade="now" data-delay="0.6">
+                  {t(lp.sub)}
+                </p>
+                <div className="cta-row" data-fade="now" data-delay="0.75">
+                  <TLink to={`/work/${cat}#start`} className="cta-btn">
+                    <span className="cta-btn__label">{tr('Start your project', 'Mulai proyek Anda')}</span>
+                    <span className="cta-btn__icon" aria-hidden="true">
+                      <ArrowRight />
+                      <ArrowRight />
+                    </span>
+                  </TLink>
+                  <button type="button" className="cta-link" onClick={() => scrollToElement('#projects', -20)}>
+                    {tr('See the projects', 'Lihat proyeknya')}
+                    <ArrowRight className="cta-link__arrow lp-h__down" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <dl className="lp-h__stats" data-fade="now" data-delay="0.9">
               <div>
+                <dt>{tr('Selected projects', 'Proyek pilihan')}</dt>
                 <dd>
                   <Counter to={list.length} />
                 </dd>
-                <dt>Proyek terpilih</dt>
               </div>
               <div>
+                <dt>{tr('In our archive', 'Di arsip kami')}</dt>
                 <dd>
                   <Counter to={rows.length} />
                 </dd>
-                <dt>Proyek di arsip</dt>
               </div>
               <div>
+                <dt>{tr('Regions', 'Wilayah')}</dt>
                 <dd>
                   <Counter to={areaCount} />
                 </dd>
-                <dt>Wilayah</dt>
+              </div>
+              <div>
+                <dt>{tr('Designing since', 'Berkarya sejak')}</dt>
+                <dd>2020</dd>
               </div>
             </dl>
           </div>
         </section>
 
-        <section className="cat-teaser" data-theme="dark">
-          <div className="cat-teaser__frame">
-            <Img id={heroImg[cat]} alt={sector.imgAlt} priority sizes="100vw" />
-          </div>
+        {/* ---------- one statement, photos set into the line ---------- */}
+        <section className="lp-st wrap" data-theme="light">
+          <SectionLabel n="01">{categoryTitle[cat]}</SectionLabel>
+          <Statement text={t(lp.statement)} />
         </section>
 
-        {/* the typologies, one running line each way */}
-        <section className="cat-run" data-theme="light" aria-label={`Tipologi ${categoryLabel[cat]}`}>
-          {[0, 1].map((k) => (
-            <p key={k} className="t-serif cat-run__line" aria-hidden={k === 1 ? true : undefined}>
-              {[...run, ...run, ...run].map((t, i) => (
-                <span key={i} className="cat-run__item" aria-hidden={i >= run.length ? true : undefined}>
-                  {t}
-                  <Plus className="cat-run__plus" />
-                </span>
-              ))}
-            </p>
-          ))}
-        </section>
-
-        <section className="cat-list wrap" data-theme="light" aria-labelledby="cat-list-title">
+        {/* ---------- the proof: every selected project as a chapter ---------- */}
+        <section id="projects" className="cat-list wrap" data-theme="light" aria-labelledby="cat-list-title">
           <header className="cat-list__head">
-            <SectionLabel>Selected projects</SectionLabel>
+            <SectionLabel n="02">{tr('Selected projects', 'Proyek pilihan')}</SectionLabel>
             <h2 id="cat-list-title" className="cat-list__title" data-split>
-              {list.length === 1 ? 'Satu proyek, dari dekat.' : `${list.length} proyek terpilih.`}
+              {list.length === 1
+                ? tr('One project, up close.', 'Satu proyek, dari dekat.')
+                : tr(`${list.length} selected projects.`, `${list.length} proyek pilihan.`)}
             </h2>
+            <p className="cat-list__intro" data-fade>
+              {t(lp.projectsIntro)}
+            </p>
           </header>
           {list.map((p, i) => (
             <Chapter key={p.slug} p={p} n={i + 1} flip={i % 2 === 1} />
           ))}
         </section>
 
-        {gallery.length > 2 && (
-          <section className="cat-wall" data-theme="light" aria-label="Galeri foto">
-            <div className="cat-wall__stage">
-              <div className="cat-wall__head wrap">
-                <SectionLabel>Galeri</SectionLabel>
-                <span className="t-serif cat-wall__count">{pad(gallery.length)} foto</span>
-              </div>
-              <div className="cat-wall__track">
-                {gallery.map(({ id, p }, i) => {
-                  const m = imgMeta(id)
-                  return (
-                    <TLink
-                      key={id}
-                      to={`/work/${p.slug}`}
-                      className="cat-wall__item"
-                      data-cursor="Lihat"
-                      style={{ '--ar': `${m.w} / ${m.h}`, '--lift': i % 3 } as CSSProperties}
-                    >
-                      <span className="cat-wall__frame">
-                        <Img id={id} alt={p.title} sizes="(min-width: 900px) 34vw, 70vw" />
-                      </span>
-                      <span className="cat-wall__cap">
-                        <span>{p.title}</span>
-                        <span className="t-serif">{pad(i + 1)}</span>
-                      </span>
-                    </TLink>
-                  )
-                })}
-              </div>
+        {/* ---------- what we design: a photo per typology ---------- */}
+        <section className="lp-ty wrap" data-theme="light" aria-labelledby="lp-ty-title">
+          <header className="lp-ty__head">
+            <SectionLabel n="03">{tr('What we design', 'Yang kami rancang')}</SectionLabel>
+            <h2 id="lp-ty-title" className="t-h1 lp-ty__title" data-split>
+              {tr(`Every kind of ${name.toLowerCase()} space.`, `Semua jenis ruang ${name.toLowerCase()}.`)}
+            </h2>
+          </header>
+          <ul className="lp-ty__grid" style={{ '--cols': sector.typologies.length } as CSSProperties}>
+            {sector.typologies.map((ty, i) => (
+              <li key={ty.en} className="lp-ty__card">
+                <span className="lp-ty__frame" data-reveal data-delay={i * 0.1}>
+                  <span className="lp-ty__zoom">
+                    <Img id={lp.typologyImgs[i] ?? sector.img} sizes="(min-width: 900px) 25vw, 50vw" />
+                  </span>
+                </span>
+                <span className="lp-ty__shade" aria-hidden="true" />
+                <span className="t-serif lp-ty__no">{pad(i + 1)}</span>
+                <span className="lp-ty__name">{t(ty)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* ---------- why us, told sideways: the reasons on orange cards between the photos that prove them ---------- */}
+        <section className="cat-wall" data-theme="light" aria-labelledby="cat-wall-title">
+          <div className="cat-wall__stage">
+            <div className="cat-wall__head wrap">
+              <SectionLabel n="04">{tr('Why Kadanglabo', 'Kenapa Kadanglabo')}</SectionLabel>
+              <span className="t-serif cat-wall__count">
+                {pad(sector.benefits.length)} {tr('reasons', 'alasan')} · {pad(gallery.length)} {tr('photos', 'foto')}
+              </span>
             </div>
-          </section>
-        )}
+            <div className="cat-wall__track">
+              <div className="cat-wall__intro">
+                <h2 id="cat-wall-title" className="t-h1 cat-wall__title">
+                  {tr('Why clients choose Kadanglabo.', 'Alasan klien memilih Kadanglabo.')}
+                </h2>
+                <p className="t-serif cat-wall__lead">
+                  {tr('Three reasons, and the work that proves them.', 'Tiga alasan, dan karya yang membuktikannya.')}
+                </p>
+              </div>
+              {wallItems.map((item, k) =>
+                item.kind === 'why' ? (
+                  <article key={`why-${item.n}`} className="cat-wall__why">
+                    <span className="t-serif cat-wall__why-no">{pad(item.n + 1)}</span>
+                    <div>
+                      <h3 className="cat-wall__why-name">{t(item.b.title)}</h3>
+                      <p className="cat-wall__why-body">{t(item.b.body)}</p>
+                    </div>
+                  </article>
+                ) : (
+                  <TLink
+                    key={item.id}
+                    to={`/work/${item.p.slug}`}
+                    className="cat-wall__item"
+                    data-cursor={tr('View', 'Lihat')}
+                    style={{ '--ar': `${imgMeta(item.id).w} / ${imgMeta(item.id).h}`, '--lift': k % 3 } as CSSProperties}
+                  >
+                    <span className="cat-wall__frame">
+                      <Img id={item.id} alt={item.p.title} sizes="(min-width: 900px) 34vw, 70vw" />
+                    </span>
+                    <span className="cat-wall__cap">
+                      <span>{item.p.title}</span>
+                    </span>
+                  </TLink>
+                ),
+              )}
+            </div>
+          </div>
+        </section>
 
         <section className="cat-index wrap" data-theme="light" aria-labelledby="cat-index-title">
           <header className="cat-index__head">
-            <SectionLabel>Project archive</SectionLabel>
+            <SectionLabel n="05">{tr('Project archive', 'Arsip proyek')}</SectionLabel>
             <div className="cat-index__heading">
               <h2 id="cat-index-title" className="cat-index__title" data-split>
-                Semua proyek {categoryLabel[cat].toLowerCase()}
+                {tr(`All ${categoryLabel[cat].toLowerCase()} projects`, `Semua proyek ${categoryLabel[cat].toLowerCase()}`)}
               </h2>
               <span className="t-serif cat-index__count" data-fade>
                 ({rows.length})
               </span>
             </div>
           </header>
-          <div ref={results} className="index-table" role="table" aria-label={`Arsip proyek ${categoryLabel[cat]}`}>
+          <div ref={results} className="index-table" role="table" aria-label={tr(`${categoryLabel[cat]} project archive`, `Arsip proyek ${categoryLabel[cat]}`)}>
             <div className="index-row index-row--head" role="row">
               <span role="columnheader">No.</span>
-              <span role="columnheader">Proyek</span>
-              <span role="columnheader">Lokasi</span>
+              <span role="columnheader">{tr('Project', 'Proyek')}</span>
+              <span role="columnheader">{tr('Location', 'Lokasi')}</span>
               <span role="columnheader">
-                <span className="sr-only">Halaman proyek</span>
+                <span className="sr-only">{tr('Project page', 'Halaman proyek')}</span>
               </span>
             </div>
             {shown.map((e, i) => {
@@ -345,7 +448,7 @@ export default function CategoryPage({ cat }: { cat: Category }) {
                   </span>
                   <span role="cell">{e.region ?? '-'}</span>
                   <span role="cell" className="cat-index__go">
-                    {e.slug ? 'Lihat →' : ''}
+                    {e.slug ? `${tr('View', 'Lihat')} →` : ''}
                   </span>
                 </>
               )
@@ -357,7 +460,7 @@ export default function CategoryPage({ cat }: { cat: Category }) {
                   role="row"
                   onMouseEnter={() => setHovered(e.slug!)}
                   onMouseLeave={() => setHovered(null)}
-                  data-cursor="Lihat"
+                  data-cursor={tr('View', 'Lihat')}
                 >
                   {cells}
                 </TLink>
@@ -371,7 +474,7 @@ export default function CategoryPage({ cat }: { cat: Category }) {
           {shown.length < rows.length && (
             <button type="button" className="archive__more" onClick={() => setOpen(true)}>
               <span>
-                Tampilkan semua <b>{rows.length}</b> proyek
+                {tr('Show all', 'Tampilkan semua')} <b>{rows.length}</b> {tr('projects', 'proyek')}
               </span>
               <Plus className="archive__more-icon" />
             </button>
@@ -380,22 +483,27 @@ export default function CategoryPage({ cat }: { cat: Category }) {
 
         <section className="cat-next wrap" data-theme="light" aria-labelledby="cat-next-title">
           <header className="cat-next__head">
-            <SectionLabel>Kategori lain</SectionLabel>
-            <TLink to="/work" className="link-line t-label">
-              Semua di Our Work →
-            </TLink>
+            <SectionLabel n="06">{tr('Other sectors', 'Sektor lain')}</SectionLabel>
+            <span className="cat-next__links">
+              <TLink to="/services" className="link-line t-label">
+                {tr('All services', 'Semua layanan')} →
+              </TLink>
+              <TLink to="/work" className="link-line t-label">
+                {tr('All our work', 'Semua proyek')} →
+              </TLink>
+            </span>
           </header>
           <h2 id="cat-next-title" className="sr-only">
-            Kategori lain
+            {tr('Other sectors', 'Sektor lain')}
           </h2>
           <div className="cat-next__grid">
             {others.map((c, i) => {
               const s = sectors.find((x) => x.key === c)!
               return (
-                <TLink key={c} to={`/work/${c}`} className="cat-next__card" data-cursor="Lihat">
+                <TLink key={c} to={`/work/${c}`} className="cat-next__card" data-cursor={tr('View', 'Lihat')}>
                   <span className="cat-next__media" data-reveal data-delay={i * 0.12}>
                     <span className="cat-next__zoom">
-                      <Img id={s.img} alt={s.imgAlt} sizes="(min-width: 768px) 48vw, 100vw" />
+                      <Img id={s.img} alt={t(s.imgAlt)} sizes="(min-width: 768px) 48vw, 100vw" />
                     </span>
                   </span>
                   <span className="cat-next__cap">
@@ -403,13 +511,37 @@ export default function CategoryPage({ cat }: { cat: Category }) {
                       {pad(categoryOrder.indexOf(c) + 1)} / {pad(categoryOrder.length)}
                     </span>
                     <span className="cat-next__name">{categoryTitle[c]}</span>
-                    <span className="cat-next__more">{archive.filter((a) => a.category === c).length} proyek →</span>
+                    <span className="cat-next__more">{archive.filter((a) => a.category === c).length} {tr('projects', 'proyek')} →</span>
                   </span>
                 </TLink>
               )
             })}
           </div>
         </section>
+
+        {/* ---------- act, at the very end: the inquiry form, this category already chosen ---------- */}
+        <section id="start" className="start wrap" data-theme="light">
+          <div className="start__head">
+            <SectionLabel n="07">{tr('Start a project', 'Mulai proyek')}</SectionLabel>
+            <h2 className="t-display start__title" data-split>
+              {tr(`Let’s build your ${name.toLowerCase()} project.`, `Wujudkan proyek ${name.toLowerCase()} Anda.`)}
+            </h2>
+            <p className="t-body-lg max-w-[40ch] opacity-75 mt-6" data-fade>
+              {tr(
+                'Tell us a little about your plans. Our team will get back to you to map out the next step together.',
+                'Ceritakan sedikit rencana Anda. Tim kami akan menghubungi Anda untuk menyusun langkah berikutnya bersama.',
+              )}
+            </p>
+            <TeamStack />
+            <a href={waLink(`${waHello()} (${categoryTitle[cat]})`)} target="_blank" rel="noreferrer" className="cta-link mt-6" data-fade>
+              {tr('Or chat on WhatsApp', 'Atau chat via WhatsApp')}
+              <ArrowRight className="cta-link__arrow" />
+            </a>
+          </div>
+          <InquiryForm sector={name as 'Commercial' | 'Hospitality' | 'Residential'} />
+        </section>
+
+        <WaFloat text={`${waHello()} (${categoryTitle[cat]})`} />
 
         <div ref={preview} className="index-preview" data-on={hoveredProject ? '' : undefined} aria-hidden="true">
           {hoveredProject && <Img id={hoveredProject.cover} sizes="300px" />}

@@ -1,9 +1,11 @@
 import type { ImgKey } from '../components/Img'
+import { locale, tr, type Tx } from '../lib/i18n'
 
 /*
  * CONTOH KONTEN — struktur News & Events sesuai brief (Konteks · Isi utama · Visual · Informasi lanjutan).
  * Judul, tanggal, dan terutama agenda Events di bawah ini adalah placeholder:
  * ganti dengan berita/acara asli dari Kadanglabo sebelum website dipublikasikan.
+ * Semua teks dua bahasa ({ en, id }), dibaca lewat t() saat render (lib/i18n.ts).
  */
 
 export type NewsType = 'news' | 'event'
@@ -11,128 +13,196 @@ export type NewsType = 'news' | 'event'
 export interface NewsItem {
   slug: string
   type: NewsType
-  tag: string
-  title: string
+  /** topic; `tag.en` doubles as the stable key (the ?tag= filter in the URL) */
+  tag: Tx
+  title: Tx
   date: string
-  excerpt: string
+  excerpt: Tx
   cover: ImgKey
-  context: string
-  body: string[]
+  context: Tx
+  body: Tx[]
   gallery: ImgKey[]
-  info: { label: string; value: string; href?: string }[]
+  info: { label: Tx; value: Tx; href?: 'whatsapp' | 'mailto' }[]
   project?: string
 }
+
+/** "News" / "Event" for one article (pills). */
+export const typeName = (type: NewsType) => (type === 'event' ? tr('Event', 'Acara') : tr('News', 'Berita'))
+/** "News" / "Events" for a category (filters, headings). */
+export const typePlural = (type: NewsType) => (type === 'event' ? tr('Events', 'Acara') : tr('News', 'Berita'))
+
+const confirmWa: Tx = { en: 'Confirm via WhatsApp', id: 'Konfirmasi via WhatsApp' }
 
 export const news: NewsItem[] = [
   {
     slug: 'open-studio-kadanglabo',
     type: 'event',
-    tag: 'Open Studio',
-    title: 'Open Studio: ngobrol arsitektur bersama tim Kadanglabo',
+    tag: { en: 'Open Studio', id: 'Open Studio' },
+    title: {
+      en: 'Open Studio: talk architecture with the Kadanglabo team',
+      id: 'Open Studio: ngobrol arsitektur bersama tim Kadanglabo',
+    },
     date: '2026-11-14',
-    excerpt:
-      'Sehari membuka pintu studio di Jl. Kaliurang. Bawa denah, foto lahan, atau sekadar pertanyaan tentang rumah dan usaha Anda.',
+    excerpt: {
+      en: 'Join us for a day at our studio on Jl. Kaliurang. Bring a floor plan, site photos or questions about your home or business.',
+      id: 'Sehari untuk ngobrol di studio kami, Jl. Kaliurang. Bawa denah, foto lahan, atau pertanyaan seputar rumah dan usaha Anda.',
+    },
     cover: 'balecatur-lobby',
-    context:
-      'Banyak calon klien datang dengan pertanyaan yang sama: harus mulai dari mana? Open Studio adalah cara kami menjawabnya secara langsung: santai, tatap muka, dan tanpa jargon.',
+    context: {
+      en: 'Many prospective clients ask: where do I start? At Open Studio, we talk it through in a relaxed, face-to-face conversation, without jargon.',
+      id: 'Banyak calon klien bertanya: harus mulai dari mana? Di Open Studio, kita membahasnya langsung, santai, dan tanpa jargon.',
+    },
     body: [
-      'Tim arsitek, drafter, dan pengawas lapangan Kadanglabo akan hadir di studio untuk berdiskusi tentang rencana pembangunan, renovasi, maupun pengembangan lahan.',
-      'Pengunjung dapat melihat proses kerja kami, dari sketsa, model 3D, hingga gambar kerja, serta dokumentasi proyek yang telah terbangun.',
+      {
+        en: 'Our architects, drafters and site supervisor will be at the studio to discuss your new build, renovation or land development.',
+        id: 'Arsitek, drafter, dan pengawas lapangan kami hadir di studio untuk membahas rencana bangunan baru, renovasi, atau pengembangan lahan Anda.',
+      },
+      {
+        en: 'See how we work, from sketches and 3D models to construction drawings, alongside documentation of completed projects.',
+        id: 'Lihat langsung proses kerja kami, dari sketsa, model 3D, hingga gambar kerja, serta dokumentasi proyek yang sudah terbangun.',
+      },
     ],
     gallery: ['hmw-kitchen', 'draw-exploded', 'labarka-path'],
     project: 'la-barka-resort',
     info: [
-      { label: 'Tanggal', value: 'Sabtu, 14 November 2026' },
-      { label: 'Waktu', value: '10.00 - 15.00 WIB' },
-      { label: 'Tempat', value: 'Studio Kadanglabo, Jl. Kaliurang KM.9 No.11 (Ruko 3)' },
-      { label: 'Pendaftaran', value: 'Konfirmasi via WhatsApp', href: 'whatsapp' },
+      { label: { en: 'Date', id: 'Tanggal' }, value: { en: 'Saturday, 14 November 2026', id: 'Sabtu, 14 November 2026' } },
+      { label: { en: 'Time', id: 'Waktu' }, value: { en: '10.00 - 15.00 WIB', id: '10.00 - 15.00 WIB' } },
+      {
+        label: { en: 'Venue', id: 'Tempat' },
+        value: { en: 'Kadanglabo Studio, Jl. Kaliurang KM.9 No.11 (Ruko 3)', id: 'Studio Kadanglabo, Jl. Kaliurang KM.9 No.11 (Ruko 3)' },
+      },
+      { label: { en: 'Registration', id: 'Pendaftaran' }, value: confirmWa, href: 'whatsapp' },
     ],
   },
   {
     slug: 'company-profile-2026',
     type: 'news',
-    tag: 'Publikasi',
-    title: 'Company Profile Kadanglabo 2026 resmi dirilis',
+    tag: { en: 'Publication', id: 'Publikasi' },
+    title: { en: 'Kadanglabo Company Profile 2026 is out', id: 'Company Profile Kadanglabo 2026 resmi dirilis' },
     date: '2026-10-06',
-    excerpt:
-      'Ringkasan perjalanan, layanan, dan karya terpilih kami, dari La Barka Resort hingga Klinik UII, kini tersedia dalam satu dokumen.',
+    excerpt: {
+      en: 'Our story, services and selected work, from La Barka Resort to Klinik UII, now in a single document.',
+      id: 'Perjalanan, layanan, dan karya terpilih kami, dari La Barka Resort hingga Klinik UII, kini dalam satu dokumen.',
+    },
     cover: 'draw-model',
-    context:
-      'Company Profile 2026 merangkum siapa kami, cara kami bekerja, dan proyek-proyek yang telah kami rancang di berbagai kota di Indonesia.',
+    context: {
+      en: 'The 2026 Company Profile sets out who we are, how we work and the projects we have designed in cities across Indonesia.',
+      id: 'Company Profile 2026 merangkum siapa kami, cara kami bekerja, dan proyek-proyek yang telah kami rancang di berbagai kota di Indonesia.',
+    },
     body: [
-      'Dokumen ini memuat overview studio, visi dan misi, filosofi desain form follows function, tim in-house, layanan perencanaan dan perawatan, serta performance highlights proyek komersial dan residensial.',
-      'Di bagian akhir, kami menyertakan daftar lebih dari enam puluh proyek yang telah kami kerjakan, sebagian besar di D.I. Yogyakarta dan sekitarnya.',
+      {
+        en: 'Inside: our studio, vision and mission, form follows function philosophy, in-house team, planning and building care services, and highlights from Commercial and Residential projects.',
+        id: 'Isinya mencakup profil studio, visi dan misi, filosofi form follows function, tim in-house, layanan perencanaan dan perawatan bangunan, serta capaian proyek Commercial dan Residential.',
+      },
+      {
+        en: 'It closes with a list of more than sixty projects, most of them in and around the Special Region of Yogyakarta.',
+        id: 'Bagian akhir memuat daftar lebih dari enam puluh proyek kami, sebagian besar di D.I. Yogyakarta dan sekitarnya.',
+      },
     ],
     gallery: ['draw-exploded', 'draw-interior', 'draw-plan'],
     project: 'klinik-uii',
     info: [
-      { label: 'Format', value: 'PDF · 51 halaman' },
-      { label: 'Permintaan dokumen', value: 'kadanglabo@gmail.com', href: 'mailto' },
+      { label: { en: 'Format', id: 'Format' }, value: { en: 'PDF · 51 pages', id: 'PDF · 51 halaman' } },
+      {
+        label: { en: 'Request a copy', id: 'Minta dokumen' },
+        value: { en: 'kadanglabo@gmail.com', id: 'kadanglabo@gmail.com' },
+        href: 'mailto',
+      },
     ],
   },
   {
     slug: 'enam-tahun-kadanglabo',
     type: 'news',
-    tag: 'Studio',
-    title: 'Enam tahun Kadanglabo: arsitektur untuk semua',
+    tag: { en: 'Studio', id: 'Studio' },
+    title: { en: 'Six years of Kadanglabo: architecture for everyone', id: 'Enam tahun Kadanglabo: arsitektur untuk semua' },
     date: '2026-09-30',
-    excerpt:
-      'Berdiri pada akhir September 2020, Kadanglabo tumbuh sebagai konsultan arsitektur berbasis komunitas di Yogyakarta.',
+    excerpt: {
+      en: 'Founded in late September 2020, Kadanglabo has grown into a community-based architecture consultancy in Yogyakarta.',
+      id: 'Berdiri pada akhir September 2020, Kadanglabo tumbuh menjadi konsultan arsitektur berbasis komunitas di Yogyakarta.',
+    },
     cover: 'labarka-garden',
-    context:
-      'Kadanglabo didirikan oleh Raditya Alvin dengan visi sederhana namun besar: Arsitektur Untuk Semua.',
+    context: {
+      en: 'Raditya Alvin founded Kadanglabo with one vision: Architecture for Everyone.',
+      id: 'Raditya Alvin mendirikan Kadanglabo dengan satu visi: Arsitektur untuk semua.',
+    },
     body: [
-      'Sejak awal, kami percaya proyek yang baik lahir dari kolaborasi: klien, perencana, dan pelaksana yang bekerja dalam satu arah. Dua parameter keberhasilan kami tetap sama: Desain Kontekstual dan Efektifitas Workflow.',
-      'Enam tahun kemudian, prinsip itu terbawa ke resort di tepi Kali Progo, klinik di lingkungan kampus, hingga kawasan perumahan. Terima kasih untuk setiap klien dan mitra yang telah berjalan bersama kami.',
+      {
+        en: 'Since day one, we have brought clients, planners and builders together around a shared goal. Our two measures of success remain the same: Contextual Design and Effective Workflow.',
+        id: 'Sejak awal, kami mempertemukan klien, perencana, dan pelaksana untuk mencapai tujuan bersama. Dua parameter keberhasilan kami tetap sama: Desain Kontekstual dan Efektivitas Workflow.',
+      },
+      {
+        en: 'Six years on, these principles shape our work, from a resort on the Progo River to a campus clinic and housing estates. Thank you to every client and partner who has worked with us.',
+        id: 'Selama enam tahun, prinsip ini memandu desain resort di tepi Kali Progo, klinik di kampus, hingga kawasan perumahan. Terima kasih kepada semua klien dan mitra yang telah berkarya bersama kami.',
+      },
     ],
     gallery: ['labarka-koi', 'balecatur-pool2', 'hmw-dining'],
     project: 'la-barka-resort',
     info: [
-      { label: 'Didirikan', value: 'Akhir September 2020' },
-      { label: 'Tim in-house', value: '9 orang' },
+      { label: { en: 'Founded', id: 'Didirikan' }, value: { en: 'Late September 2020', id: 'Akhir September 2020' } },
+      { label: { en: 'In-house team', id: 'Tim in-house' }, value: { en: '9 people', id: '9 orang' } },
     ],
   },
   {
     slug: 'secondary-skin-klinik-uii',
     type: 'news',
-    tag: 'Proyek',
-    title: 'Klinik UII: secondary skin sebagai wajah institusi',
+    tag: { en: 'Project', id: 'Proyek' },
+    title: { en: 'Klinik UII: a secondary skin as the face of an institution', id: 'Klinik UII: secondary skin sebagai wajah institusi' },
     date: '2026-08-20',
-    excerpt:
-      'Kisi-kisi vertikal yang membungkus lantai atas bukan hanya soal tampilan. Ia menyaring cahaya, meredam panas, dan menjaga privasi.',
+    excerpt: {
+      en: 'Vertical fins wrap the upper floor, filtering daylight, reducing heat gain and protecting privacy.',
+      id: 'Kisi-kisi vertikal menyelimuti lantai atas untuk menyaring cahaya, meredam panas, dan menjaga privasi.',
+    },
     cover: 'klinik-plaza',
-    context:
-      'Universitas Islam Indonesia membutuhkan klinik dengan identitas yang kuat sebagai institusi kesehatan modern, namun tetap menyatu dengan lingkungan kampus.',
+    context: {
+      en: 'Universitas Islam Indonesia needed a modern clinic with a strong identity that felt at home on its campus.',
+      id: 'Universitas Islam Indonesia membutuhkan klinik modern dengan identitas kuat yang menyatu dengan lingkungan kampus.',
+    },
     body: [
-      'Jawaban kami adalah secondary skin: kisi-kisi vertikal yang membungkus massa lantai atas. Elemen ini membentuk karakter visual yang tegas dan elegan.',
-      'Secara fungsional, kisi-kisi mengendalikan intensitas cahaya matahari, mengurangi panas berlebih, dan menjaga privasi ruang-ruang klinis di dalam bangunan.',
+      {
+        en: 'We designed a secondary skin of vertical fins around the upper floor, giving the clinic a bold, elegant character.',
+        id: 'Kami merancang secondary skin berupa kisi-kisi vertikal di sekeliling lantai atas, memberi klinik karakter yang tegas dan elegan.',
+      },
+      {
+        en: 'The fins control sunlight, reduce excess heat and protect privacy in the clinical rooms.',
+        id: 'Kisi-kisi ini mengatur cahaya matahari, mengurangi panas berlebih, dan menjaga privasi ruang klinis.',
+      },
     ],
     gallery: ['klinik-front', 'klinik-corridor', 'klinik-waiting'],
-    info: [{ label: 'Proyek', value: 'Klinik UII' }],
+    info: [{ label: { en: 'Project', id: 'Proyek' }, value: { en: 'Klinik UII', id: 'Klinik UII' } }],
     project: 'klinik-uii',
   },
 
   {
     slug: 'talk-desain-kontekstual',
     type: 'event',
-    tag: 'Talk',
-    title: 'Talk: desain kontekstual di iklim tropis',
+    tag: { en: 'Talk', id: 'Talk' },
+    title: { en: 'Talk: Contextual Design in a tropical climate', id: 'Talk: Desain Kontekstual di iklim tropis' },
     date: '2026-12-05',
-    excerpt:
-      'Berbagi pengalaman merancang La Barka Resort: membaca kontur, arah aliran air, dan orientasi matahari di tepi Kali Progo.',
+    excerpt: {
+      en: 'Lessons from designing La Barka Resort: understanding the contours, water flow and sun path on the bank of the Progo River.',
+      id: 'Pengalaman merancang La Barka Resort: memahami kontur, aliran air, dan lintasan matahari di tepi Kali Progo.',
+    },
     cover: 'labarka-river',
-    context:
-      'Desain kontekstual adalah salah satu dari dua parameter keberhasilan proyek bagi Kadanglabo. Dalam sesi ini kami membedah prosesnya lewat studi kasus.',
+    context: {
+      en: 'Contextual Design is one of Kadanglabo’s two measures of project success. This session explores how it works through a project case study.',
+      id: 'Desain Kontekstual adalah satu dari dua parameter keberhasilan proyek Kadanglabo. Di sesi ini, kami membahas penerapannya lewat studi kasus.',
+    },
     body: [
-      'Kami akan menelusuri bagaimana tapak di tepi sungai membentuk keputusan desain: penataan massa, pengolahan ruang terbuka, hingga material dan bukaan untuk kenyamanan termal alami.',
-      'Sesi terbuka untuk mahasiswa, praktisi, dan siapa pun yang tertarik pada arsitektur tropis.',
+      {
+        en: 'We explore how the riverside site shaped every design decision: building placement, open spaces, and materials and openings that keep spaces naturally cool.',
+        id: 'Kami membahas pengaruh tapak tepi sungai pada setiap keputusan desain: penataan bangunan, ruang terbuka, serta material dan bukaan agar ruang sejuk secara alami.',
+      },
+      {
+        en: 'Open to students, practitioners and anyone curious about tropical architecture.',
+        id: 'Terbuka untuk mahasiswa, praktisi, dan siapa pun yang tertarik pada arsitektur tropis.',
+      },
     ],
     gallery: ['labarka-gables', 'labarka-bath', 'labarka-pond'],
     info: [
-      { label: 'Tanggal', value: 'Sabtu, 5 Desember 2026' },
-      { label: 'Waktu', value: '13.00 - 15.00 WIB' },
-      { label: 'Tempat', value: 'Studio Kadanglabo, Sleman' },
-      { label: 'Pendaftaran', value: 'Konfirmasi via WhatsApp', href: 'whatsapp' },
+      { label: { en: 'Date', id: 'Tanggal' }, value: { en: 'Saturday, 5 December 2026', id: 'Sabtu, 5 Desember 2026' } },
+      { label: { en: 'Time', id: 'Waktu' }, value: { en: '13.00 - 15.00 WIB', id: '13.00 - 15.00 WIB' } },
+      { label: { en: 'Venue', id: 'Tempat' }, value: { en: 'Kadanglabo Studio, Sleman', id: 'Studio Kadanglabo, Sleman' } },
+      { label: { en: 'Registration', id: 'Pendaftaran' }, value: confirmWa, href: 'whatsapp' },
     ],
     project: 'la-barka-resort',
   },
@@ -142,5 +212,9 @@ export const sortedNews = [...news].sort((a, b) => b.date.localeCompare(a.date))
 
 export const getNews = (slug: string) => news.find((n) => n.slug === slug)
 
+/** "14 November 2026" / "14 November 2026", in the visitor's language. */
 export const formatDate = (iso: string) =>
-  new Date(iso + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+  new Date(iso + 'T00:00:00').toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' })
+
+/** Short month for the event badge ("Nov" / "Des"). */
+export const formatMonth = (iso: string) => new Date(iso + 'T00:00:00').toLocaleDateString(locale(), { month: 'short' })

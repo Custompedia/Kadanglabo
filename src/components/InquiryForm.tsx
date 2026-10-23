@@ -1,9 +1,18 @@
 import { useState, type FormEvent } from 'react'
-import { waLink } from '../data/site'
+import { waHello, waLink } from '../data/site'
+import { t, tr, type Tx } from '../lib/i18n'
 import { ArrowRight } from './Icons'
 
+// the category names are the same in both languages (as on the Services pages)
 const sectorsOpt = ['Commercial', 'Hospitality', 'Residential']
-const scopeOpt = ['Bangunan baru', 'Renovasi', 'Pengembangan lahan', 'Interior']
+// stored by their English name, shown and sent in the visitor's language
+const scopeOpt: Tx[] = [
+  { en: 'New build', id: 'Bangunan baru' },
+  { en: 'Renovation', id: 'Renovasi' },
+  { en: 'Land development', id: 'Pengembangan lahan' },
+  { en: 'Interior', id: 'Interior' },
+]
+const scopeName = (en: string) => t(scopeOpt.find((o) => o.en === en) ?? { en, id: en })
 
 type FormState = {
   name: string
@@ -19,7 +28,7 @@ const initial: FormState = {
   name: '',
   contact: '',
   sector: 'Residential',
-  scope: 'Bangunan baru',
+  scope: 'New build',
   location: '',
   area: '',
   message: '',
@@ -27,22 +36,22 @@ const initial: FormState = {
 
 function compose(f: FormState) {
   const lines = [
-    'Halo Kadanglabo, saya ingin konsultasi proyek.',
+    waHello(),
     '',
-    `Nama: ${f.name}`,
-    `Kontak: ${f.contact}`,
-    `Jenis proyek: ${f.sector}`,
-    `Lingkup: ${f.scope}`,
+    `${tr('Name', 'Nama')}: ${f.name}`,
+    `${tr('Contact', 'Kontak')}: ${f.contact}`,
+    `${tr('Project type', 'Jenis proyek')}: ${f.sector}`,
+    `${tr('Scope', 'Lingkup')}: ${scopeName(f.scope)}`,
   ]
-  if (f.location) lines.push(`Lokasi: ${f.location}`)
-  if (f.area) lines.push(`Luas lahan: ${f.area}`)
+  if (f.location) lines.push(`${tr('Location', 'Lokasi')}: ${f.location}`)
+  if (f.area) lines.push(`${tr('Site area', 'Luas lahan')}: ${f.area}`)
   if (f.message) lines.push('', f.message)
   return lines.join('\n')
 }
 
-/** "Start a project": consultation & project inquiry. "Kirim" opens the studio chat with the message filled in (no backend needed). */
-export function InquiryForm() {
-  const [f, setF] = useState<FormState>(initial)
+/** "Start a project": consultation & project inquiry. "Send" opens the studio chat with the message filled in (no backend needed). */
+export function InquiryForm({ sector }: { sector?: 'Commercial' | 'Hospitality' | 'Residential' } = {}) {
+  const [f, setF] = useState<FormState>(() => (sector ? { ...initial, sector } : initial))
   const [sent, setSent] = useState(false)
   const set = (k: keyof FormState) => (v: string) => setF((s) => ({ ...s, [k]: v }))
 
@@ -55,7 +64,7 @@ export function InquiryForm() {
   return (
     <form className="inquiry" onSubmit={submit}>
       <fieldset className="inquiry__group">
-        <legend className="field__label">Jenis proyek</legend>
+        <legend className="field__label">{tr('Project type', 'Jenis proyek')}</legend>
         <div className="inquiry__chips">
           {sectorsOpt.map((o) => (
             <label key={o} className="chip">
@@ -66,12 +75,12 @@ export function InquiryForm() {
         </div>
       </fieldset>
       <fieldset className="inquiry__group">
-        <legend className="field__label">Lingkup</legend>
+        <legend className="field__label">{tr('Scope', 'Lingkup')}</legend>
         <div className="inquiry__chips">
           {scopeOpt.map((o) => (
-            <label key={o} className="chip">
-              <input type="radio" name="scope" value={o} checked={f.scope === o} onChange={() => set('scope')(o)} />
-              <span>{o}</span>
+            <label key={o.en} className="chip">
+              <input type="radio" name="scope" value={o.en} checked={f.scope === o.en} onChange={() => set('scope')(o.en)} />
+              <span>{t(o)}</span>
             </label>
           ))}
         </div>
@@ -79,42 +88,61 @@ export function InquiryForm() {
 
       <div className="inquiry__fields">
         <label className="field">
-          <span className="field__label">Nama *</span>
-          <input required value={f.name} onChange={(e) => set('name')(e.target.value)} autoComplete="name" placeholder="Nama lengkap" />
+          <span className="field__label">{tr('Name', 'Nama')} *</span>
+          <input
+            required
+            value={f.name}
+            onChange={(e) => set('name')(e.target.value)}
+            autoComplete="name"
+            placeholder={tr('Full name', 'Nama lengkap')}
+          />
         </label>
         <label className="field">
-          <span className="field__label">No. WhatsApp / email *</span>
-          <input required value={f.contact} onChange={(e) => set('contact')(e.target.value)} autoComplete="email" placeholder="08xx atau nama@email.com" />
+          <span className="field__label">{tr('WhatsApp number / email', 'No. WhatsApp / email')} *</span>
+          <input
+            required
+            value={f.contact}
+            onChange={(e) => set('contact')(e.target.value)}
+            autoComplete="email"
+            placeholder={tr('08xx or name@email.com', '08xx atau nama@email.com')}
+          />
         </label>
         <label className="field">
-          <span className="field__label">Lokasi proyek</span>
-          <input value={f.location} onChange={(e) => set('location')(e.target.value)} placeholder="Kota / kabupaten" />
+          <span className="field__label">{tr('Project location', 'Lokasi proyek')}</span>
+          <input value={f.location} onChange={(e) => set('location')(e.target.value)} placeholder={tr('City / regency', 'Kota / kabupaten')} />
         </label>
         <label className="field">
-          <span className="field__label">Luas lahan</span>
-          <input value={f.area} onChange={(e) => set('area')(e.target.value)} placeholder="mis. 250 m²" />
+          <span className="field__label">{tr('Site area', 'Luas lahan')}</span>
+          <input value={f.area} onChange={(e) => set('area')(e.target.value)} placeholder={tr('e.g. 250 m²', 'mis. 250 m²')} />
         </label>
         <label className="field field--wide">
-          <span className="field__label">Ceritakan kebutuhan Anda</span>
+          <span className="field__label">{tr('Tell us what you need', 'Ceritakan kebutuhan Anda')}</span>
           <textarea
             rows={5}
             value={f.message}
             onChange={(e) => set('message')(e.target.value)}
-            placeholder="Mis. rumah dua lantai dengan tiga kamar, ingin mulai membangun tahun depan"
+            placeholder={tr(
+              'E.g. a two-storey home with three bedrooms, to build next year',
+              'Mis. rumah dua lantai, tiga kamar tidur, ingin dibangun tahun depan',
+            )}
           />
         </label>
       </div>
 
       <div className="inquiry__actions">
         <button type="submit" className="btn-pill btn-pill--orange btn-pill--lg">
-          Kirim <ArrowRight className="h-[0.8em] w-auto" />
+          {tr('Send', 'Kirim')} <ArrowRight className="h-[0.8em] w-auto" />
         </button>
-        <p className="inquiry__hint">* wajib diisi</p>
+        <p className="inquiry__hint">* {tr('required', 'wajib diisi')}</p>
       </div>
       {sent && (
         <p className="inquiry__note" role="status">
-          Terima kasih{f.name.trim() ? `, ${f.name.trim().split(/\s+/)[0]}` : ''}! Pesan Anda sudah siap di percakapan yang baru
-          terbuka. Tinggal tekan kirim, tim kami akan segera membalas.
+          {tr('Thank you', 'Terima kasih')}
+          {f.name.trim() ? `, ${f.name.trim().split(/\s+/)[0]}` : ''}!{' '}
+          {tr(
+            'Your message is ready in WhatsApp. Press send to share your plans with our team.',
+            'Pesan Anda sudah siap di WhatsApp. Tekan kirim untuk menyampaikan rencana Anda kepada tim kami.',
+          )}
         </p>
       )}
     </form>

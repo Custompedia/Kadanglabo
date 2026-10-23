@@ -23,7 +23,9 @@ import {
   type ArchiveEntry,
   type Category,
   type Project,
+  statusLabel,
 } from '../data/projects'
+import { t, tr } from '../lib/i18n'
 
 /*
  * Our Work — follows the brief's skema in order:
@@ -62,7 +64,7 @@ const scatter: { id: ImgKey; x: number; y: number; w: string; ar: string; s: num
 /** One selected project in the staggered layout (after Kononenko's Work page): photo, name, typology · place */
 function WorkPiece({ p, img, extra }: { p: Project; img?: ImgKey; extra?: boolean }) {
   return (
-    <TLink to={`/work/${p.slug}`} className="wp" data-cursor="Lihat" aria-label={extra ? `${p.title}, foto lainnya` : undefined}>
+    <TLink to={`/work/${p.slug}`} className="wp" data-cursor={tr('View', 'Lihat')} aria-label={extra ? `${p.title}, ${tr('more photos', 'foto lainnya')}` : undefined}>
       <span className="wp__inner">
         <span className="wp__media" data-reveal>
           {/* the reveal settles the image; the hover zoom lives on this wrapper so the two never fight */}
@@ -73,7 +75,7 @@ function WorkPiece({ p, img, extra }: { p: Project; img?: ImgKey; extra?: boolea
         {!extra && (
           <span className="wp__cap">
             <span className="wp__name">{p.title}</span>
-            <span className="t-serif wp__meta">{[p.typology, p.region].filter(Boolean).join(' · ')}</span>
+            <span className="t-serif wp__meta">{[t(p.typology), p.region].filter(Boolean).join(' · ')}</span>
           </span>
         )}
       </span>
@@ -94,7 +96,13 @@ const moreFrom = (p: Project): ImgKey[] =>
     .filter((id) => id !== p.cover)
     .slice(0, MORE_FROM_ONE)
 
-const intro = `Lebih dari ${Math.floor(archive.length / 10) * 10} proyek sejak 2020, dari rumah tinggal dan perumahan sampai resort, kantor, dan fasilitas kesehatan.`
+const intro = () => {
+  const n = Math.floor(archive.length / 10) * 10
+  return tr(
+    `More than ${n} projects since 2020, from family homes and housing estates to resorts, offices and healthcare facilities.`,
+    `Lebih dari ${n} proyek sejak 2020, dari rumah tinggal dan perumahan sampai resort, kantor, dan fasilitas kesehatan.`,
+  )
+}
 
 export default function Work() {
   const root = useRef<HTMLDivElement>(null)
@@ -223,29 +231,32 @@ export default function Work() {
   const hoveredProject = hovered ? getProject(hovered) : undefined
 
   return (
-    <Page title="Our Work">
+    <Page title={tr('Our Work', 'Proyek')}>
       <div ref={root}>
         <PageHero
-          title="Our work"
-          sub="Proyek terpilih dari tiga kategori: Commercial Design, Hospitality Design, dan Selected Residential Design."
+          title={tr('Our work', 'Proyek')}
+          sub={tr(
+            'Selected projects across three sectors: Commercial Design, Hospitality Design and Selected Residential Design.',
+            'Proyek pilihan dari tiga kategori: Commercial Design, Hospitality Design, dan Selected Residential Design.',
+          )}
         >
-          <nav className="work-nav" aria-label="Bagian halaman" data-fade="now" data-delay="0.6">
+          <nav className="work-nav" aria-label={tr('On this page', 'Bagian halaman')} data-fade="now" data-delay="0.6">
             {categoryOrder.map((c) => (
               <TLink key={c} to={`/work/${c}`} className="chip-btn">
                 {categoryTitle[c]}
               </TLink>
             ))}
             <a href="#arsip" className="chip-btn" onClick={(e) => jump(e, '#arsip')}>
-              Arsip proyek
+              {tr('Project archive', 'Arsip proyek')}
             </a>
           </nav>
         </PageHero>
 
         {/* Introduction */}
         <section className="work-intro wrap" data-theme="light">
-          <SectionLabel>Introduction</SectionLabel>
+          <SectionLabel>{tr('Introduction', 'Pengantar')}</SectionLabel>
           <p className="t-lead work-intro__text" data-scrub>
-            {intro}
+            {intro()}
           </p>
           <ProjectReach selectedLocation={f.location} onChoose={(location) => showInArchive({ location })} />
         </section>
@@ -271,18 +282,18 @@ export default function Work() {
                 <div className="work-group__side">
                   {sector && (
                     <p className="t-body-lg work-group__desc" data-fade>
-                      {sector.desc}
+                      {t(sector.desc)}
                     </p>
                   )}
                   <p className="work-group__meta" data-fade>
-                    {list.length} proyek terpilih · {inArchive} proyek di arsip
+                    {tr(`${list.length} selected · ${inArchive} in the archive`, `${list.length} terpilih · ${inArchive} dalam arsip`)}
                   </p>
                   <div className="work-group__links" data-fade>
                     <TLink to={`/work/${cat}`} className="link-line t-label">
-                      Buka halaman {categoryLabel[cat]} →
+                      {tr(`All ${categoryLabel[cat]} work`, `Semua proyek ${categoryLabel[cat]}`)} →
                     </TLink>
                     <button type="button" className="link-line t-label" onClick={() => showInArchive({ category: cat })}>
-                      Lihat di arsip
+                      {tr('View in the archive', 'Lihat di arsip')}
                     </button>
                   </div>
                 </div>
@@ -321,39 +332,39 @@ export default function Work() {
             ))}
           </div>
           <div className="arch-intro__stage">
-            <SectionLabel>Project archive</SectionLabel>
+            <SectionLabel>{tr('Project archive', 'Arsip proyek')}</SectionLabel>
             <div className="arch-intro__heading">
               <h2 id="archive-title" className="arch-intro__title" data-split>
-                Arsip proyek
+                {tr('Project archive', 'Arsip proyek')}
               </h2>
               <span className="arch-intro__count" data-fade data-delay="0.3">
                 ({archive.length})
               </span>
             </div>
             <p className="t-serif arch-intro__sub" data-fade>
-              Semua proyek sejak 2020, dari rumah tinggal sampai fasilitas kesehatan.
+              {tr('Every project since 2020, from family homes to healthcare facilities.', 'Semua proyek sejak 2020, dari rumah tinggal sampai fasilitas kesehatan.')}
             </p>
             <button type="button" className="arch-intro__btn" onClick={() => scrollToElement('#arsip', -60)} data-fade>
-              <span className="arch-intro__btn-k">Arsip</span>
-              Lihat semua
+              <span className="arch-intro__btn-k">{tr('Archive', 'Arsip')}</span>
+              {tr('View all', 'Lihat semua')}
               <Plus className="arch-intro__btn-icon" />
             </button>
           </div>
         </section>
 
-        <section id="arsip" className="archive wrap" data-theme="light" aria-label="Arsip proyek">
+        <section id="arsip" className="archive wrap" data-theme="light" aria-label={tr('Project archive', 'Arsip proyek')}>
           <div className="archive__head">
-            <p className="t-label archive__label">Filter arsip</p>
+            <p className="t-label archive__label">{tr('Filter the archive', 'Filter arsip')}</p>
             <p className="archive__count" aria-live="polite">
-              <b>{rows.length}</b> dari {archive.length} proyek
+              <b>{rows.length}</b> {tr('of', 'dari')} {archive.length} {tr('projects', 'proyek')}
             </p>
           </div>
 
           <div className="filters">
-            <div className="filters__cats" role="group" aria-label="Kategori">
+            <div className="filters__cats" role="group" aria-label={tr('Sector', 'Sektor')}>
               {(['all', ...categoryOrder] as const).map((c) => (
                 <button key={c} type="button" className="chip-btn" aria-pressed={f.category === c} onClick={() => set('category', c)}>
-                  {c === 'all' ? 'Semua' : categoryLabel[c as Category]}
+                  {c === 'all' ? tr('All', 'Semua') : categoryLabel[c as Category]}
                   <span className="chip-btn__count">
                     {c === 'all' ? archive.length : archive.filter((a) => a.category === c).length}
                   </span>
@@ -362,9 +373,9 @@ export default function Work() {
             </div>
             <div className="filters__selects">
               <label className="select">
-                <span className="sr-only">Lokasi</span>
+                <span className="sr-only">{tr('Location', 'Lokasi')}</span>
                 <select value={f.location} onChange={(e) => set('location', e.target.value)}>
-                  <option value="all">Semua lokasi</option>
+                  <option value="all">{tr('All locations', 'Semua lokasi')}</option>
                   {areaStats.map((a) => (
                     <option key={a.key} value={a.key}>
                       {a.label} ({a.count})
@@ -374,9 +385,9 @@ export default function Work() {
               </label>
               {hasYears && (
                 <label className="select">
-                  <span className="sr-only">Tahun</span>
+                  <span className="sr-only">{tr('Year', 'Tahun')}</span>
                   <select value={f.year} onChange={(e) => set('year', e.target.value)}>
-                    <option value="all">Semua tahun</option>
+                    <option value="all">{tr('All years', 'Semua tahun')}</option>
                     {options.years.map((y) => (
                       <option key={y} value={String(y)}>
                         {y}
@@ -388,10 +399,10 @@ export default function Work() {
               <label className="select">
                 <span className="sr-only">Status</span>
                 <select value={f.status} onChange={(e) => set('status', e.target.value)}>
-                  <option value="all">Semua status</option>
+                  <option value="all">{tr('All statuses', 'Semua status')}</option>
                   {options.statuses.map((s) => (
                     <option key={s} value={s}>
-                      {s}
+                      {t(statusLabel[s])}
                     </option>
                   ))}
                 </select>
@@ -404,13 +415,13 @@ export default function Work() {
             </div>
           </div>
 
-          <div ref={results} className="index-table" role="table" aria-label="Arsip proyek">
+          <div ref={results} className="index-table" role="table" aria-label={tr('Project archive', 'Arsip proyek')}>
             <div className="index-row index-row--head" role="row">
               <span role="columnheader">No.</span>
-              <span role="columnheader">Proyek</span>
-              <span role="columnheader">Kategori</span>
-              <span role="columnheader">Lokasi</span>
-              {hasYears && <span role="columnheader">Tahun</span>}
+              <span role="columnheader">{tr('Project', 'Proyek')}</span>
+              <span role="columnheader">{tr('Sector', 'Sektor')}</span>
+              <span role="columnheader">{tr('Location', 'Lokasi')}</span>
+              {hasYears && <span role="columnheader">{tr('Year', 'Tahun')}</span>}
               <span role="columnheader">Status</span>
             </div>
             {shown.map((e, i) => {
@@ -425,7 +436,7 @@ export default function Work() {
                   <span role="cell">{categoryLabel[e.category]}</span>
                   <span role="cell">{e.region ?? '-'}</span>
                   {hasYears && <span role="cell">{e.year ?? '-'}</span>}
-                  <span role="cell">{e.status ?? '-'}</span>
+                  <span role="cell">{e.status ? t(statusLabel[e.status]) : '-'}</span>
                 </>
               )
               return e.slug ? (
@@ -436,7 +447,7 @@ export default function Work() {
                   role="row"
                   onMouseEnter={() => setHovered(e.slug!)}
                   onMouseLeave={() => setHovered(null)}
-                  data-cursor="Lihat"
+                  data-cursor={tr('View', 'Lihat')}
                 >
                   {cells}
                 </TLink>
@@ -446,12 +457,12 @@ export default function Work() {
                 </div>
               )
             })}
-            {!rows.length && <p className="work__empty">Tidak ada proyek dengan filter ini.</p>}
+            {!rows.length && <p className="work__empty">{tr('No matches. Try other filters.', 'Tidak ada hasil. Coba filter lain.')}</p>}
           </div>
           {!open && (
             <button type="button" className="archive__more" onClick={() => setOpenFor(filterKey)}>
               <span>
-                Tampilkan semua <b>{rows.length}</b> proyek
+                {tr('Show all', 'Tampilkan semua')} <b>{rows.length}</b> {tr('projects', 'proyek')}
               </span>
               <Plus className="archive__more-icon" />
             </button>

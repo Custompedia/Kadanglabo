@@ -9,35 +9,40 @@ import {
   categoryLabel,
   getProject,
   relatedProjects,
+  fmtArea,
+  statusLabel,
   storyLabel,
   type Block,
   type Project,
 } from '../data/projects'
 import NotFound from './NotFound'
+import { t, tr } from '../lib/i18n'
 
 /** the four facts worth saying big: what, where, how large, and the state it is in */
 function facts(p: Project): [string, string][] {
-  const out: [string, string][] = [['Tipologi', p.typology]]
-  if (p.region) out.push(['Lokasi', p.region])
-  if (p.landArea) out.push(['Luas lahan', p.landArea])
-  if (p.buildingArea) out.push(['Luas bangunan', p.buildingArea])
-  if (out.length < 4 && p.scope.length) out.push(['Cakupan', p.scope.length > 2 ? `${p.scope.length} lingkup` : p.scope.join(' & ')])
-  if (out.length < 4 && p.status) out.push(['Status', p.status])
-  if (out.length < 4 && p.delivery) out.push(['Skema', p.delivery])
+  const scope = p.scope.map(t)
+  const out: [string, string][] = [[tr('Typology', 'Tipologi'), t(p.typology)]]
+  if (p.region) out.push([tr('Location', 'Lokasi'), p.region])
+  if (p.landArea) out.push([tr('Site area', 'Luas lahan'), fmtArea(p.landArea)])
+  if (p.buildingArea) out.push([tr('Built area', 'Luas bangunan'), fmtArea(p.buildingArea)])
+  if (out.length < 4 && scope.length)
+    out.push([tr('Scope', 'Cakupan'), scope.length > 2 ? tr(`${scope.length} disciplines`, `${scope.length} bidang`) : scope.join(' & ')])
+  if (out.length < 4 && p.status) out.push(['Status', t(statusLabel[p.status])])
+  if (out.length < 4 && p.delivery) out.push([tr('Delivery', 'Skema'), t(p.delivery)])
   return out.slice(0, 4)
 }
 
 function Meta({ p }: { p: Project }) {
   const rows: [string, string | null | undefined][] = [
-    ['Lokasi', p.location],
-    ['Sektor', `${categoryLabel[p.category]}, ${p.typology}`],
-    ['Cakupan', p.scope.join(', ')],
-    ['Klien', p.client],
-    ['Luas lahan', p.landArea],
-    ['Luas bangunan', p.buildingArea],
-    ['Skema', p.delivery],
-    ['Status', p.status],
-    ['Tahun', p.year ? String(p.year) : null],
+    [tr('Location', 'Lokasi'), p.location],
+    [tr('Sector', 'Sektor'), `${categoryLabel[p.category]}, ${t(p.typology)}`],
+    [tr('Scope', 'Cakupan'), p.scope.map(t).join(', ')],
+    [tr('Client', 'Klien'), p.client],
+    [tr('Site area', 'Luas lahan'), p.landArea && fmtArea(p.landArea)],
+    [tr('Built area', 'Luas bangunan'), p.buildingArea && fmtArea(p.buildingArea)],
+    [tr('Delivery', 'Skema'), p.delivery && t(p.delivery)],
+    ['Status', p.status && t(statusLabel[p.status])],
+    [tr('Year', 'Tahun'), p.year ? String(p.year) : null],
   ]
   return (
     <dl className="meta-list" data-stagger="0.05">
@@ -63,7 +68,7 @@ function GalleryBlock({ b }: { b: Block }) {
               <Img id={b.img} sizes="100vw" />
             </div>
           </div>
-          {b.caption && <figcaption className="g-cap wrap">{b.caption}</figcaption>}
+          {b.caption && <figcaption className="g-cap wrap">{t(b.caption)}</figcaption>}
         </figure>
       )
     case 'pair': {
@@ -75,7 +80,7 @@ function GalleryBlock({ b }: { b: Block }) {
               <Img id={id} sizes="(min-width: 768px) 48vw, 100vw" />
             </div>
           ))}
-          {b.caption && <figcaption className="g-cap">{b.caption}</figcaption>}
+          {b.caption && <figcaption className="g-cap">{t(b.caption)}</figcaption>}
         </figure>
       )
     }
@@ -85,17 +90,17 @@ function GalleryBlock({ b }: { b: Block }) {
           <div className="g-media" data-reveal>
             <Img id={b.img} sizes="(min-width: 768px) 58vw, 100vw" />
           </div>
-          {b.caption && <figcaption className="g-cap">{b.caption}</figcaption>}
+          {b.caption && <figcaption className="g-cap">{t(b.caption)}</figcaption>}
         </figure>
       )
     case 'text':
       return (
         <div className="g-text wrap">
           <span className="pill" data-fade>
-            {b.label}
+            {t(b.label)}
           </span>
           <p className="t-lead" data-split>
-            {b.body}
+            {t(b.body)}
           </p>
         </div>
       )
@@ -103,9 +108,9 @@ function GalleryBlock({ b }: { b: Block }) {
       return (
         <blockquote className="g-quote wrap">
           <p className="g-quote__text" data-split>
-            “{b.text}”
+            “{t(b.text)}”
           </p>
-          {b.cite && <cite className="t-label">{b.cite}</cite>}
+          {b.cite && <cite className="t-label">{t(b.cite)}</cite>}
         </blockquote>
       )
   }
@@ -159,12 +164,12 @@ function ProjectView({ p }: { p: Project }) {
               {p.title}
             </h1>
             <p className="t-serif p-hero__sub" data-fade="now" data-delay="0.45">
-              {p.tagline}
+              {t(p.tagline)}
             </p>
             <p className="p-hero__tags" data-fade="now" data-delay="0.6">
               <span className="pill">{categoryLabel[p.category]}</span>
-              <span className="pill">{p.typology}</span>
-              {p.status && <span className="pill">{p.status}</span>}
+              <span className="pill">{t(p.typology)}</span>
+              {p.status && <span className="pill">{t(statusLabel[p.status])}</span>}
             </p>
           </div>
         </section>
@@ -176,7 +181,7 @@ function ProjectView({ p }: { p: Project }) {
         </section>
 
         {/* the project's key facts in one big band (STANZZA's project figures), the finer rows below */}
-        <section className="p-facts wrap" data-theme="light" aria-label="Fakta proyek">
+        <section className="p-facts wrap" data-theme="light" aria-label={tr('Project facts', 'Fakta proyek')}>
           <dl className="p-facts__list" data-stagger="0.08">
             {facts(p).map(([k, v]) => (
               <div key={k} className="p-facts__item">
@@ -189,18 +194,18 @@ function ProjectView({ p }: { p: Project }) {
 
         <section className="p-intro wrap" data-theme="light">
           <div className="p-intro__aside">
-            <SectionLabel>Project info</SectionLabel>
+            <SectionLabel>{tr('Project info', 'Info proyek')}</SectionLabel>
             <Meta p={p} />
           </div>
           <p className="t-lead p-intro__summary" data-scrub>
-            {p.summary}
+            {t(p.summary)}
           </p>
         </section>
 
         {p.story && (
           <section className="p-story wrap" data-theme="light">
             <div className="p-story__list">
-              <SectionLabel className="pill--wrap">{p.story.map((s) => storyLabel[s.key]).join(' → ')}</SectionLabel>
+              <SectionLabel className="pill--wrap">{p.story.map((s) => t(storyLabel[s.key])).join(' → ')}</SectionLabel>
               <div className="acc-group">
                 {p.story.map((s, i) => (
                   <div key={s.key} className="acc" data-open={open === i ? '' : undefined}>
@@ -211,12 +216,12 @@ function ProjectView({ p }: { p: Project }) {
                       onClick={() => setOpen(open === i ? -1 : i)}
                     >
                       <span className="acc__num">0{i + 1}</span>
-                      <span className="acc__title">{storyLabel[s.key]}</span>
+                      <span className="acc__title">{t(storyLabel[s.key])}</span>
                       <span className="acc__icon" aria-hidden="true" />
                     </button>
                     <div className="acc__body">
                       <div>
-                        <p>{s.text}</p>
+                        <p>{t(s.text)}</p>
                         <div className="acc__img md:hidden">
                           <Img id={s.img} sizes="100vw" />
                         </div>
@@ -246,9 +251,9 @@ function ProjectView({ p }: { p: Project }) {
 
         <section className="related wrap" data-theme="light">
           <div className="related__head">
-            <SectionLabel>Related projects</SectionLabel>
+            <SectionLabel>{tr('Related projects', 'Proyek terkait')}</SectionLabel>
             <p className="t-serif related__note" data-fade>
-              Proyek lain dengan tipologi atau pendekatan serupa.
+              {tr('More work with a similar typology or approach.', 'Proyek lain dengan tipologi atau pendekatan serupa.')}
             </p>
           </div>
           <div className="related__grid" data-stagger>

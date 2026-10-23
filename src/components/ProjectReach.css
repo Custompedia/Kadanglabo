@@ -122,6 +122,8 @@
   line-height: 1;
 }
 .reach-place__unit {
+  /* "project" / "projects" / "proyek": one width, so the counts stay in one column */
+  min-width: 4.6em;
   color: var(--color-mute);
   font-size: 13px;
 }

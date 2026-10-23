@@ -8,6 +8,7 @@ import { BrandMark } from '../components/BrandMark'
 import { usePageAnimations } from '../lib/anim'
 import { gsap } from '../lib/gsap'
 import { TLink } from '../lib/transition'
+import { t, tr } from '../lib/i18n'
 import { parametersDetail, team, vision } from '../data/site'
 import { MissionGoals, animateMissionGoals } from '../components/MissionGoals'
 
@@ -62,24 +63,27 @@ export default function About() {
   })
 
   return (
-    <Page title="About">
+    <Page title={tr('About', 'Tentang')}>
       <div ref={root}>
         <PageHero
           title={
             <>
-              Arsitektur
+              {tr('Architecture', 'Arsitektur')}
               <br />
-              untuk semua.
+              {tr('for everyone.', 'untuk semua.')}
             </>
           }
-          sub="Konsultan arsitektur berbasis komunitas di Yogyakarta, didirikan oleh Raditya Alvin pada akhir September 2020."
+          sub={tr(
+            'A community-based architecture consultancy in Yogyakarta, founded by Raditya Alvin in late September 2020.',
+            'Konsultan arsitektur berbasis komunitas di Yogyakarta, didirikan oleh Raditya Alvin pada akhir September 2020.',
+          )}
         />
 
         {/* "satu pintu": the first photo opens from a doorway (an arch, after ERA Residence) to the full frame */}
         <section className="wide-media" data-theme="dark">
           <div className="wide-media__frame">
             <div className="wide-media__inner" data-parallax="9">
-              <Img id="labarka-garden" alt="La Barka Resort - taman dan massa bangunan" sizes="100vw" />
+              <Img id="labarka-garden" alt={tr('La Barka Resort - gardens and buildings', 'La Barka Resort - taman dan massa bangunan')} sizes="100vw" />
             </div>
           </div>
         </section>
@@ -88,14 +92,14 @@ export default function About() {
         <section className="collab wrap" data-theme="light">
           <SectionLabel>A collaborative architectural solution</SectionLabel>
           <h2 className="t-h1 collab__title mt-6" data-split>
-            Satu meja untuk klien, perencana, dan pelaksana.
+            {tr('One table for client, planner and builder.', 'Satu meja untuk klien, perencana, dan pelaksana.')}
           </h2>
           <div className="table" aria-hidden="true">
             {(
               [
-                ['Klien', 'Kebutuhan, anggaran, dan impian', 'hmw-dining'],
-                ['Perencana', 'Desain yang membaca tapak', 'draw-model'],
-                ['Pelaksana', 'Bangunan yang benar-benar berdiri', 'klinik-front'],
+                [tr('Client', 'Klien'), tr('Needs, budget and dreams', 'Kebutuhan, anggaran, dan impian'), 'hmw-dining'],
+                [tr('Planner', 'Perencana'), tr('A design that reads the site', 'Desain yang membaca tapak'), 'draw-model'],
+                [tr('Builder', 'Pelaksana'), tr('Turning designs into buildings', 'Mewujudkan desain jadi bangunan'), 'klinik-front'],
               ] as const
             ).map(([who, brings, img], i) => (
               <div key={who} className="table__strip">
@@ -108,35 +112,38 @@ export default function About() {
             ))}
           </div>
           <p className="t-body-lg collab__body opacity-75" data-fade>
-            Perencanaan dan pelaksanaan terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.
+            {tr(
+              'Planning and construction under one roof, so what we draw is what gets built.',
+              'Perencanaan dan pelaksanaan terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.',
+            )}
           </p>
         </section>
 
         {/* Ethos, and the two parameters that follow from it */}
         <section className="params wrap" data-theme="light">
-          <SectionLabel>Etos kami</SectionLabel>
+          <SectionLabel>{tr('Our ethos', 'Etos kami')}</SectionLabel>
           <p className="t-lead params__ethos" data-scrub>
-            Setiap proyek yang kami desain harus terbangun, tuntas sampai berdiri.
+            {tr('Every design must be built. We see it through.', 'Setiap desain harus dibangun. Kami kawal hingga tuntas.')}
           </p>
           <p className="t-label params__intro" data-fade>
-            Dari etos itu lahir dua parameter keberhasilan proyek
+            {tr('We measure success in two ways', 'Dua tolok ukur keberhasilan proyek kami')}
           </p>
           <div className="params__grid">
             {parametersDetail.map((p, i) => (
-              <article key={p.title} className="param">
+              <article key={p.title.en} className="param">
                 <div className="param__media" data-reveal data-delay={i * 0.12}>
                   <div className="param__parallax" data-parallax="5">
-                    <Img id={p.img} alt={p.imgAlt} sizes="(min-width: 900px) 50vw, 100vw" />
+                    <Img id={p.img} alt={t(p.imgAlt)} sizes="(min-width: 900px) 50vw, 100vw" />
                   </div>
                 </div>
                 <span className="param__num" data-fade>
                   0{i + 1}
                 </span>
                 <h3 className="param__title" data-split>
-                  {p.title}
+                  {t(p.title)}
                 </h3>
                 <p className="t-body-lg param__body" data-fade>
-                  {p.body}
+                  {t(p.body)}
                 </p>
               </article>
             ))}
@@ -146,11 +153,11 @@ export default function About() {
         {/* Vision: full-bleed photo */}
         <section className="vision" data-theme="dark">
           <div className="vision__frame">
-            <Img id="wira-front" alt="Wira House - fasad saat senja" sizes="100vw" className="vision__img" />
+            <Img id="wira-front" alt={tr('Wira House - facade at dusk', 'Wira House - fasad saat senja')} sizes="100vw" className="vision__img" />
             <div className="vision__body wrap">
-              <SectionLabel>Vision</SectionLabel>
+              <SectionLabel>{tr('Vision', 'Visi')}</SectionLabel>
               <p className="vision__text" data-split>
-                {vision}
+                {t(vision)}
               </p>
             </div>
           </div>
@@ -161,9 +168,9 @@ export default function About() {
         {/* Team */}
         <section id="team" className="team wrap" data-theme="light">
           <div className="team__head">
-            <SectionLabel>Tim in-house</SectionLabel>
+            <SectionLabel>{tr('In-house team', 'Tim in-house')}</SectionLabel>
             <h2 className="t-h1 mt-6" data-split>
-              Orang-orang di balik setiap gambar dan setiap bangunan.
+              {tr('Meet the people who plan and build with you.', 'Kenali tim yang merancang dan membangun bersama Anda.')}
             </h2>
           </div>
           <div className="team__grid" data-stagger="0.06">
@@ -178,7 +185,7 @@ export default function About() {
                 </div>
                 <figcaption>
                   <span className="member__name">{m.name}</span>
-                  <span className="member__role">{m.role}</span>
+                  <span className="member__role">{t(m.role)}</span>
                 </figcaption>
               </figure>
             ))}
@@ -189,17 +196,19 @@ export default function About() {
           {/* the logo's K, drawn the way the intro draws it: ring first, then the three orange pieces */}
           <BrandMark className="cta-block__mark" ringColor="#3C4C74" />
           <h2 className="t-display" data-split>
-            Mari
+            {tr("Let's", 'Mari')}
             <br />
-            berkolaborasi.
+            {tr('collaborate.', 'berkolaborasi.')}
           </h2>
           <div className="cta-block__side" data-fade>
             <p className="t-body-lg max-w-[34ch]">
-              Ceritakan rencana Anda: rumah, usaha, atau kawasan. Kami bantu dari pertanyaan pertama sampai bangunan
-              berdiri.
+              {tr(
+                'Tell us about your home, business or estate. We’ll help you move from the first idea to a finished building.',
+                'Ceritakan rencana rumah, usaha, atau kawasan Anda. Kami dampingi dari ide awal hingga bangunan selesai.',
+              )}
             </p>
             <TLink to="/contact#start" className="btn-pill btn-pill--orange btn-pill--lg mt-6">
-              Start a project <ArrowRight className="h-[0.8em] w-auto" />
+              {tr('Start a project', 'Mulai proyek')} <ArrowRight className="h-[0.8em] w-auto" />
             </TLink>
           </div>
         </section>

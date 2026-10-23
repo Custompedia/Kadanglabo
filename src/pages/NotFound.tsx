@@ -5,6 +5,7 @@ import { Img } from '../components/Img'
 import { usePageAnimations } from '../lib/anim'
 import { gsap } from '../lib/gsap'
 import { TLink } from '../lib/transition'
+import { tr } from '../lib/i18n'
 
 export default function NotFound() {
   const root = useRef<HTMLDivElement>(null)
@@ -13,14 +14,18 @@ export default function NotFound() {
     gsap.fromTo('.nf-art', { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.8, delay: 0.15, ease: 'power3.inOut' })
   })
   return (
-    <Page title="404">
+    <Page title={tr('Page not found', 'Halaman tidak ditemukan')}>
       <div ref={root}>
-        <PageHero className="page-hero--full nf-hero" title="404" sub="Halaman yang Anda cari belum terbangun, atau sudah pindah alamat.">
+        <PageHero
+          className="page-hero--full nf-hero"
+          title="404"
+          sub={tr('This page has not been built yet, or it has moved.', 'Halaman yang Anda cari belum terbangun, atau sudah pindah alamat.')}
+        >
           <div className="nf-art" aria-hidden="true">
             <Img id="draw-exploded" sizes="220px" priority style={{ backgroundColor: 'transparent' }} />
           </div>
           <TLink to="/" className="btn-pill btn-pill--dark btn-pill--lg mt-10" data-fade="now" data-delay="0.6">
-            Kembali ke beranda
+            {tr('Back to home', 'Kembali ke beranda')}
           </TLink>
         </PageHero>
       </div>

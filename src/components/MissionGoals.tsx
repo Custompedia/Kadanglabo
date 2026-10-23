@@ -1,27 +1,28 @@
 import { mission, goals } from '../data/site'
 import { gsap } from '../lib/gsap'
 import { Img } from './Img'
+import { t } from '../lib/i18n'
 import { SectionLabel } from './Bits'
 import './MissionGoals.css'
 
 const chapters = [
   {
     id: 'mission',
-    label: 'Mission',
-    heading: 'Desain yang kontekstual, proses yang terintegrasi.',
+    label: { en: 'Mission', id: 'Misi' },
+    heading: { en: 'Contextual Design, one integrated process.', id: 'Desain Kontekstual, proses satu pintu.' },
     items: [
-      { title: 'Kontekstual', img: 'labarka-exterior', body: mission[0] },
-      { title: 'Terintegrasi', img: 'draw-model', body: mission[1] },
-      { title: 'Responsif', img: 'balecatur-lobby', body: mission[2] },
+      { title: { en: 'Contextual', id: 'Kontekstual' }, img: 'labarka-exterior', body: mission[0] },
+      { title: { en: 'Integrated', id: 'Terintegrasi' }, img: 'draw-model', body: mission[1] },
+      { title: { en: 'Responsive', id: 'Responsif' }, img: 'balecatur-lobby', body: mission[2] },
     ],
   },
   {
     id: 'goals',
-    label: 'Our goals',
-    heading: 'Lingkungan yang responsif, bangunan yang tepat guna.',
+    label: { en: 'Our goals', id: 'Tujuan kami' },
+    heading: { en: 'Places that respond. Buildings that work.', id: 'Lingkungan responsif. Bangunan tepat guna.' },
     items: [
-      { title: 'Responsif', img: 'labarka-river', body: goals[0] },
-      { title: 'Tepat guna', img: 'hmw-dining', body: goals[1] },
+      { title: { en: 'Responsive', id: 'Responsif' }, img: 'labarka-river', body: goals[0] },
+      { title: { en: 'Fit for purpose', id: 'Tepat guna' }, img: 'hmw-dining', body: goals[1] },
     ],
   },
 ] as const
@@ -84,13 +85,13 @@ export function MissionGoals() {
     <div className="purpose wrap" data-theme="light">
       {chapters.map((chapter) => (
         <section key={chapter.id} className="purpose-chapter" aria-labelledby={`${chapter.id}-title`}>
-          <SectionLabel>{chapter.label}</SectionLabel>
+          <SectionLabel>{t(chapter.label)}</SectionLabel>
           <h2 id={`${chapter.id}-title`} className="t-h1 collab__title purpose-heading mt-6" data-split>
-            {chapter.heading}
+            {t(chapter.heading)}
           </h2>
           <ol className="table purpose-strips">
             {chapter.items.map((item, i) => (
-              <li key={item.title} className="purpose-row">
+              <li key={item.title.en} className="purpose-row">
                 <div className="table__strip purpose-strip">
                   <Img id={item.img} alt="" sizes="(min-width: 1200px) 1100px, 100vw" />
                   <span className="table__strip-shade" aria-hidden="true" />
@@ -98,9 +99,9 @@ export function MissionGoals() {
                     0{i + 1}
                   </span>
                   <h3 className="table__who">
-                    <span className="purpose-strip__title">{item.title}</span>
+                    <span className="purpose-strip__title">{t(item.title)}</span>
                   </h3>
-                  <p className="t-serif table__brings">{item.body}</p>
+                  <p className="t-serif table__brings">{t(item.body)}</p>
                 </div>
               </li>
             ))}

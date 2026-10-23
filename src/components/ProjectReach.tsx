@@ -1,5 +1,6 @@
 import { areaStats } from '../data/projects'
 import { gsap } from '../lib/gsap'
+import { tr } from '../lib/i18n'
 import './ProjectReach.css'
 
 const locations = ['diy', 'palembang', 'klaten', 'jepara', 'surabaya', 'bali']
@@ -45,16 +46,16 @@ export function ProjectReach({ selectedLocation, onChoose }: { selectedLocation:
       {/* left: the statement; right: the places, so a row never runs half empty across the page */}
       <header className="reach__header">
         <span className="pill" data-fade>
-          Lokasi proyek
+          {tr('Project locations', 'Lokasi proyek')}
         </span>
         <h3 id="reach-title" className="reach__lead" data-split>
-          Dari Yogyakarta
+          {tr('From Yogyakarta', 'Dari Yogyakarta')}
           <br />
-          ke {locations.length - 1} kota lain.
+          {tr(`to ${locations.length - 1} more cities.`, `ke ${locations.length - 1} kota lain.`)}
         </h3>
         <p className="reach__intro" data-fade>
-          Beragam tempat, satu pendekatan: merancang dengan memahami konteks.
-          <span>Pilih wilayah untuk menjelajahi proyek kami.</span>
+          {tr('Different places. One approach: Contextual Design.', 'Beragam tempat, satu pendekatan: Desain Kontekstual.')}
+          <span>{tr('Choose a region to see our projects.', 'Pilih wilayah untuk melihat proyek kami.')}</span>
         </p>
       </header>
       <ol className="reach__locations">
@@ -66,7 +67,10 @@ export function ProjectReach({ selectedLocation, onChoose }: { selectedLocation:
               className="reach-place__button"
               data-selected={selectedLocation === location.key}
               onClick={() => onChoose(location.key)}
-              aria-label={`Lihat ${location.count} proyek di ${location.label}`}
+              aria-label={tr(
+                `View ${location.count} ${location.count === 1 ? 'project' : 'projects'} in ${location.label}`,
+                `Lihat ${location.count} proyek di ${location.label}`,
+              )}
             >
               <span className="reach-place__index" aria-hidden="true">
                 {String(index + 1).padStart(2, '0')}
@@ -75,13 +79,13 @@ export function ProjectReach({ selectedLocation, onChoose }: { selectedLocation:
                 <span className="reach-place__mask">
                   <span className="reach-place__name">{location.label}</span>
                 </span>
-                {location.key === 'diy' && <span className="reach-place__note">Basis studio</span>}
+                {location.key === 'diy' && <span className="reach-place__note">{tr('Studio base', 'Lokasi studio')}</span>}
               </span>
               <span className="reach-place__total">
                 <span className="reach-place__count" data-count={location.count}>
                   {location.count}
                 </span>
-                <span className="reach-place__unit">proyek</span>
+                <span className="reach-place__unit">{tr(location.count === 1 ? 'project' : 'projects', 'proyek')}</span>
               </span>
               <span className="reach-place__arrow" aria-hidden="true">
                 <span className="reach-place__arrow-glyph">↗</span>

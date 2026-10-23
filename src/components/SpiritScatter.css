@@ -1,0 +1,209 @@
+/* Home (01) About x Kadanglabo spirit (SpiritScatter.tsx), after the Project archive scene on Our Work: a tall field of
+   photos drifting at different depths while the middle holds and the four chapters change over.
+   Without [data-motion] (reduced motion) the chapters simply stack and the photos stay out of the way. */
+.sp {
+  position: relative;
+  overflow-x: clip; /* the paper glow is wider than a phone; clip (unlike hidden) keeps the stage sticky */
+  padding-block: var(--sec);
+  border-top: 1px solid var(--line);
+}
+
+.sp__photos {
+  display: none;
+}
+
+.sp__stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  padding-inline: var(--gutter);
+  text-align: center;
+}
+
+.sp__count {
+  display: inline-flex;
+  gap: 0.3em;
+  margin-left: 0.2em;
+  padding-left: 0.65em;
+  border-left: 1px solid currentColor;
+}
+
+.sp__count-mask {
+  display: block;
+  height: 1em;
+  overflow: hidden;
+}
+
+.sp__count-track {
+  display: block;
+}
+
+.sp__count-track > span {
+  display: block;
+  height: 1em;
+}
+
+.sp__chs {
+  display: grid;
+  gap: 56px;
+}
+
+.sp__ch {
+  display: grid;
+  justify-items: center;
+}
+
+.sp__title {
+  max-width: 13ch;
+  color: var(--color-ink);
+  font-size: clamp(2.7rem, 6.6vw, 7.2rem);
+  font-weight: 640;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+/* the words tip in from their lower left corner (SpiritScatter.tsx) */
+.sp__word {
+  transform-origin: 0% 100%;
+}
+
+/* the text in plain sans, dark enough to read over the paper glow */
+.sp__body {
+  max-width: 40ch;
+  margin-top: clamp(18px, 1.8vw, 26px);
+  color: rgb(21 21 21 / 0.8);
+  font-size: clamp(17px, 1.4vw, 21px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.sp__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.sp__btn-k {
+  color: rgb(255 255 255 / 0.62);
+}
+
+.sp__btn-icon {
+  width: 13px;
+  height: auto;
+}
+
+@media (hover: hover) {
+  .sp__btn:hover {
+    background: var(--color-orange-deep);
+  }
+}
+
+/* ---------- the held field ---------- */
+.sp[data-motion] {
+  height: calc(100svh + var(--n) * 85svh);
+  padding: 0;
+}
+
+.sp[data-motion] .sp__photos {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: clip;
+}
+
+.sp__photo {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  width: var(--w);
+  opacity: var(--o);
+}
+
+.sp__frame {
+  aspect-ratio: var(--ar);
+  overflow: hidden;
+}
+
+.sp__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sp[data-motion] .sp__stage {
+  position: sticky;
+  top: 0;
+  grid-template-rows: 1fr auto auto 1fr;
+  align-content: center;
+  height: 100svh;
+  padding-block: calc(var(--header-h) + 16px) clamp(20px, 3vw, 40px);
+  pointer-events: none;
+}
+
+.sp[data-motion] .sp__stage > * {
+  pointer-events: auto;
+}
+
+.sp[data-motion] .sp__pill {
+  align-self: end;
+}
+
+/* the chapters share one spot; the paper glow behind them lets photos pass without crossing the words */
+.sp[data-motion] .sp__chs {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin-block: 4px;
+}
+
+.sp[data-motion] .sp__chs::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  /* wide enough that its solid middle covers the words on every screen; photos fade as they pass under it */
+  width: min(1400px, 160vw);
+  height: min(760px, 86svh);
+  background: radial-gradient(closest-side, var(--color-paper) 66%, rgb(243 240 234 / 0) 100%);
+  translate: -50% -50%;
+}
+
+.sp[data-motion] .sp__ch {
+  grid-area: 1 / 1;
+}
+
+.sp[data-motion] .sp__btn {
+  align-self: start;
+}
+
+@media (max-width: 767px) {
+  .sp__photo {
+    width: calc(var(--w) * 1.55);
+  }
+
+  /* a third of the photos on a phone, so the words keep room to breathe */
+  .sp__photo:not(:nth-child(3n + 1)) {
+    display: none;
+  }
+
+  .sp__title {
+    font-size: clamp(2.4rem, 11vw, 3.6rem);
+  }
+
+  .sp__body {
+    max-width: 32ch;
+    font-size: 16.5px;
+  }
+}

@@ -1,6 +1,7 @@
 import { gsap } from '../lib/gsap'
 import { SectionLabel } from './Bits'
 import { Img } from './Img'
+import { tr } from '../lib/i18n'
 import './ServiceSketch.css'
 
 /**
@@ -27,9 +28,9 @@ export function ServiceSketch() {
   return (
     <section className="svs wrap" data-theme="light" aria-labelledby="svs-title">
       <header className="svs__head">
-        <SectionLabel n="02">Core services & sectors</SectionLabel>
+        <SectionLabel n="02">{tr('Core services & sectors', 'Layanan & sektor utama')}</SectionLabel>
         <h2 id="svs-title" className="svs__title" data-split>
-          Dari gambar pertama sampai bangunan berdiri.
+          {tr('From the first sketch to a finished building.', 'Dari sketsa pertama hingga bangunan berdiri.')}
         </h2>
       </header>
 
@@ -37,10 +38,10 @@ export function ServiceSketch() {
       <div className="svs__stage">
         <p className="svs__aside">
           <span className="svs__plus" aria-hidden="true">+</span>
-          Studi model tapak dan massa bangunan, dari gambar studio.
+          {tr('Site and massing model by our studio.', 'Model tapak dan massa bangunan dari studio kami.')}
         </p>
         <figure className="svs__model">
-          <Img id="draw-model-cut" alt="Model 3D tapak dan massa bangunan dari studio Kadanglabo" sizes="(min-width: 900px) 66vw, 100vw" />
+          <Img id="draw-model-cut" alt={tr('3D site and massing model by Kadanglabo', 'Model 3D tapak dan massa bangunan karya Kadanglabo')} sizes="(min-width: 900px) 66vw, 100vw" />
         </figure>
       </div>
     </section>

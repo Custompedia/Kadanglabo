@@ -9,17 +9,22 @@ import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger } from '../lib/gsap'
 import { TLink } from '../lib/transition'
 import { process, sectors, serviceGroups } from '../data/site'
+import { t, tr } from '../lib/i18n'
 
 const WIDE = '(min-width: 900px)' // Service detail travels sideways from here up (see .process in styles.css)
 // every service in one numbered run, in three groups: design disciplines, management, care of existing buildings
-let serviceNo = 0
-const serviceRun = serviceGroups.map((g) => ({ group: g.group, items: g.items.map((name) => ({ name, no: String(++serviceNo).padStart(2, '0') })) }))
+const serviceCount = serviceGroups.reduce((sum, g) => sum + g.items.length, 0)
+const serviceRun = () => {
+  let no = 0
+  return serviceGroups.map((g) => ({ group: t(g.group), items: g.items.map((s) => ({ name: t(s), no: String(++no).padStart(2, '0') })) }))
+}
 
 const collage: ImgKey[] = ['labarka-path', 'klinik-corridor', 'labarka-balcony', 'balecatur-lobby', 'hmw-dining', 'balecatur-bed', 'firlatata-living']
 
 export default function Services() {
   const root = useRef<HTMLDivElement>(null)
   const [cat, setCat] = useState(0) // service category in view (the sticky photo on wide screens follows it)
+  const run = serviceRun()
 
   usePageAnimations(root, (page) => {
     // Our services opener: one held scene. The photo starts as a small frame in the middle and zooms out to fill
@@ -148,17 +153,20 @@ export default function Services() {
   }, [])
 
   return (
-    <Page title="Services">
+    <Page title={tr('Services', 'Layanan')}>
       <div ref={root}>
         <PageHero
           title={
             <>
-              Designed
+              {tr('Designed', 'Didesain')}
               <br />
-              to be built.
+              {tr('to be built.', 'untuk dibangun.')}
             </>
           }
-          sub="Overview seluruh layanan studio, dari perencanaan hingga perawatan, untuk bangunan baru, renovasi, dan pengembangan."
+          sub={tr(
+            'Design, construction management and care for new builds, renovations and expansions, all under one roof.',
+            'Desain, manajemen pelaksanaan, dan perawatan untuk bangunan baru, renovasi, dan pengembangan melalui satu pintu.',
+          )}
         />
 
         <section className="collage" data-theme="light" aria-hidden="true">
@@ -176,17 +184,22 @@ export default function Services() {
         <section className="statement" data-theme="light" aria-labelledby="statement-title">
           <div className="statement__stage">
             <div className="statement__frame">
-              <Img id="labarka-exterior" alt="La Barka Resort - tapak, lanskap, dan bangunan dalam satu rencana" sizes="100vw" />
+              <Img id="labarka-exterior" alt={tr('La Barka Resort - site, landscape and buildings in one plan', 'La Barka Resort - tapak, lanskap, dan bangunan dalam satu rencana')} sizes="100vw" />
               <div className="statement__shade" />
             </div>
             <div className="statement__copy wrap">
               {/* a plain label (no data-fade): the scene timeline above brings it in */}
               <span className="pill">
                 <span className="pill__n">(01)</span>
-                Our services
+                {tr('Our services', 'Layanan kami')}
               </span>
               <p id="statement-title" className="t-h1 statement__text">
-                {['Desain kontekstual.', 'Workflow yang efektif.', 'Bangunan yang tuntas.', 'Satu pintu dari perencanaan hingga pelaksanaan.'].map((line) => (
+                {[
+                  tr('Contextual Design.', 'Desain Kontekstual.'),
+                  tr('Effective Workflow.', 'Efektivitas Workflow.'),
+                  tr('Projects seen through.', 'Proyek dikawal tuntas.'),
+                  tr('One team, from plan to build.', 'Satu pintu, dari rencana hingga dibangun.'),
+                ].map((line) => (
                   <span key={line} className="statement__line">
                     <span>{line}</span>
                   </span>
@@ -200,19 +213,19 @@ export default function Services() {
         <section className="overview wrap" data-theme="light" aria-labelledby="overview-title">
           <div className="overview__head">
             <h2 id="overview-title" className="t-label">
-              Layanan kami
+              {tr('What we do', 'Layanan kami')}
             </h2>
             <span className="t-serif overview__count" data-fade>
-              {serviceNo} layanan, {serviceRun.length} kelompok
+              {tr(`${serviceCount} services, ${run.length} groups`, `${serviceCount} layanan, ${run.length} kelompok`)}
             </span>
           </div>
           <div className="overview__body">
             <div className="overview__rows">
-              {serviceRun.map((g) => (
+              {run.map((g) => (
                 <div key={g.group} className="overview__row">
                   <p className="overview__group" data-fade>
                     <span className="t-label">{g.group}</span>
-                    <span className="t-serif overview__group-count">{g.items.length} layanan</span>
+                    <span className="t-serif overview__group-count">{tr(`${g.items.length} services`, `${g.items.length} layanan`)}</span>
                   </p>
                   <p className="overview__run" data-scrub>
                     {g.items.map((s, i) => {
@@ -243,7 +256,7 @@ export default function Services() {
               <div className="overview__art-draw">
                 <Img
                   id="draw-exploded"
-                  alt="Gambar aksonometri rumah terurai dari studio Kadanglabo"
+                  alt={tr('Exploded axonometric drawing of a house by Kadanglabo', 'Gambar aksonometri rumah terurai dari studio Kadanglabo')}
                   sizes="(min-width: 1024px) 30vw, 64vw"
                   style={{ backgroundColor: 'transparent' }}
                 />
@@ -255,10 +268,12 @@ export default function Services() {
         {/* Service categories */}
         <section className="cats wrap" data-theme="light">
           <div className="cats__head">
-            <SectionLabel n="02">Service categories</SectionLabel>
+            <SectionLabel n="02">{tr('Project sectors', 'Sektor proyek')}</SectionLabel>
             <p className="t-body-lg max-w-[44ch] opacity-75" data-fade>
-              Setiap kategori mencakup bangunan baru, renovasi, dan pengembangan, dikerjakan dengan alur yang sama
-              dari analisa hingga deliverables.
+              {tr(
+                'One clear workflow for new builds, renovations and expansions, from analysis to deliverables.',
+                'Satu workflow yang jelas untuk bangunan baru, renovasi, dan pengembangan, dari analisis hingga deliverables.',
+              )}
             </p>
           </div>
           <div className="cats__body">
@@ -286,19 +301,30 @@ export default function Services() {
                       {s.label}
                     </h2>
                     <p className="t-body-lg cat__desc" data-fade>
-                      {s.desc}
+                      {t(s.desc)}
                     </p>
                     <ul className="cat__typos" data-stagger="0.06">
-                      {s.typologies.map((t) => (
-                        <li key={t}>{t}</li>
+                      {s.typologies.map((ty) => (
+                        <li key={ty.en}>{t(ty)}</li>
                       ))}
                     </ul>
-                    <TLink to={`/work/${s.key}`} className="link-line t-label mt-8 inline-block" data-fade>
-                      Lihat proyek {s.title.toLowerCase()} →
-                    </TLink>
+                    {/* the way on: the category's landing page, or straight to its inquiry form */}
+                    <div className="cta-row cat__actions" data-fade>
+                      <TLink to={`/work/${s.key}`} className="cta-btn" data-cursor={tr('Open', 'Buka')}>
+                        <span className="cta-btn__label">{tr(`Explore ${s.title}`, `Jelajahi ${s.title}`)}</span>
+                        <span className="cta-btn__icon" aria-hidden="true">
+                          <ArrowRight />
+                          <ArrowRight />
+                        </span>
+                      </TLink>
+                      <TLink to={`/work/${s.key}#start`} className="cta-link">
+                        {tr('Start a project', 'Mulai proyek')}
+                        <ArrowRight className="cta-link__arrow" />
+                      </TLink>
+                    </div>
                   </div>
                   <div className="cat__media" data-reveal>
-                    <Img id={s.img} alt={s.imgAlt} sizes="(min-width: 768px) 40vw, 100vw" />
+                    <Img id={s.img} alt={t(s.imgAlt)} sizes="(min-width: 768px) 40vw, 100vw" />
                   </div>
                 </article>
               ))}
@@ -311,30 +337,32 @@ export default function Services() {
           <div className="process__stage">
             <div className="process__track">
               <div className="process__intro">
-                <SectionLabel n="03">Service detail</SectionLabel>
+                <SectionLabel n="03">{tr('How we work', 'Cara kami bekerja')}</SectionLabel>
                 <h2 id="process-title" className="t-display process__title" data-split>
-                  Dari kebutuhan <br />
-                  ke bangunan.
+                  {tr('From brief', 'Dari kebutuhan')} <br />
+                  {tr('to building.', 'ke bangunan.')}
                 </h2>
                 <p className="t-body-lg process__description" data-fade>
-                  Empat tahap yang kami jalani bersama setiap klien: transparan, terukur, dan selalu berujung di
-                  lapangan.
+                  {tr(
+                    'Four clear stages with you, from the first brief to support on site.',
+                    'Empat tahap bersama Anda, dari kebutuhan awal hingga pendampingan di lapangan.',
+                  )}
                 </p>
               </div>
-              <ol className="process__cards" tabIndex={0} aria-label="Empat tahap layanan">
+              <ol className="process__cards" tabIndex={0} aria-label={tr('Four stages of work', 'Empat tahap layanan')}>
                 {process.map((step, i) => (
-                  <li key={step.title} className="step">
+                  <li key={step.title.en} className="step">
                     <div className="step__card">
                       <span className="step__sand" aria-hidden="true" />
                       <span className="step__num" aria-hidden="true">
                         0{i + 1}
                       </span>
                       <div>
-                        <h3 className="step__title">{step.title}</h3>
-                        <p className="step__lead">{step.lead}</p>
+                        <h3 className="step__title">{t(step.title)}</h3>
+                        <p className="step__lead">{t(step.lead)}</p>
                         <ul className="step__points">
                           {step.points.map((pt) => (
-                            <li key={pt}>{pt}</li>
+                            <li key={pt.en}>{t(pt)}</li>
                           ))}
                         </ul>
                       </div>
@@ -351,16 +379,16 @@ export default function Services() {
 
         <section id="start" className="start start--after-process wrap" data-theme="light">
           <div className="start__head">
-            <SectionLabel n="04">Start a project</SectionLabel>
+            <SectionLabel n="04">{tr('Start a project', 'Mulai proyek')}</SectionLabel>
             <h2 className="t-display start__title" data-split>
-              Konsultasi &amp; project inquiry.
+              {tr('Let’s talk about your project.', 'Mari bahas proyek Anda.')}
             </h2>
             <p className="t-body-lg max-w-[40ch] opacity-75 mt-6" data-fade>
-              Isi singkat kebutuhan Anda, tim kami akan menghubungi Anda kembali.
+              {tr('Tell us what you need. Our team will be in touch.', 'Ceritakan kebutuhan Anda. Tim kami akan menghubungi Anda.')}
             </p>
             <TeamStack />
             <TLink to="/contact" className="link-line t-label mt-6 inline-block">
-              Kontak lainnya <ArrowRight className="ml-1 inline h-[0.7em] w-auto" />
+              {tr('Other ways to reach us', 'Kontak lainnya')} <ArrowRight className="ml-1 inline h-[0.7em] w-auto" />
             </TLink>
           </div>
           <InquiryForm />

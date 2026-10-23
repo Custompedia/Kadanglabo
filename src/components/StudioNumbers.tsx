@@ -4,6 +4,7 @@ import { SectionLabel } from './Bits'
 import { gsap, ScrollTrigger } from '../lib/gsap'
 import { company, team } from '../data/site'
 import { archive, areaStats, categoryLabel, categoryOrder } from '../data/projects'
+import { tr } from '../lib/i18n'
 
 // project photos on the ring of "Kadanglabo dalam angka" (warm renders, no blue drawings)
 const ringPhotos: ImgKey[] = [
@@ -26,12 +27,25 @@ const ringPhotos: ImgKey[] = [
 ]
 
 // every figure comes from the site data, so it stays true when projects or people are added
-const figures = [
-  { value: String(company.founded), label: 'Tahun berdiri', note: `Didirikan ${company.founder}, akhir September ${company.founded}` },
-  { value: `${Math.floor(archive.length / 10) * 10}+`, label: 'Proyek', note: 'Rumah, perumahan, resort, restoran, kantor, hingga klinik' },
-  { value: String(areaStats.length), label: 'Wilayah', note: areaStats.map((a) => a.label).join(' · ') },
-  { value: String(categoryOrder.length), label: 'Sektor', note: categoryOrder.map((c) => categoryLabel[c]).join(' · ') },
-  { value: String(team.length), label: 'Tim in-house', note: 'Arsitek, drafter, pengawas lapangan, hingga tim digital' },
+// (built at render time, so the labels follow the current language)
+const figures = () => [
+  {
+    value: String(company.founded),
+    label: tr('Founded', 'Tahun berdiri'),
+    note: tr(`Founded by ${company.founder} in late September ${company.founded}`, `Didirikan ${company.founder}, akhir September ${company.founded}`),
+  },
+  {
+    value: `${Math.floor(archive.length / 10) * 10}+`,
+    label: tr('Projects', 'Proyek'),
+    note: tr('Homes, estates, resorts, restaurants, offices and clinics', 'Rumah, perumahan, resort, restoran, kantor, dan klinik'),
+  },
+  { value: String(areaStats.length), label: tr('Regions', 'Wilayah'), note: areaStats.map((a) => a.label).join(' · ') },
+  { value: String(categoryOrder.length), label: tr('Sectors', 'Sektor'), note: categoryOrder.map((c) => categoryLabel[c]).join(' · ') },
+  {
+    value: String(team.length),
+    label: tr('In-house team', 'Tim in-house'),
+    note: tr('Architects, drafters, site supervisors and a digital team', 'Arsitek, drafter, pengawas lapangan, dan tim digital'),
+  },
 ]
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
@@ -103,13 +117,13 @@ export function StudioNumbers() {
           ))}
         </div>
         <div className="numbers__intro wrap">
-          <SectionLabel>Kadanglabo dalam angka</SectionLabel>
+          <SectionLabel>{tr('Kadanglabo in numbers', 'Kadanglabo dalam angka')}</SectionLabel>
           <h2 id="numbers-title" className="t-h1 numbers__title" data-split>
-            Arsitektur kolaboratif, dari Yogyakarta ke berbagai kota.
+            {tr('Collaborative architecture, from Yogyakarta to cities beyond.', 'Arsitektur kolaboratif, dari Yogyakarta ke berbagai kota.')}
           </h2>
         </div>
         <ol className="numbers__list wrap">
-          {figures.map((f) => (
+          {figures().map((f) => (
             <li key={f.label} className="numbers__item">
               <span className="numbers__value" data-fade>
                 {f.value}

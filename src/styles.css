@@ -531,6 +531,49 @@
   text-transform: uppercase;
 }
 
+/* EN / ID beside Menu: the current language is full strength, the other dimmed until hovered */
+.site-header__right {
+  gap: clamp(14px, 2vw, 30px);
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.lang-switch__btn {
+  position: relative;
+  padding: 10px 6px;
+  opacity: 0.45;
+  transition: opacity 0.3s;
+}
+
+.lang-switch__btn + .lang-switch__btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 1px;
+  height: 11px;
+  margin-top: -5.5px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.lang-switch__btn[aria-pressed='true'] {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .lang-switch__btn:hover {
+    opacity: 1;
+  }
+}
+
 .menu-toggle__icon {
   position: relative;
   width: 0.7em;
@@ -606,8 +649,8 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-stretch: 90%;
-  /* as large as the 6 links allow: by height (6 rows) or by width ("NEWS & EVENTS" ≈ 6.8em) */
-  font-size: min(calc((100vw - 2 * var(--gutter)) / 6.9), calc((100svh - var(--header-h) - 28px) / 6 / 0.9));
+  /* as large as the 6 links allow: by height (6 rows) or by width (the longest label, "OUR WORK", ≈ 4.7em) */
+  font-size: min(calc((100vw - 2 * var(--gutter)) / 5.3), calc((100svh - var(--header-h) - 28px) / 6 / 0.9));
   line-height: 0.86;
   letter-spacing: -0.035em;
   text-transform: uppercase;
@@ -1225,179 +1268,6 @@
 
 /* ------------------------------------------------------- home sections */
 
-.intro {
-  padding-top: var(--sec);
-  padding-bottom: clamp(48px, 6vw, 96px);
-}
-
-.intro__lead {
-  max-width: 1180px;
-  margin-top: 28px;
-}
-
-.intro__hl {
-  color: var(--color-orange-deep);
-}
-
-/* About → "Kadanglabo spirit": showreel left, ethos + link right (layout of shed.design "Shed spirit") */
-.spirit {
-  display: grid;
-  grid-template-columns: minmax(0, 2.07fr) minmax(0, 1fr);
-  gap: 12px;
-  padding-bottom: calc(var(--sec) * 0.5); /* the orange services block follows; half a section is enough */
-}
-
-.spirit__media {
-  position: relative;
-  aspect-ratio: 16 / 9;
-}
-
-.spirit__side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 32px;
-  padding-left: 12px;
-  border-left: 1px solid var(--line-strong);
-}
-
-.spirit__bottom {
-  display: grid;
-  justify-items: start;
-  gap: 22px;
-}
-
-.spirit__text {
-  max-width: 36ch;
-  font-size: clamp(1.05rem, 1.35vw, 1.32rem);
-  font-weight: 500;
-  line-height: 1.32;
-  letter-spacing: -0.01em;
-}
-
-.spirit__link {
-  font-size: clamp(1rem, 1.25vw, 1.25rem);
-  font-weight: 750;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 7px;
-  transition: color 0.3s;
-}
-
-@media (hover: hover) {
-  .spirit__link:hover {
-    color: var(--color-orange-text);
-  }
-}
-
-.reel {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: var(--color-navy-deep);
-}
-
-.reel__frame {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-.reel__frame img,
-.reel__video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.reel__frame img {
-  will-change: transform;
-}
-
-.reel__video {
-  position: absolute;
-  inset: 0;
-}
-
-.reel__shade {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  background: linear-gradient(180deg, rgb(0 0 0 / 0) 55%, rgb(0 0 0 / 0.32) 100%);
-  pointer-events: none;
-}
-
-.reel__caption {
-  position: absolute;
-  bottom: clamp(12px, 1.4vw, 20px);
-  left: clamp(12px, 1.4vw, 20px);
-  z-index: 6;
-  animation: rise-in 0.7s var(--ease-expo) both;
-}
-
-/* the round white button of the reference (play when there is a trailer, otherwise "open project") */
-.reel__btn {
-  position: absolute;
-  right: clamp(12px, 1.4vw, 20px);
-  bottom: clamp(12px, 1.4vw, 20px);
-  z-index: 6;
-  display: grid;
-  place-items: center;
-  width: clamp(48px, 4.4vw, 72px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #fff;
-  color: var(--color-ink);
-  transition:
-    transform 0.6s var(--ease-expo),
-    background 0.3s,
-    color 0.3s;
-}
-
-@media (hover: hover) {
-  .reel__btn:hover {
-    background: var(--color-orange-deep);
-    color: #fff;
-    transform: scale(1.06);
-  }
-}
-
-.reel__btn svg {
-  width: 38%;
-  height: auto;
-}
-
-.reel-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 95;
-  display: grid;
-  place-items: center;
-  padding: var(--pad);
-  background: rgb(14 18 30 / 0.94);
-  animation: rise-in 0.5s var(--ease-expo) both;
-}
-
-.reel-modal__video {
-  width: min(100%, 1400px);
-  max-height: 86svh;
-  background: #000;
-}
-
-.reel-modal__close {
-  position: absolute;
-  top: 16px;
-  right: var(--pad);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
 /* Shared "swap" pattern: the new image wipes up on top, the old one waits underneath. */
 .p-story__img {
   position: absolute;
@@ -1548,21 +1418,77 @@
   position: absolute;
   left: 50%;
   translate: -50% 0;
-  padding: 4px 2px;
-  border-bottom: 1px solid currentColor;
-  color: var(--color-ink);
-  font-size: 12px;
+}
+
+/* "View <category>" (WorkMosaic.tsx): solid ink capsule, readable on paper and on any photo passing under it */
+.wm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 6px 0 22px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  box-shadow: 0 10px 30px -12px rgb(21 21 21 / 0.45);
+  color: #fff;
+  font-size: 12.5px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
-  background: var(--color-paper);
-  transition: color 0.3s;
+  transition: background-color 0.45s var(--ease-expo);
+}
+
+.wm-btn__k {
+  color: rgb(255 255 255 / 0.55);
+}
+
+.wm-btn__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: 10px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--color-orange-deep);
+  transition:
+    background-color 0.45s var(--ease-expo),
+    color 0.45s var(--ease-expo);
+}
+
+.wm-btn__icon svg {
+  grid-area: 1 / 1;
+  width: 14px;
+  height: auto;
+  transition: transform 0.55s var(--ease-expo);
+}
+
+.wm-btn__icon svg + svg {
+  transform: translateX(-40px);
 }
 
 @media (hover: hover) {
-  .wm__explore:hover {
-    color: var(--color-orange-text);
+  a:hover > .wm-btn {
+    background: var(--color-orange-deep);
+  }
+
+  a:hover > .wm-btn .wm-btn__k {
+    color: rgb(255 255 255 / 0.75);
+  }
+
+  a:hover > .wm-btn .wm-btn__icon {
+    background: #fff;
+    color: var(--color-orange-deep);
+  }
+
+  a:hover > .wm-btn .wm-btn__icon svg {
+    transform: translateX(40px);
+  }
+
+  a:hover > .wm-btn .wm-btn__icon svg + svg {
+    transform: translateX(0);
   }
 }
 
@@ -1627,7 +1553,7 @@
 
 .wms__link {
   display: inline-block;
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 /* Home, after Our Work: a calm centred close - sector chips with counts, one serif line, the button */
@@ -2777,6 +2703,145 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.cat__actions {
+  margin-top: 34px;
+}
+
+/* ---------- call-to-action pair (Services categories, service landing pages) ----------
+   A solid capsule with a round orange badge whose arrow runs through on hover, and a quiet outlined partner.
+   The row carries data-fade, so GSAP only ever moves the row; the hover transitions live on the parts inside. */
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  height: 58px;
+  padding: 0 6px 0 26px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background-color 0.45s var(--ease-expo);
+}
+
+.cta-btn__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--color-orange-deep);
+  color: #fff;
+  transition: background-color 0.45s var(--ease-expo);
+}
+
+.cta-btn__icon svg {
+  grid-area: 1 / 1;
+  width: 15px;
+  height: auto;
+  transition: transform 0.55s var(--ease-expo);
+}
+
+.cta-btn__icon svg + svg {
+  transform: translateX(-46px);
+}
+
+.cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 58px;
+  padding: 0 24px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    border-color 0.35s,
+    background-color 0.35s,
+    color 0.35s;
+}
+
+.cta-link__arrow {
+  width: 13px;
+  height: auto;
+  transition: transform 0.45s var(--ease-expo);
+}
+
+[data-theme='dark'] .cta-link {
+  border-color: rgb(255 255 255 / 0.45);
+}
+
+[data-theme='dark'] .cta-btn {
+  background: #fff;
+  color: var(--color-ink);
+}
+
+@media (hover: hover) {
+  .cta-btn:hover {
+    background: var(--color-orange-deep);
+  }
+
+  .cta-btn:hover .cta-btn__icon {
+    background: var(--color-navy-deep);
+  }
+
+  .cta-btn:hover .cta-btn__icon svg {
+    transform: translateX(46px);
+  }
+
+  .cta-btn:hover .cta-btn__icon svg + svg {
+    transform: translateX(0);
+  }
+
+  [data-theme='dark'] .cta-btn:hover {
+    color: #fff;
+  }
+
+  .cta-link:hover {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  [data-theme='dark'] .cta-link:hover {
+    border-color: #fff;
+    background: #fff;
+    color: var(--color-ink);
+  }
+
+  .cta-link:hover .cta-link__arrow {
+    transform: translateX(4px);
+  }
+}
+
+@media (max-width: 479px) {
+  .cta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-btn,
+  .cta-link {
+    justify-content: space-between;
+  }
 }
 
 .cats__stage {
@@ -4898,7 +4963,6 @@
 
 
 
-  .spirit,
   .p-intro,
   .nd-body,
   .start,
@@ -4907,12 +4971,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .spirit__side {
-    padding-top: 16px;
-    padding-left: 0;
-    border-top: 1px solid var(--line-strong);
-    border-left: 0;
-  }
 
   .related__grid,
   .nd-more__grid,
@@ -5029,4 +5087,70 @@
   display: none;
   width: 0;
   height: 0;
+}
+
+/* ---------------------------------------------------------- WhatsApp button (WaFloat.tsx) */
+.wa-float {
+  position: fixed;
+  right: max(var(--pad), env(safe-area-inset-right, 0px));
+  bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
+  z-index: 50; /* above the page, under the menu (55) and the curtain */
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--color-orange-deep);
+  box-shadow: 0 14px 34px -14px rgb(21 21 21 / 0.55);
+  color: #fff;
+  opacity: 0;
+  transform: translateY(16px) scale(0.9);
+  pointer-events: none;
+  transition:
+    opacity 0.5s var(--ease-expo),
+    transform 0.5s var(--ease-expo),
+    background-color 0.35s;
+}
+
+.wa-float[data-shown] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.wa-float__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+}
+
+.wa-float__icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* the label folds out to the left on hover */
+.wa-float__label {
+  max-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    max-width 0.55s var(--ease-expo),
+    padding 0.55s var(--ease-expo);
+}
+
+@media (hover: hover) {
+  .wa-float:hover {
+    background: var(--color-ink);
+  }
+
+  .wa-float:hover .wa-float__label {
+    max-width: 200px;
+    padding-left: 16px;
+  }
 }

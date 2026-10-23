@@ -14,6 +14,7 @@ import { closeGate, onPageMounted, openGate } from './gate'
 import { getLenis, lockScroll, scrollToElement, scrollToTop } from './smooth'
 import { BrandMark } from '../components/BrandMark'
 import { nav } from '../data/site'
+import { t, tr } from './i18n'
 import { getProject } from '../data/projects'
 
 type TransitionApi = { go: (to: string) => void }
@@ -25,9 +26,10 @@ export const useTransitionNav = () => useContext(TransitionContext)
 /** Name of the destination, shown on the curtain while the page changes. */
 function labelFor(pathname: string) {
   const [section, slug] = pathname.split('/').filter(Boolean)
-  if (section === 'work' && slug) return getProject(slug)?.title ?? 'Our Work'
-  if (section === 'news' && slug) return 'News & Events'
-  return nav.find((n) => n.to === pathname)?.label ?? 'Kadanglabo'
+  if (section === 'work' && slug) return getProject(slug)?.title ?? tr('Our Work', 'Proyek')
+  if (section === 'news' && slug) return tr('Articles', 'Artikel')
+  const item = nav.find((n) => n.to === pathname)
+  return item ? t(item.label) : 'Kadanglabo'
 }
 
 /**

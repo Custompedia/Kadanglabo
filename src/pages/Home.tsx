@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { Page } from '../components/Page'
 import { Counter, SectionLabel } from '../components/Bits'
 import { HomeHero } from '../components/HomeHero'
-import { ShowReel } from '../components/ShowReel'
+import { SpiritScatter, animateSpirit } from '../components/SpiritScatter'
 import { ServiceSketch, animateServiceSketch } from '../components/ServiceSketch'
 import { StudioNumbers, animateStudioNumbers } from '../components/StudioNumbers'
 import { WorkMosaic } from '../components/WorkMosaic'
@@ -10,15 +10,17 @@ import { NewsCard } from '../components/NewsCard'
 import { ArrowRight } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { TLink } from '../lib/transition'
-import { about } from '../data/site'
+import { tr } from '../lib/i18n'
 import { archive, categoryLabel, categoryOrder } from '../data/projects'
 import { sortedNews } from '../data/news'
 
 export default function Home() {
   const root = useRef<HTMLDivElement>(null)
   usePageAnimations(root, (page) => {
+    const undoSpirit = animateSpirit(page) // first: it sets the held field's height that later triggers measure against
     animateStudioNumbers(page)
     animateServiceSketch(page)
+    return undoSpirit
   })
 
   return (
@@ -26,42 +28,8 @@ export default function Home() {
       <div ref={root}>
         <HomeHero />
 
-        {/* ---------- (01) ABOUT — copy persis dari brief ---------- */}
-        <section id="intro" className="intro wrap" data-theme="light">
-          <SectionLabel n="01">About</SectionLabel>
-          <p className="t-lead intro__lead" data-scrub>
-            {about.lead.split(/(Desain Kontekstual|Efektifitas Workflow)/).map((part, i) =>
-              i % 2 ? (
-                <span key={i} className="intro__hl">
-                  {part}
-                </span>
-              ) : (
-                part
-              ),
-            )}
-          </p>
-        </section>
-
-        {/* ---------- spirit: showreel left, ethos right (layout of shed.design "Shed spirit") ---------- */}
-        <section className="spirit wrap" data-theme="light">
-          <div className="spirit__media">
-            <ShowReel />
-          </div>
-          <div className="spirit__side">
-            <span className="pill" data-fade>
-              Kadanglabo spirit
-            </span>
-            <div className="spirit__bottom">
-              <p className="spirit__text" data-fade>
-                Kadanglabo menargetkan setiap proyek yang didesain harus terbangun. Etos inilah yang menjaga dua parameter
-                keberhasilan proyek kami.
-              </p>
-              <TLink to="/about" className="spirit__link" data-fade>
-                Tentang kami
-              </TLink>
-            </div>
-          </div>
-        </section>
+        {/* ---------- (01) ABOUT x Kadanglabo spirit: four chapters held in a field of drifting project photos ---------- */}
+        <SpiritScatter />
 
         {/* ---------- Kadanglabo dalam angka (moved from About): ring of photos, figures rolling past ---------- */}
         <StudioNumbers />
@@ -83,10 +51,14 @@ export default function Home() {
               ))}
             </div>
             <p className="t-serif wm-foot__text" data-fade>
-              <Counter to={archive.length} /> proyek dalam arsip kami sejak 2020, dari rumah tinggal sampai fasilitas kesehatan.
+              <Counter to={archive.length} />{' '}
+              {tr(
+                'projects in our archive since 2020, from family homes to healthcare facilities.',
+                'proyek dalam arsip kami sejak 2020, dari rumah tinggal hingga fasilitas kesehatan.',
+              )}
             </p>
             <TLink to="/work" className="btn-pill btn-pill--dark btn-pill--lg" data-fade>
-              Lihat semua proyek <ArrowRight className="h-[0.8em] w-auto" />
+              {tr('View all projects', 'Lihat semua proyek')} <ArrowRight className="h-[0.8em] w-auto" />
             </TLink>
           </div>
         </div>
@@ -94,9 +66,9 @@ export default function Home() {
         {/* ---------- (04) LATEST UPDATES ---------- */}
         <section className="latest wrap" data-theme="light">
           <div className="latest__head">
-            <SectionLabel n="04">Latest updates</SectionLabel>
+            <SectionLabel n="04">{tr('Latest articles', 'Artikel terbaru')}</SectionLabel>
             <TLink to="/news" className="link-line t-label">
-              News & events →
+              {tr('All articles →', 'Semua artikel →')}
             </TLink>
           </div>
           <div className="latest__grid" data-stagger>

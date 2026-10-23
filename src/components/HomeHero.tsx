@@ -6,6 +6,7 @@ import { useFitText } from '../lib/useFitText'
 import { heroSlides, heroImageSizes } from '../data/hero'
 import { Img } from './Img'
 import { TAGLINE } from './Header'
+import { tr } from '../lib/i18n'
 
 const SLIDE = 6.5 // seconds per slide — the image pans up and the capsule fills over this time
 const WIPE = 1.4 // seconds for the next slide to wipe in (the old one keeps drifting underneath)
@@ -204,8 +205,8 @@ export function HomeHero() {
         type="button"
         className="hero-capsule"
         onClick={() => advance()}
-        aria-label={`Proyek berikutnya: ${heroSlides[next].title}`}
-        data-cursor="Next"
+        aria-label={`${tr('Next project', 'Proyek berikutnya')}: ${heroSlides[next].title}`}
+        data-cursor={tr('Next', 'Lanjut')}
       >
         <span className="hero-capsule__body">
           {leaving !== null && leaving !== next && <CapsuleSet key={`leaving-${leaving}`} idx={leaving} filled />}
@@ -213,14 +214,14 @@ export function HomeHero() {
         </span>
       </button>
 
-      <button type="button" className="hero-scroll" onClick={() => scrollToElement('#intro', 0)} aria-label="Scroll explore: ke bagian About">
+      <button type="button" className="hero-scroll" onClick={() => scrollToElement('#intro', 0)} aria-label={tr('Scroll to learn about us', 'Gulir untuk mengenal kami')}>
         <span className="hero-scroll__body">
           <svg viewBox="0 0 100 100" className="hero-scroll__ring" aria-hidden="true">
             <defs>
               <path id="scroll-circle" d="M50 50 m-38 0 a38 38 0 1 1 76 0 a38 38 0 1 1 -76 0" />
             </defs>
             <text>
-              <textPath href="#scroll-circle" textLength="236" lengthAdjust="spacing">SCROLL • EXPLORE • SCROLL • EXPLORE •</textPath>
+              <textPath href="#scroll-circle" textLength="236" lengthAdjust="spacing">{tr('SCROLL • EXPLORE • SCROLL • EXPLORE •', 'GULIR • JELAJAHI • GULIR • JELAJAHI •')}</textPath>
             </text>
           </svg>
           <span className="hero-scroll__arrow" aria-hidden="true">↓</span>

@@ -5,6 +5,27 @@ import { whenGateOpen } from '../lib/gate'
 import { useMediaQuery } from '../lib/media'
 import { categoryTitle, getProject, type Category } from '../data/projects'
 import { Img, type ImgKey } from './Img'
+import { ArrowRight } from './Icons'
+import { tr } from '../lib/i18n'
+
+/**
+ * "View <category>": a dark capsule with a round orange badge whose arrow runs through on hover.
+ * GSAP fades and lifts the link itself, so the colour changes live on the inner capsule.
+ */
+function ExploreButton({ cat, className }: { cat: Category; className: string }) {
+  return (
+    <TLink to={`/work/${cat}`} className={className}>
+      <span className="wm-btn">
+        <span className="wm-btn__k">{tr('View', 'Lihat')}</span>
+        <span className="wm-btn__name">{categoryTitle[cat]}</span>
+        <span className="wm-btn__icon" aria-hidden="true">
+          <ArrowRight />
+          <ArrowRight />
+        </span>
+      </span>
+    </TLink>
+  )
+}
 
 /*
  * Our Work on the home page, after coevalstudio.com/services (reference in the brief):
@@ -114,9 +135,9 @@ function WorkStack() {
   )
 
   return (
-    <section ref={root} className="wms wrap" data-theme="light" aria-label="Our work: proyek terpilih per kategori">
+    <section ref={root} className="wms wrap" data-theme="light" aria-label={tr('Selected projects by sector', 'Proyek pilihan menurut sektor')}>
       <span className="pill" data-fade>
-        (03) Our work
+        (03) {tr('Our work', 'Proyek kami')}
       </span>
       {groups.map((g, gi) => (
         <div key={g.key} className="wms__group">
@@ -136,9 +157,9 @@ function WorkStack() {
               )
             })}
           </div>
-          <TLink to={`/work/${g.key}`} className="link-line t-label wms__link" data-fade>
-            Lihat {categoryTitle[g.key]} →
-          </TLink>
+          <span className="wms__link" data-fade>
+            <ExploreButton cat={g.key} className="wms__btn" />
+          </span>
         </div>
       ))}
     </section>
@@ -274,7 +295,7 @@ function Mosaic() {
   )
 
   return (
-    <section ref={root} className="wm" data-theme="light" aria-label="Our work: proyek terpilih per kategori">
+    <section ref={root} className="wm" data-theme="light" aria-label={tr('Selected projects by sector', 'Proyek pilihan menurut sektor')}>
       <div className="wm__stage">
         <div className="wm__pattern" aria-hidden="true">
           {groups.map((g, bi) => (
@@ -288,7 +309,7 @@ function Mosaic() {
                     to={`/work/${t.slug}`}
                     className="wm__tile"
                     tabIndex={-1}
-                    data-cursor="Lihat"
+                    data-cursor={tr('View', 'Lihat')}
                     style={
                       {
                         '--x': s.x,
@@ -311,7 +332,7 @@ function Mosaic() {
         </div>
 
         <div className="wm__ui">
-          <span className="pill wm__label wm__fade">(03) Our work</span>
+          <span className="pill wm__label wm__fade">(03) {tr('Our work', 'Proyek kami')}</span>
           <p className="wm__count wm__fade" aria-hidden="true">
             <span className="wm__count-n">1</span> / {N}
           </p>
@@ -340,13 +361,11 @@ function Mosaic() {
           </div>
           <div className="wm__links">
             {groups.map((g) => (
-              <TLink key={g.key} to={`/work/${g.key}`} className="wm__explore">
-                Lihat {categoryTitle[g.key]}
-              </TLink>
+              <ExploreButton key={g.key} cat={g.key} className="wm__explore" />
             ))}
           </div>
           <span className="wm__hint wm__fade" aria-hidden="true">
-            Scroll ↓
+            {tr('Scroll', 'Gulir')} ↓
           </span>
         </div>
       </div>

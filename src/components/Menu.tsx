@@ -3,7 +3,8 @@ import { useLocation } from 'react-router'
 import { gsap, useGSAP } from '../lib/gsap'
 import { lockScroll } from '../lib/smooth'
 import { TLink } from '../lib/transition'
-import { company, nav, waLink } from '../data/site'
+import { company, nav, waHello, waLink } from '../data/site'
+import { t, tr } from '../lib/i18n'
 import { Instagram, Mail, WhatsApp } from './Icons'
 
 type Props = { open: boolean; onClose: () => void }
@@ -77,7 +78,7 @@ export function Menu({ open, onClose }: Props) {
   return (
     <div ref={root} id="site-menu" className="menu" aria-hidden={!open} inert={!open}>
       <div className="menu__panel" data-theme="accent" data-lenis-prevent>
-        <nav className="wrap menu__nav" aria-label="Menu utama" onMouseLeave={() => setHover(null)}>
+        <nav className="wrap menu__nav" aria-label={tr('Main menu', 'Menu utama')} onMouseLeave={() => setHover(null)}>
           {nav.map((item) => (
             <TLink
               key={item.to}
@@ -92,21 +93,21 @@ export function Menu({ open, onClose }: Props) {
               }}
             >
               <span className="menu__link-mask">
-                <span className="menu__link-text">{item.label}</span>
+                <span className="menu__link-text">{t(item.label)}</span>
               </span>
               <span className="menu__rule" aria-hidden="true" />
             </TLink>
           ))}
           {/* phones / portrait tablets only (see styles.css): the studio's contacts under the links */}
           <div className="menu__foot">
-            <p className="menu__foot-label">Kontak studio</p>
+            <p className="menu__foot-label">{tr('Studio contact', 'Kontak studio')}</p>
             <a href={`tel:+${company.phoneIntl}`}>{company.phone}</a>
             <a href={`mailto:${company.email}`}>{company.email}</a>
             <div className="menu__social">
               <a href={company.instagram} target="_blank" rel="noreferrer" aria-label="Instagram @kadanglabo">
                 <Instagram />
               </a>
-              <a href={waLink('Halo Kadanglabo, saya ingin konsultasi proyek.')} target="_blank" rel="noreferrer" aria-label="WhatsApp">
+              <a href={waLink(waHello())} target="_blank" rel="noreferrer" aria-label="WhatsApp">
                 <WhatsApp />
               </a>
               <a href={`mailto:${company.email}`} aria-label="Email">

@@ -3,12 +3,14 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import { SmoothScroll, scrollToElement, scrollToTop } from './lib/smooth'
 import { TransitionProvider } from './lib/transition'
 import { whenGateOpen } from './lib/gate'
+import { tr } from './lib/i18n'
 import { Header } from './components/Header'
 import { Menu } from './components/Menu'
 import { Footer, type FooterCtaProps } from './components/Footer'
 import { Preloader } from './components/Preloader'
 import { Cursor } from './components/Cursor'
 import { categoryOrder, nextProject, projects, type Category } from './data/projects'
+import { sectors } from './data/site'
 
 const pages = {
   home: () => import('./pages/Home'),
@@ -37,17 +39,28 @@ const NotFound = lazy(pages.notFound)
 const workThumbs = projects.slice(0, 8).map((p) => p.cover)
 
 function footerCta(pathname: string): FooterCtaProps {
-  if (categoryOrder.includes(pathname.split('/')[2] as Category)) {
-    return { words: 'Start a project', to: '/contact#start', imgs: ['labarka-path', 'hmw-dining', 'balecatur-lobby', 'klinik-waiting'] }
+  const start: FooterCtaProps = {
+    words: tr('Start a project', 'Mulai proyek'),
+    to: '/contact#start',
+    imgs: ['labarka-path', 'hmw-dining', 'balecatur-lobby', 'klinik-waiting'],
+  }
+  // a category landing page ends on its own form; the footer leads on to the next category
+  const ci = categoryOrder.indexOf(pathname.split('/')[2] as Category)
+  if (pathname.startsWith('/work/') && ci >= 0) {
+    const next = sectors.find((x) => x.key === categoryOrder[(ci + 1) % categoryOrder.length])!
+    return { words: tr('Next up', 'Berikutnya'), to: `/work/${next.key}`, imgs: [next.img, ...next.gallery.slice(0, 3)], kicker: next.label }
   }
   if (pathname.startsWith('/work/')) {
     const next = nextProject(pathname.split('/')[2] ?? '')
-    return { words: 'Next up', to: `/work/${next.slug}`, imgs: [next.cover], kicker: `Proyek berikutnya: ${next.title}` }
+    return {
+      words: tr('Next up', 'Berikutnya'),
+      to: `/work/${next.slug}`,
+      imgs: [next.cover],
+      kicker: `${tr('Next project', 'Proyek berikutnya')}: ${next.title}`,
+    }
   }
-  if (pathname === '/work') {
-    return { words: 'Start a project', to: '/contact#start', imgs: ['labarka-path', 'hmw-dining', 'balecatur-lobby', 'klinik-waiting'] }
-  }
-  return { words: 'See work', to: '/work', imgs: workThumbs }
+  if (pathname === '/work') return start
+  return { words: tr('See work', 'Lihat proyek'), to: '/work', imgs: workThumbs }
 }
 
 function Layout() {
@@ -83,7 +96,7 @@ function Layout() {
   return (
     <>
       <a href="#main" className="skip-link">
-        Langsung ke konten
+        {tr('Skip to content', 'Langsung ke konten')}
       </a>
       <Header menuOpen={menuOpen} onToggleMenu={toggleMenu} />
       <Menu open={menuOpen} onClose={closeMenu} />
@@ -93,6 +106,10 @@ function Layout() {
           <Route path="/about" element={<About />} />
           <Route path="/studio" element={<Navigate to="/about" replace />} />
           <Route path="/services" element={<Services />} />
+          {sectors.map((s) => (
+            // the per-category service pages became the category landing pages under /work (old links still land there)
+            <Route key={s.key} path={`/services/${s.key}`} element={<Navigate to={`/work/${s.key}`} replace />} />
+          ))}
           <Route path="/work" element={<Work />} />
           {categoryOrder.map((c) => (
             <Route key={c} path={`/work/${c}`} element={<CategoryPage cat={c} />} />

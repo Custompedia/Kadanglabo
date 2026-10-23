@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 import { TLink } from '../lib/transition'
+import { getLang, reloadInLang, tr, type Lang } from '../lib/i18n'
 import { BrandMark } from './BrandMark'
 
 // Hero tagline exactly as in the brief (slide 03); it now sits still under the hero wordmark
@@ -8,16 +9,42 @@ export const TAGLINE = 'A Collaborative Architectural Solutions.'
 
 function centerFor(pathname: string): { label: string; to?: string } | null {
   if (pathname === '/') return null // home: the hero carries the one message (tagline under the name)
-  if (pathname.startsWith('/work/')) return { label: '← Back to work', to: '/work' }
-  if (pathname.startsWith('/news/')) return { label: '← Back to news', to: '/news' }
+  if (pathname.startsWith('/work/')) return { label: tr('← Back to work', '← Kembali ke proyek'), to: '/work' }
+  if (pathname.startsWith('/news/')) return { label: tr('← All articles', '← Semua artikel'), to: '/news' }
   const map: Record<string, string> = {
-    '/about': 'About us',
-    '/services': 'Our services',
-    '/work': 'Selected projects',
-    '/news': 'News & events',
-    '/contact': 'Work with us',
+    '/about': tr('About us', 'Tentang kami'),
+    '/services': tr('Our services', 'Layanan kami'),
+    '/work': tr('Selected projects', 'Proyek pilihan'),
+    '/news': tr('Articles', 'Artikel'),
+    '/contact': tr('Work with us', 'Bekerja sama'),
   }
   return map[pathname] ? { label: map[pathname] } : { label: 'Kadanglabo' }
+}
+
+/** EN / ID: the current language is lit; the other one reloads the page in that language (logo intro included). */
+function LangSwitch() {
+  const lang = getLang()
+  const opts: [Lang, string, string][] = [
+    ['en', 'EN', 'English'],
+    ['id', 'ID', 'Bahasa Indonesia'],
+  ]
+  return (
+    <div className="lang-switch" role="group" aria-label={tr('Language', 'Bahasa')}>
+      {opts.map(([code, short, name]) => (
+        <button
+          key={code}
+          type="button"
+          lang={code}
+          className="lang-switch__btn"
+          aria-pressed={lang === code}
+          aria-label={name}
+          onClick={() => reloadInLang(code)}
+        >
+          {short}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 type Props = { menuOpen: boolean; onToggleMenu: () => void }
@@ -93,7 +120,7 @@ export function Header({ menuOpen, onToggleMenu }: Props) {
 
         <div className="site-header__center">
           {menuOpen ? (
-            <span className="pill">Mau ke mana?</span>
+            <span className="pill">{tr('Where to?', 'Mau ke mana?')}</span>
           ) : center === null ? null : center.to ? (
             <TLink to={center.to} className="pill pill--link">
               {center.label}
@@ -104,6 +131,7 @@ export function Header({ menuOpen, onToggleMenu }: Props) {
         </div>
 
         <div className="site-header__right">
+          <LangSwitch />
           <button
             type="button"
             className="menu-toggle"
@@ -112,7 +140,7 @@ export function Header({ menuOpen, onToggleMenu }: Props) {
             onClick={onToggleMenu}
           >
             <span className="menu-toggle__icon" aria-hidden="true" />
-            <span>{menuOpen ? 'Close' : 'Menu'}</span>
+            <span>{menuOpen ? tr('Close', 'Tutup') : 'Menu'}</span>
           </button>
         </div>
         <span className="site-header__line" aria-hidden="true" />
