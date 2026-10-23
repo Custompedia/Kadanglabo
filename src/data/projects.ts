@@ -138,15 +138,15 @@ export const projects: Project[] = [
       {
         key: 'development',
         text: {
-          en: 'Open spaces, sun orientation, natural materials and wide openings make the most of the site and keep rooms naturally cool.',
-          id: 'Ruang terbuka, orientasi matahari, material alami, dan bukaan lebar mengoptimalkan tapak serta menjaga kesejukan ruang.',
+          en: 'Open spaces, orientation to the sun, natural materials and wide openings make the most of the site and keep rooms naturally cool.',
+          id: 'Ruang terbuka, orientasi terhadap matahari, material alami, dan bukaan lebar mengoptimalkan tapak serta menjaga kesejukan ruang.',
         },
         img: 'labarka-bath',
       },
       {
         key: 'outcome',
         text: {
-          en: 'Built through design & build: 718 m² of buildings on a 2,344 m² site, in harmony with nature.',
+          en: 'Delivered via design & build: 718 m² of buildings on a 2,344 m² site, in harmony with nature.',
           id: 'Dibangun melalui design & build: bangunan 718 m² di lahan 2.344 m², menyatu dengan alam.',
         },
         img: 'labarka-koi',
@@ -181,7 +181,7 @@ export const projects: Project[] = [
         label: { en: 'Interior', id: 'Interior' },
         body: {
           en: 'Timber, wide openings and indoor gardens keep rooms naturally cool and connected to their surroundings.',
-          id: 'Kayu, bukaan lebar, dan taman dalam ruang menjaga kamar tetap sejuk alami dan terhubung dengan lingkungan sekitar.',
+          id: 'Kayu, bukaan lebar, dan taman dalam ruang menjaga kamar tetap sejuk secara alami dan terhubung dengan lingkungan sekitar.',
         },
       },
       { t: 'pair', imgs: ['labarka-room', 'labarka-bed'] },
@@ -206,7 +206,7 @@ export const projects: Project[] = [
       id: 'Tradisi berpadu dengan kesederhanaan kontemporer.',
     },
     summary: {
-      en: 'Tradition meets contemporary simplicity: a distinctive facade, a shared lobby and restaurant, restful rooms and a pool that feels private.',
+      en: 'Tradition meets contemporary simplicity: a distinctive facade, a combined lobby and restaurant, restful rooms and a pool that feels private.',
       id: 'Tradisi berpadu dengan kesederhanaan kontemporer: fasad berkarakter, lobi dan restoran yang menyatu, kamar untuk beristirahat, serta kolam renang yang terasa privat.',
     },
     story: [
@@ -222,7 +222,7 @@ export const projects: Project[] = [
         key: 'challenge',
         text: {
           en: 'Traditional character, kept simple, functional and relevant for today’s guests.',
-          id: 'Karakter tradisi yang tetap sederhana, fungsional, dan relevan bagi tamu masa kini.',
+          id: 'Karakter tradisional yang tetap sederhana, fungsional, dan relevan bagi tamu masa kini.',
         },
         img: 'balecatur-sign',
       },
@@ -230,7 +230,7 @@ export const projects: Project[] = [
         key: 'concept',
         text: {
           en: 'Exposed brick and a distinctive tropical roof define the facade. Inside, the lobby and restaurant form one welcoming space.',
-          id: 'Bata ekspos dan atap tropis berkarakter membentuk fasad. Lobi dan restoran menyatu sebagai ruang penyambutan.',
+          id: 'Bata ekspos dan atap tropis berkarakter membentuk fasad. Di dalam, lobi dan restoran menyatu untuk menyambut tamu.',
         },
         img: 'balecatur-lobby',
       },
@@ -327,7 +327,7 @@ export const projects: Project[] = [
         key: 'outcome',
         text: {
           en: 'White walls and calming timber accents give corridors, waiting areas and consulting rooms a clean, warm feel.',
-          id: 'Dinding putih dan aksen kayu yang menenangkan memberi koridor, ruang tunggu, dan ruang praktik kesan bersih dan hangat.',
+          id: 'Dinding putih dan aksen kayu yang menenangkan menghadirkan kesan bersih dan hangat di koridor, ruang tunggu, dan ruang praktik.',
         },
         img: 'klinik-corridor',
       },
@@ -412,8 +412,8 @@ export const projects: Project[] = [
       {
         key: 'outcome',
         text: {
-          en: 'Every detail, from materials to lighting, is designed as standard, not as an extra.',
-          id: 'Setiap detail, dari material hingga pencahayaan, dirancang sebagai standar, bukan tambahan.',
+          en: 'Every detail, from materials to lighting, is included as standard, not as an extra.',
+          id: 'Setiap detail, dari material hingga pencahayaan, termasuk dalam standar desain, bukan tambahan.',
         },
         img: 'hmw-dining',
       },
@@ -428,7 +428,7 @@ export const projects: Project[] = [
         label: { en: 'Interior', id: 'Interior' },
         body: {
           en: 'The kitchen and dining area open to the garden. Wide openings and screens let in light, adding warmth all day.',
-          id: 'Dapur dan ruang makan terbuka ke taman. Cahaya lewat bukaan lebar dan kisi memberi suasana hangat sepanjang hari.',
+          id: 'Dapur dan ruang makan terbuka ke taman. Cahaya masuk lewat bukaan lebar dan kisi, menghadirkan kehangatan sepanjang hari.',
         },
       },
       { t: 'full', img: 'hmw-dining' },
@@ -495,7 +495,7 @@ export const projects: Project[] = [
       {
         key: 'outcome',
         text: {
-          en: 'More than beautiful: an estate that earns residents’ trust from the first impression.',
+          en: 'More than beautiful: an estate whose first impression earns residents’ trust.',
           id: 'Bukan sekadar indah: kawasan yang membangun kepercayaan penghuni sejak kesan pertama.',
         },
         img: 'firlatata-tv',
@@ -515,7 +515,7 @@ export const projects: Project[] = [
         t: 'text',
         label: { en: 'Unit interiors', id: 'Interior unit' },
         body: {
-          en: 'Living, dining and kitchen share a compact, open layout. Warm timber tones make each unit feel spacious.',
+          en: 'Living, dining and kitchen areas share a compact, open layout. Warm timber tones make each unit feel spacious.',
           id: 'Ruang keluarga, dapur, dan area makan tertata ringkas dan terbuka. Warna kayu hangat membuat unit terasa lapang.',
         },
       },
@@ -539,7 +539,7 @@ export const projects: Project[] = [
     tagline: { en: 'Our first housing partnership.', id: 'Kerja sama perumahan pertama kami.' },
     summary: {
       en: 'Our first housing partnership. PT. Papan Cemerlang trusted us to develop a site that had struggled to take off during the pandemic.',
-      id: 'Kerja sama perumahan pertama kami. PT. Papan Cemerlang mempercayakan pengembangan lahan yang terkendala selama pandemi.',
+      id: 'Kerja sama perumahan pertama kami. PT. Papan Cemerlang mempercayakan pengembangan lahan yang terkendala saat pandemi kepada kami.',
     },
     story: [
       {
@@ -554,7 +554,7 @@ export const projects: Project[] = [
         key: 'challenge',
         text: {
           en: 'The site was difficult to develop during the pandemic, amid a cautious property market.',
-          id: 'Lahan sulit dikembangkan selama pandemi, di tengah pasar properti yang berhati-hati.',
+          id: 'Lahan sulit dikembangkan selama pandemi, di tengah sikap hati-hati pelaku pasar properti.',
         },
         img: 'giripeni-street',
       },

@@ -23,7 +23,7 @@ export const faq: { q: Tx; a: Tx }[] = [
   {
     q: { en: 'How does the process work, from start to finish?', id: 'Seperti apa alur kerjanya dari awal sampai selesai?' },
     a: {
-      en: 'Four stages. Needs and goals: consultation, brief, budget and schedule. Analysis: site survey, regulations, needs and market research. Creative process: concept, design development and 3D visualisation with you. Deliverables: construction drawings (DED), a cost estimate (RAB), and site support and supervision.',
+      en: 'Four stages. Needs and goals: consultation, brief, budget and schedule. Analysis: site survey, regulatory review, needs analysis and market research. Creative process: concept, design development and 3D visualisation with you. Deliverables: construction drawings (DED), a cost estimate (RAB), and site support and supervision.',
       id: 'Empat tahap. Kebutuhan dan tujuan: konsultasi, brief, anggaran, dan jadwal. Analisis: survei tapak, kajian regulasi, kebutuhan, dan pasar. Proses kreatif: konsep, pengembangan desain, dan visualisasi 3D bersama Anda. Deliverables: gambar kerja (DED), RAB, serta pendampingan dan pengawasan di lapangan.',
     },
   },
@@ -31,14 +31,14 @@ export const faq: { q: Tx; a: Tx }[] = [
     q: { en: 'What should I prepare before the first consultation?', id: 'Apa yang perlu saya siapkan sebelum konsultasi pertama?' },
     a: {
       en: 'Bring what you have: the plot’s location and size, the spaces you need, a budget range and a target date. Photos of the site or existing building and examples of spaces you like also help. Still working out the details? We can discuss them at the first meeting.',
-      id: 'Cukup siapkan lokasi dan luas lahan, kebutuhan ruang, kisaran anggaran, dan target waktu. Foto lahan atau bangunan lama serta referensi ruang yang Anda sukai juga membantu. Belum lengkap? Kita bahas bersama saat pertemuan pertama.',
+      id: 'Siapkan yang sudah ada: lokasi dan luas lahan, kebutuhan ruang, kisaran anggaran, dan target waktu. Foto lahan atau bangunan yang ada serta referensi ruang yang Anda sukai juga membantu. Belum lengkap? Kita bahas bersama saat pertemuan pertama.',
     },
   },
   {
     q: { en: 'How much do your design services cost?', id: 'Berapa biaya jasa desainnya?' },
     a: {
-      en: 'Fees depend on building type, floor area, scope and location. After the first consultation, we prepare a proposal for your needs, from design alone to support through construction. A cost estimate (RAB) helps you plan your construction budget.',
-      id: 'Biaya mengikuti jenis bangunan, luas bangunan, lingkup pekerjaan, dan lokasi. Setelah konsultasi awal, kami menyusun penawaran sesuai kebutuhan Anda, dari desain saja hingga pendampingan konstruksi. RAB membantu Anda merencanakan anggaran pembangunan.',
+      en: 'Fees depend on building type, floor area, scope and location. After the first consultation, we prepare a proposal tailored to your needs, from design alone to support through construction. A cost estimate (RAB) helps you plan your construction budget.',
+      id: 'Biaya bergantung pada jenis bangunan, luas bangunan, lingkup pekerjaan, dan lokasi. Setelah konsultasi awal, kami menyusun penawaran sesuai kebutuhan Anda, dari desain saja hingga pendampingan konstruksi. RAB membantu Anda merencanakan anggaran pembangunan.',
     },
   },
   {

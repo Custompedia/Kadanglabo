@@ -122,8 +122,8 @@ export function InquiryForm({ sector }: { sector?: 'Commercial' | 'Hospitality' 
             value={f.message}
             onChange={(e) => set('message')(e.target.value)}
             placeholder={tr(
-              'E.g. a two-storey home with three bedrooms, to build next year',
-              'Mis. rumah dua lantai, tiga kamar tidur, ingin dibangun tahun depan',
+              'E.g. a two-storey, three-bedroom home to be built next year',
+              'Mis. rumah dua lantai dengan tiga kamar tidur, dibangun tahun depan',
             )}
           />
         </label>

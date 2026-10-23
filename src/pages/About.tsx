@@ -114,7 +114,7 @@ export default function About() {
           <p className="t-body-lg collab__body opacity-75" data-fade>
             {tr(
               'Planning and construction under one roof, so what we draw is what gets built.',
-              'Perencanaan dan pelaksanaan terintegrasi dalam satu pintu, supaya yang digambar benar-benar terbangun.',
+              'Perencanaan dan pelaksanaan melalui satu pintu, supaya yang kami gambar benar-benar terbangun.',
             )}
           </p>
         </section>

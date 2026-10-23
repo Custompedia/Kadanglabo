@@ -46,15 +46,15 @@ export const spiritChapters: { title: Tx; body: Tx }[] = [
   {
     title: { en: 'Architecture for everyone.', id: 'Arsitektur untuk semua.' },
     body: {
-      en: 'Kadanglabo is a community-based architecture consultancy in Yogyakarta, founded in 2020. We believe good design belongs within everyone’s reach.',
-      id: 'Kadanglabo adalah konsultan arsitektur berbasis komunitas di Yogyakarta, berdiri sejak 2020. Kami percaya desain yang baik layak dimiliki semua orang.',
+      en: 'Kadanglabo is a community-based architecture consultancy in Yogyakarta, founded in 2020. We believe good design should be within everyone’s reach.',
+      id: 'Kadanglabo adalah konsultan arsitektur berbasis komunitas di Yogyakarta, berdiri sejak 2020. Kami percaya desain yang baik seharusnya bisa dijangkau semua orang.',
     },
   },
   {
     title: { en: 'Client, planner, builder. One table.', id: 'Klien, perencana, pelaksana. Satu meja.' },
     body: {
-      en: 'Everyone who shapes the building works together from day one, so every decision is clear, realistic and ready to build.',
-      id: 'Semua pihak yang membentuk bangunan bekerja bersama sejak hari pertama, sehingga setiap keputusan jelas, realistis, dan siap dibangun.',
+      en: 'Everyone shaping the building works together from day one, so every decision is clear, realistic and ready to implement on site.',
+      id: 'Semua pihak yang membentuk bangunan bekerja sama sejak hari pertama, sehingga setiap keputusan jelas, realistis, dan siap diterapkan di lapangan.',
     },
   },
   {
@@ -68,7 +68,7 @@ export const spiritChapters: { title: Tx; body: Tx }[] = [
     title: { en: 'Designed to be built.', id: 'Didesain untuk terbangun.' },
     body: {
       en: 'Planning and construction under one roof keep time, cost and quality in check until the building stands.',
-      id: 'Perencanaan dan pelaksanaan berjalan dalam satu pintu, menjaga waktu, biaya, dan kualitas sampai bangunan berdiri.',
+      id: 'Perencanaan dan pelaksanaan lewat satu pintu menjaga waktu, biaya, dan kualitas hingga bangunan berdiri.',
     },
   },
 ]
@@ -81,7 +81,7 @@ export const vision: Tx = {
 export const mission: Tx[] = [
   {
     en: 'Improve places through Contextual Design, guided by sustainability.',
-    id: 'Memperbaiki lingkungan lewat Desain Kontekstual dengan acuan keberlanjutan.',
+    id: 'Memperbaiki lingkungan lewat Desain Kontekstual dengan prinsip keberlanjutan.',
   },
   {
     en: 'Bring planning and construction management under one roof.',
@@ -93,11 +93,11 @@ export const mission: Tx[] = [
 export const goals: Tx[] = [
   {
     en: 'Contextual Design for every community, with people actively shaping places that meet their needs.',
-    id: 'Desain Kontekstual untuk semua, dengan peran aktif masyarakat membentuk lingkungan sesuai kebutuhan mereka.',
+    id: 'Desain Kontekstual bagi tiap komunitas, dengan warga berperan aktif membentuk lingkungan sesuai kebutuhan mereka.',
   },
   {
     en: 'Effective workflow and budgeting, from planning through construction, for buildings that work as intended.',
-    id: 'Workflow dan anggaran yang efektif dari perencanaan hingga pelaksanaan, agar bangunan tepat guna.',
+    id: 'Workflow dan penganggaran yang efektif dari perencanaan hingga pelaksanaan, agar bangunan tepat guna.',
   },
 ]
 
@@ -107,8 +107,8 @@ export const parametersDetail: { title: Tx; body: Tx; img: ImgKey; imgAlt: Tx }[
     img: 'labarka-bird',
     imgAlt: { en: 'La Barka Resort - aerial view by the Progo River', id: 'La Barka Resort - tampak udara di tepi Kali Progo' },
     body: {
-      en: 'Every site has a story: contours, sun path, water, culture and the market. Our designs grow from reading that story honestly.',
-      id: 'Setiap tapak punya cerita: kontur, arah matahari, aliran air, budaya, hingga kondisi pasar. Desain kami lahir dari membaca konteks itu dengan jujur.',
+      en: 'Every site has a story: contours, sun path, water flow, culture and the market. Our designs grow from reading that story honestly.',
+      id: 'Setiap tapak punya cerita: kontur, lintasan matahari, aliran air, budaya, hingga kondisi pasar. Desain kami lahir dari membaca cerita itu dengan jujur.',
     },
   },
   {
@@ -117,7 +117,7 @@ export const parametersDetail: { title: Tx; body: Tx; img: ImgKey; imgAlt: Tx }[
     imgAlt: { en: 'Site and massing model study', id: 'Studi model tapak dan massa bangunan' },
     body: {
       en: 'One coordinated workflow connects planning and construction, helping manage time, cost and quality through to completion.',
-      id: 'Satu workflow menghubungkan perencanaan dan pelaksanaan agar waktu, biaya, dan kualitas terkelola hingga bangunan selesai.',
+      id: 'Satu workflow terpadu menyatukan perencanaan dan pelaksanaan, membantu mengelola waktu, biaya, dan kualitas hingga bangunan selesai.',
     },
   },
 ]
@@ -179,17 +179,17 @@ export const sectors: {
         },
       },
       {
-        title: { en: 'Layouts ready to operate', id: 'Layout yang siap beroperasi' },
+        title: { en: 'Layouts ready for business', id: 'Layout siap operasional' },
         body: {
           en: 'Visitor flow, staff routes, storage and services planned together to support smooth daily operations.',
-          id: 'Kami menata alur pengunjung, jalur staf, gudang, dan utilitas untuk mendukung kelancaran operasional.',
+          id: 'Kami menata alur pengunjung, jalur staf, gudang, dan utilitas secara terpadu agar operasional harian lancar.',
         },
       },
       {
         title: { en: 'Costs kept in check', id: 'Biaya tetap terkendali' },
         body: {
           en: 'Detailed drawings and a clear cost estimate help you plan your investment before construction starts.',
-          id: 'Gambar kerja detail dan RAB membantu Anda merencanakan investasi sebelum pembangunan dimulai.',
+          id: 'Gambar kerja detail dan RAB yang jelas membantu Anda merencanakan investasi sebelum mulai membangun.',
         },
       },
     ],
@@ -240,7 +240,7 @@ export const sectors: {
         title: { en: 'Rooted in the landscape', id: 'Menyatu dengan lanskap' },
         body: {
           en: 'We work with contours, views, water and greenery, so nature becomes your main attraction.',
-          id: 'Kami bekerja dengan kontur, pemandangan, air, dan vegetasi, sehingga alam menjadi daya tarik utama Anda.',
+          id: 'Kami menyelaraskan desain dengan kontur, pemandangan, air, dan vegetasi agar alam menjadi daya tarik utama Anda.',
         },
       },
       {
@@ -262,7 +262,7 @@ export const sectors: {
     gallery: ['labarka-river', 'labarka-gables', 'balecatur-pool', 'labarka-room', 'balecatur-lobby'],
     faq: [
       {
-        q: { en: 'Can you design on a sloping or riverside site?', id: 'Bisakah mendesain di lahan berkontur atau tepi sungai?' },
+        q: { en: 'Can you design on a sloping or riverside site?', id: 'Bisakah mendesain di lahan miring atau tepi sungai?' },
         a: {
           en: 'Yes. La Barka Resort sits on the bank of the Progo River; its buildings and gardens follow the contours and the flow of the water.',
           id: 'Bisa. La Barka Resort berdiri di tepi Kali Progo; bangunan dan tamannya mengikuti kontur serta aliran air.',
@@ -278,7 +278,7 @@ export const sectors: {
       {
         q: { en: 'Can the project be built in phases?', id: 'Apakah proyek bisa dibangun bertahap?' },
         a: {
-          en: 'Yes. We create a master plan for phased construction, in step with your business.',
+          en: 'Yes. We create a master plan for phased construction, in step with your business growth.',
           id: 'Bisa. Kami menyusun rencana induk untuk pembangunan bertahap, mengikuti pertumbuhan bisnis Anda.',
         },
       },
@@ -369,7 +369,7 @@ export const workLanding: Record<
     },
     statement: {
       en: 'A good commercial building [[klinik-front]] sells before anyone walks in, makes [[klinik-waiting]] every visit easy, and gives your business [[klinik-plaza]] room to grow.',
-      id: 'Bangunan komersial yang baik [[klinik-front]] sudah menjual sebelum orang masuk, membuat [[klinik-waiting]] setiap kunjungan terasa mudah, dan memberi bisnis Anda [[klinik-plaza]] ruang untuk tumbuh.',
+      id: 'Bangunan komersial yang baik [[klinik-front]] sudah menjual sebelum orang masuk, memudahkan [[klinik-waiting]] setiap kunjungan, dan memberi bisnis Anda [[klinik-plaza]] ruang untuk tumbuh.',
     },
     projectsIntro: {
       en: 'From a campus clinic to a row of shophouses, each one designed around how the business really runs.',
@@ -380,11 +380,11 @@ export const workLanding: Record<
   hospitality: {
     headline: { en: 'Places to stay that feel born from their landscape.', id: 'Tempat menginap yang terasa lahir dari alamnya.' },
     sub: {
-      en: 'Resorts, villas, homestays and boarding houses that turn the character of a site into the reason guests book, and come back.',
-      id: 'Resort, villa, homestay, hingga rumah kos yang menjadikan karakter tapak sebagai alasan tamu memesan, lalu datang kembali.',
+      en: 'Resorts, villas, homestays and boarding houses that turn the character of a site into the reason guests book and come back.',
+      id: 'Resort, villa, homestay, hingga rumah kos yang menjadikan karakter tapak sebagai alasan tamu memesan kamar, lalu datang kembali.',
     },
     statement: {
-      en: 'From a riverside resort [[labarka-river]] to a villa and restaurant [[balecatur-pool]] built around its pool, we design stays where every arrival [[labarka-path]] feels like a welcome.',
+      en: 'From a riverside resort [[labarka-river]] to a villa and restaurant [[balecatur-pool]] built around its pool, we design places to stay where every arrival [[labarka-path]] feels like a welcome.',
       id: 'Dari resort di tepi sungai [[labarka-river]] hingga villa dan restoran [[balecatur-pool]] yang berpusat pada kolamnya, kami merancang tempat menginap yang menyambut tamu [[labarka-path]] sejak langkah pertama.',
     },
     projectsIntro: {
@@ -405,7 +405,7 @@ export const workLanding: Record<
     },
     projectsIntro: {
       en: 'Private houses and estates in and around Yogyakarta, each planned for light, air and everyday life.',
-      id: 'Rumah tinggal dan kawasan hunian di Yogyakarta dan sekitarnya, masing-masing direncanakan untuk cahaya, udara, dan keseharian penghuninya.',
+      id: 'Rumah tinggal dan kawasan hunian di Yogyakarta dan sekitarnya, dirancang dengan memperhatikan cahaya, udara, dan keseharian penghuninya.',
     },
     typologyImgs: ['hmw-facade-day', 'giripeni-aerial', 'hmw-kitchen'],
   },
@@ -445,7 +445,7 @@ export const serviceByKey = (en: string) => serviceGroups.flatMap((g) => g.items
 
 export const process: { title: Tx; lead: Tx; points: Tx[] }[] = [
   {
-    title: { en: 'Pain Points & Goals', id: 'Kebutuhan & Tujuan' },
+    title: { en: 'Pain Points & Goals', id: 'Hambatan & Tujuan' },
     lead: {
       en: 'We listen first, then map your needs, constraints, budget and goals with you.',
       id: 'Kami mendengarkan, lalu memetakan kebutuhan, kendala, anggaran, dan tujuan bersama Anda.',
@@ -460,7 +460,7 @@ export const process: { title: Tx; lead: Tx; points: Tx[] }[] = [
     title: { en: 'Analysis', id: 'Analisis' },
     lead: {
       en: 'We study the site and its context: contours, sun path, water flow, regulations and the market.',
-      id: 'Kami mengkaji tapak dan konteksnya: kontur, arah matahari, aliran air, regulasi, dan pasar.',
+      id: 'Kami mengkaji tapak dan konteksnya: kontur, lintasan matahari, aliran air, regulasi, dan pasar.',
     },
     points: [
       { en: 'Site survey & analysis', id: 'Survei & analisis tapak' },
@@ -483,8 +483,8 @@ export const process: { title: Tx; lead: Tx; points: Tx[] }[] = [
   {
     title: { en: 'Deliverables', id: 'Deliverables' },
     lead: {
-      en: 'Documents ready to build. Because every design must be built, we stay with you all the way to the site.',
-      id: 'Dokumen yang siap dibangun. Karena setiap desain harus terbangun, kami mendampingi sampai ke lapangan.',
+      en: 'Documents ready for construction. Because every design must be built, we stay with you all the way to the site.',
+      id: 'Dokumen siap untuk konstruksi. Karena setiap desain harus terbangun, kami mendampingi Anda sampai ke lapangan.',
     },
     points: [
       { en: 'Construction drawings (DED)', id: 'Gambar kerja (DED)' },

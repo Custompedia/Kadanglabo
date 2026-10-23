@@ -22,7 +22,7 @@ export default function NewsDetail() {
 
 function infoHref(n: NewsItem, href?: string) {
   const title = t(n.title)
-  if (href === 'whatsapp') return waLink(tr(`Hello Kadanglabo, I would like to register for: ${title}`, `Halo Kadanglabo, saya ingin mendaftar: ${title}`))
+  if (href === 'whatsapp') return waLink(tr(`Hello Kadanglabo, I would like to register for ${title}`, `Halo Kadanglabo, saya ingin mendaftar: ${title}`))
   if (href === 'mailto') return mailLink(title)
   return href
 }
@@ -132,8 +132,8 @@ function Article({ n }: { n: NewsItem }) {
                   <a
                     href={waLink(
                       tr(
-                        `Hello Kadanglabo, I have a question about: ${t(n.title)}`,
-                        `Halo Kadanglabo, saya ingin bertanya tentang: ${t(n.title)}`,
+                        `Hello Kadanglabo, I have a question about ${t(n.title)}`,
+                        `Halo Kadanglabo, saya ingin bertanya tentang ${t(n.title)}`,
                       ),
                     )}
                     target="_blank"

@@ -529,7 +529,7 @@ export default function CategoryPage({ cat }: { cat: Category }) {
             <p className="t-body-lg max-w-[40ch] opacity-75 mt-6" data-fade>
               {tr(
                 'Tell us a little about your plans. Our team will get back to you to map out the next step together.',
-                'Ceritakan sedikit rencana Anda. Tim kami akan menghubungi Anda untuk menyusun langkah berikutnya bersama.',
+                'Ceritakan sedikit tentang rencana Anda. Tim kami akan menghubungi Anda untuk menyusun langkah berikutnya bersama.',
               )}
             </p>
             <TeamStack />

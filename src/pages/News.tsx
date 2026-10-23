@@ -179,7 +179,7 @@ export default function News() {
             {items.length === 0 && (
               <div className="news__empty">
                 <p className="t-serif news__empty-text">
-                  {tr('No articles match your search.', 'Tidak ada artikel yang sesuai pencarian Anda.')}
+                  {tr('No articles match your search.', 'Tidak ada artikel sesuai dengan pencarian Anda.')}
                 </p>
                 <button type="button" className="btn-pill btn-pill--dark" onClick={reset}>
                   {tr('Show all articles', 'Tampilkan semua artikel')}

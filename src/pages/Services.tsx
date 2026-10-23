@@ -256,7 +256,7 @@ export default function Services() {
               <div className="overview__art-draw">
                 <Img
                   id="draw-exploded"
-                  alt={tr('Exploded axonometric drawing of a house by Kadanglabo', 'Gambar aksonometri rumah terurai dari studio Kadanglabo')}
+                  alt={tr('Exploded axonometric drawing of a house by Kadanglabo', 'Gambar aksonometri terurai sebuah rumah karya Kadanglabo')}
                   sizes="(min-width: 1024px) 30vw, 64vw"
                   style={{ backgroundColor: 'transparent' }}
                 />
@@ -345,7 +345,7 @@ export default function Services() {
                 <p className="t-body-lg process__description" data-fade>
                   {tr(
                     'Four clear stages with you, from the first brief to support on site.',
-                    'Empat tahap bersama Anda, dari kebutuhan awal hingga pendampingan di lapangan.',
+                    'Empat tahap yang jelas bersama Anda, dari brief awal hingga dukungan di lapangan.',
                   )}
                 </p>
               </div>

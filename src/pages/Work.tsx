@@ -237,10 +237,10 @@ export default function Work() {
           title={tr('Our work', 'Proyek')}
           sub={tr(
             'Selected projects across three sectors: Commercial Design, Hospitality Design and Selected Residential Design.',
-            'Proyek pilihan dari tiga kategori: Commercial Design, Hospitality Design, dan Selected Residential Design.',
+            'Proyek pilihan dari tiga sektor: Commercial Design, Hospitality Design, dan Selected Residential Design.',
           )}
         >
-          <nav className="work-nav" aria-label={tr('On this page', 'Bagian halaman')} data-fade="now" data-delay="0.6">
+          <nav className="work-nav" aria-label={tr('On this page', 'Di halaman ini')} data-fade="now" data-delay="0.6">
             {categoryOrder.map((c) => (
               <TLink key={c} to={`/work/${c}`} className="chip-btn">
                 {categoryTitle[c]}

@@ -45,7 +45,7 @@ export const news: NewsItem[] = [
     date: '2026-11-14',
     excerpt: {
       en: 'Join us for a day at our studio on Jl. Kaliurang. Bring a floor plan, site photos or questions about your home or business.',
-      id: 'Sehari untuk ngobrol di studio kami, Jl. Kaliurang. Bawa denah, foto lahan, atau pertanyaan seputar rumah dan usaha Anda.',
+      id: 'Sehari untuk ngobrol di studio kami, Jl. Kaliurang. Bawa denah, foto lahan, atau pertanyaan seputar rumah atau usaha Anda.',
     },
     cover: 'balecatur-lobby',
     context: {
@@ -92,7 +92,7 @@ export const news: NewsItem[] = [
     body: [
       {
         en: 'Inside: our studio, vision and mission, form follows function philosophy, in-house team, planning and building care services, and highlights from Commercial and Residential projects.',
-        id: 'Isinya mencakup profil studio, visi dan misi, filosofi form follows function, tim in-house, layanan perencanaan dan perawatan bangunan, serta capaian proyek Commercial dan Residential.',
+        id: 'Isinya mencakup profil studio, visi dan misi, filosofi form follows function, tim in-house, layanan perencanaan dan perawatan bangunan, serta karya pilihan dari proyek Commercial dan Residential.',
       },
       {
         en: 'It closes with a list of more than sixty projects, most of them in and around the Special Region of Yogyakarta.',
@@ -132,7 +132,7 @@ export const news: NewsItem[] = [
       },
       {
         en: 'Six years on, these principles shape our work, from a resort on the Progo River to a campus clinic and housing estates. Thank you to every client and partner who has worked with us.',
-        id: 'Selama enam tahun, prinsip ini memandu desain resort di tepi Kali Progo, klinik di kampus, hingga kawasan perumahan. Terima kasih kepada semua klien dan mitra yang telah berkarya bersama kami.',
+        id: 'Enam tahun berlalu, prinsip ini tetap memandu karya kami, dari resort di tepi Kali Progo hingga klinik kampus dan kawasan perumahan. Terima kasih kepada semua klien dan mitra yang telah berkarya bersama kami.',
       },
     ],
     gallery: ['labarka-koi', 'balecatur-pool2', 'hmw-dining'],
@@ -160,11 +160,11 @@ export const news: NewsItem[] = [
     body: [
       {
         en: 'We designed a secondary skin of vertical fins around the upper floor, giving the clinic a bold, elegant character.',
-        id: 'Kami merancang secondary skin berupa kisi-kisi vertikal di sekeliling lantai atas, memberi klinik karakter yang tegas dan elegan.',
+        id: 'Kami merancang secondary skin berupa kisi-kisi vertikal di sekeliling lantai atas, sehingga klinik memiliki karakter yang tegas dan elegan.',
       },
       {
         en: 'The fins control sunlight, reduce excess heat and protect privacy in the clinical rooms.',
-        id: 'Kisi-kisi ini mengatur cahaya matahari, mengurangi panas berlebih, dan menjaga privasi ruang klinis.',
+        id: 'Kisi-kisi ini mengatur masuknya cahaya matahari, mengurangi panas berlebih, dan menjaga privasi ruang klinis.',
       },
     ],
     gallery: ['klinik-front', 'klinik-corridor', 'klinik-waiting'],
@@ -190,7 +190,7 @@ export const news: NewsItem[] = [
     body: [
       {
         en: 'We explore how the riverside site shaped every design decision: building placement, open spaces, and materials and openings that keep spaces naturally cool.',
-        id: 'Kami membahas pengaruh tapak tepi sungai pada setiap keputusan desain: penataan bangunan, ruang terbuka, serta material dan bukaan agar ruang sejuk secara alami.',
+        id: 'Kami membahas pengaruh tapak tepi sungai pada setiap keputusan desain: penataan bangunan, ruang terbuka, serta material dan bukaan yang menjaga ruang tetap sejuk secara alami.',
       },
       {
         en: 'Open to students, practitioners and anyone curious about tropical architecture.',

@@ -32,7 +32,7 @@ const figures = () => [
   {
     value: String(company.founded),
     label: tr('Founded', 'Tahun berdiri'),
-    note: tr(`Founded by ${company.founder} in late September ${company.founded}`, `Didirikan ${company.founder}, akhir September ${company.founded}`),
+    note: tr(`Founded by ${company.founder} in late September ${company.founded}`, `Didirikan oleh ${company.founder} akhir September ${company.founded}`),
   },
   {
     value: `${Math.floor(archive.length / 10) * 10}+`,
