@@ -1858,26 +1858,33 @@
   overflow: hidden;
 }
 
-/* the ring: its top and bottom run off screen, the sides frame the figure in the centre */
+/* the orbit: a ring seen from slightly above, so an ellipse --rx wide and --ry tall (radii) around the figure in
+   the centre; it stays fully on screen. The script places each photo on it every frame (scale and stacking by depth) */
 .numbers[data-motion] .numbers__ring {
-  --r: min(40vw, 72svh);
-  --pw: clamp(120px, 10.5vw, 190px);
+  --count: 13; /* photos on the orbit (the first --count of the list in StudioNumbers.tsx) */
+  --pw: clamp(112px, 9.4vw, 176px);
+  --rx: min(38.5vw, 760px);
+  --ry: min(16vw, calc(50svh - var(--pw) * 0.72 - 24px));
   position: absolute;
   top: 50%;
   left: 50%;
+  z-index: 0;
   display: block;
-  width: var(--r); /* only so the script can read the radius; the photos hang from the top-left corner */
-  height: 0;
-  transform-origin: 0 0;
+  width: var(--rx); /* only so the script can read the radii; the photos hang from the top-left corner */
+  height: var(--ry);
+  pointer-events: none;
 }
 
 .numbers[data-motion] .numbers__photo {
   position: absolute;
+  top: 0;
+  left: 0;
   width: var(--pw);
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  /* --k pushes a photo out along its spoke: 1 = on the ring, beyond ~2.4 = off screen (set while scrolling) */
-  transform: translate(-50%, -50%) rotate(calc(var(--i) * 360deg / var(--n))) translateY(calc(-1 * var(--r) * var(--k, 1)));
+  box-shadow: 0 18px 36px -22px rgb(20 16 10 / 0.45);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .numbers[data-motion] .numbers__photo img {
@@ -1889,6 +1896,7 @@
 .numbers[data-motion] .numbers__intro {
   position: absolute;
   inset: 0;
+  z-index: 1; /* the text always sits above the orbit */
   display: grid;
   place-content: center;
   justify-items: center;
@@ -1898,15 +1906,16 @@
 .numbers[data-motion] .numbers__list {
   position: absolute;
   inset: 0;
+  z-index: 1;
   margin: 0;
   border: 0;
 }
 
 .numbers[data-motion] .numbers__item {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  translate: -50% -50%;
+  inset: 0;
+  height: fit-content; /* inset 0 + auto margins centre the figure in the stage with no transform at all, */
+  margin: auto; /* so the script's y / scale never fight a CSS translate */
   grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   gap: 22px;
@@ -1918,7 +1927,7 @@
 }
 
 .numbers[data-motion] .numbers__value {
-  font-size: clamp(6rem, 12vw, 12.5rem);
+  font-size: clamp(5rem, min(12vw, 20svh), 12.5rem); /* capped by height too, so the figure stays inside the orbit */
 }
 
 .numbers[data-motion] .numbers__text {
@@ -1937,8 +1946,10 @@
   }
 
   .numbers[data-motion] .numbers__ring {
-    --r: min(40vw, 40svh);
-    --pw: clamp(78px, 15vw, 130px);
+    --count: 12;
+    --pw: clamp(96px, 14vw, 132px);
+    --rx: 40vw;
+    --ry: min(calc(var(--rx) * 0.62), calc(50svh - var(--pw) * 0.72 - 24px));
   }
 
   .numbers[data-motion] .numbers__item {
@@ -1966,12 +1977,25 @@
 
 @media (max-width: 767px) {
   .numbers[data-motion] .numbers__ring {
-    --r: min(45vw, 34svh);
-    --pw: clamp(56px, 16vw, 90px);
+    --count: 10;
+    --pw: clamp(62px, 18vw, 92px);
+    --rx: 39vw;
   }
 
   .numbers[data-motion] .numbers__item {
     width: 60vw;
+  }
+
+  .numbers[data-motion] .numbers__title {
+    font-size: clamp(1.4rem, 6vw, 1.9rem); /* narrow enough to sit inside the orbit, clear of the side photos */
+  }
+}
+
+/* portrait screens (phones, upright tablets): a rounder orbit that uses the height, so it wraps the narrow,
+   tall text block instead of squeezing past it */
+@media (max-aspect-ratio: 1 / 1) {
+  .numbers[data-motion] .numbers__ring {
+    --ry: min(calc(var(--rx) * 1.2), calc(50svh - var(--pw) * 0.72 - 24px));
   }
 }
 
