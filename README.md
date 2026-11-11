@@ -28,11 +28,92 @@ npm run build     # type-check + build ke dist/
 npm run preview   # cek hasil build di http://localhost:4173
 ```
 
-Deploy: folder ini siap untuk Vercel (`vercel.json` sudah berisi rewrite SPA + cache gambar).
+Deploy production ditargetkan ke **Cloudflare Workers Static Assets**. `wrangler.jsonc`
+melayani `dist/` dengan fallback SPA supaya URL seperti `/about` dan `/work/:slug`
+bisa dibuka langsung. `public/_headers` mempertahankan aturan cache aset dari Vercel.
+Konfigurasi Vercel lama tetap tersedia selama proses migrasi.
 
-## Git (lokal, belum di-push)
+## Cloudflare: persiapan dan deploy otomatis
 
-Folder `website/` adalah repo git lokal — belum ada remote, jadi tidak ada yang terkirim ke GitHub.
+Siapkan akun Cloudflare dengan akses membuat Worker, akses admin/persetujuan instalasi
+Cloudflare GitHub App pada repo **Custompedia/Kadanglabo**, serta akses DNS domain bila
+akan memakai domain sendiri. Website ini frontend statis: saat ini tidak ada pemakaian
+environment variable atau backend API di kode aplikasi, sehingga tidak perlu database
+atau runtime secret untuk deployment ini.
+
+1. Commit dan push konfigurasi ini ke GitHub, branch `main`.
+2. Di dashboard Cloudflare, buka **Workers & Pages → Create application → Import a repository**
+   (label menu dapat berubah), pilih jalur Workers dan hubungkan akun GitHub.
+   Berikan akses ke repo `Custompedia/Kadanglabo`; jika organisasi meminta persetujuan,
+   minta admin organisasi menyetujui Cloudflare GitHub App.
+3. Pilih repo tersebut dan gunakan pengaturan berikut:
+
+   | Pengaturan | Nilai |
+   | --- | --- |
+   | Worker name | `kadanglabo-website` — harus sama dengan `name` di `wrangler.jsonc` |
+   | Production branch | `main` |
+   | Root directory | root repo (`/` atau biarkan default), bukan `website/` |
+   | Build command | `npm run build` |
+   | Deploy command | `npm run deploy` |
+   | Node.js | `22.22.0` melalui `.node-version`; bila perlu set build variable `NODE_VERSION=22.22.0` |
+
+   Cloudflare memasang dependency sebelum build menggunakan lockfile npm. Output
+   `dist/` sudah ditentukan di Wrangler. Workers Builds dapat membuat token deployment
+   otomatis; alur ini tidak memerlukan penyimpanan API token di GitHub Actions.
+4. Jalankan deployment pertama. Setelah berhasil, uji URL `workers.dev` dari dashboard:
+   Home, buka langsung `/about`, `/work`, satu detail proyek, refresh halaman tersebut,
+   lalu periksa gambar, font, dan form WhatsApp.
+5. Pastikan integrasi Git/automatic builds aktif di **Worker → Settings → Build**,
+   production branch `main`. Untuk awal, nonaktifkan build branch lain. Jika nanti
+   mengaktifkan preview branch, gunakan perintah preview yang disediakan Cloudflare,
+   jangan perintah deploy production untuk branch tersebut.
+
+Setelah terhubung: **push/merge ke `main` → build dan type-check → deploy Worker →
+production diperbarui**. Commit lokal saja belum memicu deployment. Jika build gagal,
+periksa build log dan perbaiki commit; deployment production sebelumnya tetap aktif.
+Pantau status sampai sukses sebelum menganggap perubahan sudah tayang.
+
+### Memindahkan domain dari Vercel
+
+Setelah URL Workers lolos pengecekan, tambahkan domain di **Worker → Settings →
+Domains & Routes → Add → Custom Domain**. Untuk Custom Domain, domain perlu berada
+di zone aktif pada akun Cloudflare yang sama. Jika DNS belum di Cloudflare, tambahkan
+zone dan ikuti perubahan nameserver di registrar; salin record penting termasuk email
+(MX/TXT) sebelum mengganti nameserver.
+
+Jika hostname masih memiliki record yang menunjuk ke Vercel, ganti record yang konflik
+saat cutover sesuai petunjuk dashboard. Tambahkan apex dan `www` bila keduanya dipakai.
+Periksa HTTPS dan semua rute di domain final. Setelah stabil, putuskan integrasi Git
+Vercel bila tidak ingin setiap push tetap memicu deployment Vercel. Jangan hapus deployment
+lama sebelum domain baru berhasil diuji.
+
+### Perintah lokal
+
+```bash
+npm ci
+npm run deploy:check     # build + validasi Wrangler tanpa publish
+npm run preview:worker   # build + server Workers lokal
+# Deploy manual opsional setelah login ke akun yang benar:
+npx wrangler login
+npm run build
+npm run deploy
+```
+
+Jika nanti memakai variabel `VITE_*`, isi di **Build variables** Cloudflare sebelum build;
+nilainya masuk ke bundle browser sehingga tidak boleh berisi secret. File `.env.local`
+tidak dikirim ke Git. Runtime secrets Worker tidak otomatis menjadi environment build Vite.
+Gambar di `/img/` dan `/brand/` memakai cache satu minggu: untuk penggantian gambar yang
+harus langsung terlihat, gunakan nama file baru dan perbarui referensinya.
+
+Referensi: [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/),
+[pengaturan Git dan build](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/),
+[Static Assets](https://developers.cloudflare.com/workers/static-assets/).
+
+## Git
+
+Root folder ini adalah root repo Git, dengan remote `origin` ke
+`https://github.com/Custompedia/Kadanglabo.git`. Production Cloudflare mengikuti branch `main`
+setelah integrasi di atas diaktifkan.
 
 ```bash
 git log --oneline            # daftar titik simpan (commit)
