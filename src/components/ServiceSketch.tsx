@@ -83,7 +83,9 @@ export function ServiceSketch() {
     let take: gsap.core.Tween | undefined
     let sheet: HTMLImageElement | undefined
     const observers: IntersectionObserver[] = []
-    const dpr = () => Math.min(window.devicePixelRatio || 1, 2)
+    // the take is redrawn whole every frame for six seconds: kept to 1.5x and 1600px wide at most, so a large
+    // model on a retina screen stays light (the finished, sharp image takes over once it is built)
+    const dpr = () => Math.min(window.devicePixelRatio || 1, 1.5)
     const sketch = el.querySelector<HTMLImageElement>('.svs__sketch')
 
     /** Parts sheet, fetched a screen ahead so the take never waits for it. */
@@ -98,7 +100,7 @@ export function ServiceSketch() {
       const ctx = cv.getContext('2d')
       const img = sheet
       if (!ctx || !sketch?.naturalWidth || !img?.naturalWidth) return setBuilt(true) // nothing to show it with
-      cv.width = Math.round(Math.min(el.offsetWidth * dpr(), model.w * 2))
+      cv.width = Math.round(Math.min(el.offsetWidth * dpr(), model.w * 2, 1600))
       cv.height = Math.round((cv.width * model.h) / model.w)
       const k = cv.width / model.w // canvas px per picture px
       const m = img.naturalWidth / model.sheet // sheet px per picture px

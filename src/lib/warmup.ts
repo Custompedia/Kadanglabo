@@ -4,11 +4,15 @@
  *
  * - waits until the page is uncovered and the browser is idle, so the photos in view keep the bandwidth first
  * - nearest first: what lies just below the screen, then further down, then whatever is above
- * - three at a time, so a slow connection is never flooded
+ * - three at a time, so a slow connection is never flooded; held while the visitor is scrolling, so the fetching
+ *   never competes with the frames they are watching
+ * - each photo is decoded as soon as it lands (off the main thread), so showing it later costs nothing
  * - skipped with Save-Data, and for photos that are not shown at all (display: none, e.g. on phones) or sit in the menu
  * - starts over for every page; leaving the page stops the queue
  */
 let run = 0
+let lastScroll = 0
+window.addEventListener('scroll', () => (lastScroll = performance.now()), { passive: true })
 
 const loaded = (img: HTMLImageElement) => img.complete && img.naturalWidth > 0
 const PARALLEL = 3
@@ -33,7 +37,14 @@ export function warmUpImages() {
 
     let next = 0
     let active = 0
+    let held = 0
     const pump = () => {
+      if (id !== run) return
+      // the visitor is scrolling: wait until they pause
+      if (performance.now() - lastScroll < 400) {
+        if (!held) held = window.setTimeout(() => ((held = 0), pump()), 450)
+        return
+      }
       while (id === run && active < PARALLEL && next < queue.length) {
         const img = queue[next++]
         if (loaded(img) || !img.isConnected) continue
@@ -47,7 +58,7 @@ export function warmUpImages() {
           pump()
         }
         const stall = window.setTimeout(done, STALL)
-        img.addEventListener('load', done, { once: true })
+        img.addEventListener('load', () => void (img.decode?.() ?? Promise.resolve()).then(done, done), { once: true })
         img.addEventListener('error', done, { once: true })
         img.loading = 'eager' // starts the download now; the browser keeps it at a low priority
       }

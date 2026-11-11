@@ -204,7 +204,7 @@ export function animateSpirit(page: HTMLElement) {
       const d = Math.abs(y / vh - 0.5) * 2 // 0 in the middle, 1 at the top or bottom edge
       if (d > 1.6) continue // far off screen
       const k = gsap.utils.clamp(0, 1, (d - 0.4) / 0.6)
-      const blur = Math.round(k * k * 12)
+      const blur = Math.round(k * k * 8)
       if (blur === l.blur) continue
       l.blur = blur
       l.frame.style.filter = blur ? `blur(${blur}px)` : ''
