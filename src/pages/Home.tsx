@@ -3,7 +3,7 @@ import { Page } from '../components/Page'
 import { Counter, SectionLabel } from '../components/Bits'
 import { HomeHero } from '../components/HomeHero'
 import { SpiritScatter, animateSpirit } from '../components/SpiritScatter'
-import { ServiceSketch, animateServiceSketch } from '../components/ServiceSketch'
+import { ServiceSketch } from '../components/ServiceSketch'
 import { StudioNumbers, animateStudioNumbers } from '../components/StudioNumbers'
 import { WorkMosaic } from '../components/WorkMosaic'
 import { NewsCard } from '../components/NewsCard'
@@ -19,7 +19,6 @@ export default function Home() {
   usePageAnimations(root, (page) => {
     const undoSpirit = animateSpirit(page) // first: it sets the held field's height that later triggers measure against
     animateStudioNumbers(page)
-    animateServiceSketch(page)
     return undoSpirit
   })
 

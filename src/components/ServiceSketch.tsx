@@ -3,7 +3,9 @@ import { gsap, reducedMotion } from '../lib/gsap'
 import { whenGateOpen } from '../lib/gate'
 import { SectionLabel } from './Bits'
 import { Img, imgSrc } from './Img'
-import { tr } from '../lib/i18n'
+import { getLang, tr } from '../lib/i18n'
+import { ArrowRight } from './Icons'
+import { TLink } from '../lib/transition'
 import model from '../data/model-parts.json'
 import './ServiceSketch.css'
 
@@ -15,21 +17,6 @@ import './ServiceSketch.css'
  * clear to solid, next to parts already in place, until the finished house covers the sketch.
  * Assets: three renders from one camera, turned into sketch, strokes and parts (scripts/build-model-parts.mjs).
  */
-export function animateServiceSketch(page: HTMLElement) {
-  const el = page.querySelector<HTMLElement>('.svs')
-  if (!el) return
-  // the "+" mark turns into place as the note arrives
-  el.querySelectorAll<HTMLElement>('.svs__plus').forEach((plus) =>
-    gsap.from(plus, {
-      rotate: -90,
-      autoAlpha: 0,
-      duration: 1,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: plus, start: 'top 92%', once: true },
-    }),
-  )
-}
-
 /* ---- the take, in seconds: 2.3 drawing + 0.3 held + 3.4 building = 6 -------------------------------------- */
 const DRAW = 2.3 // the pencil
 const STROKE = [0.16, 0.6] // shortest and longest time one stroke takes
@@ -232,30 +219,44 @@ export function ServiceSketch() {
 
   return (
     <section className="svs wrap" data-theme="light" aria-labelledby="svs-title">
-      <header className="svs__head">
+      <div className="svs__text">
         <SectionLabel n="02">{tr('Core services & sectors', 'Layanan & sektor utama')}</SectionLabel>
         <h2 id="svs-title" className="svs__title" data-split>
           {tr('From the first sketch to a finished building.', 'Dari sketsa pertama hingga bangunan berdiri.')}
         </h2>
-      </header>
-
-      <div className="svs__stage">
-        <p className="svs__aside">
-          <span className="svs__plus" aria-hidden="true">+</span>
-          {tr('A house by our studio, from sketch to building.', 'Rumah karya studio kami, dari sketsa hingga terbangun.')}
+        {/* the three service groups told as one sentence, each group a verb */}
+        <p className="svs__story" data-fade>
+          {getLang() === 'id' ? (
+            <>
+              Kami <em>mendesain</em> semuanya: perencanaan induk, bangunan, lanskap, interior, pencahayaan, hingga
+              visualisasi 3D. Kami <em>mengelola</em> proyek, pengembangan, dan programnya. Lalu kami <em>merawat</em>{' '}
+              yang sudah berdiri, lewat rehabilitasi dan restorasi.
+            </>
+          ) : (
+            <>
+              We <em>design</em> the whole of it: master plans, buildings, landscapes, interiors, lighting and 3D
+              visualisation. We <em>manage</em> the project, its development and its programme. And we <em>care</em>{' '}
+              for what already stands, through rehabilitation and restoration.
+            </>
+          )}
         </p>
-        <figure className="svs__model" ref={figure} data-built={built ? '' : undefined}>
-          <Img
-            id="build-full"
-            className="svs__full"
-            alt={tr('3D model of a two-storey house by Kadanglabo', 'Model 3D rumah dua lantai karya Kadanglabo')}
-            sizes="(min-width: 900px) 60vw, 100vw"
-          />
-          {/* only read by the canvas: the pencil uncovers it stroke by stroke */}
-          <Img id="build-sketch" className="svs__sketch" alt="" aria-hidden sizes="(min-width: 900px) 60vw, 100vw" />
-          <canvas ref={canvas} className="svs__parts" aria-hidden="true" />
-        </figure>
+
+        <TLink to="/services" className="btn-pill btn-pill--dark svs__more" data-fade>
+          {tr('Explore our services', 'Lihat layanan kami')} <ArrowRight className="h-[0.8em] w-auto" />
+        </TLink>
       </div>
+
+      <figure className="svs__model" ref={figure} data-built={built ? '' : undefined}>
+        <Img
+          id="build-full"
+          className="svs__full"
+          alt={tr('3D model of a two-storey house by Kadanglabo', 'Model 3D rumah dua lantai karya Kadanglabo')}
+          sizes="(min-width: 900px) 60vw, 100vw"
+        />
+        {/* only read by the canvas: the pencil uncovers it stroke by stroke */}
+        <Img id="build-sketch" className="svs__sketch" alt="" aria-hidden sizes="(min-width: 900px) 60vw, 100vw" />
+        <canvas ref={canvas} className="svs__parts" aria-hidden="true" />
+      </figure>
     </section>
   )
 }

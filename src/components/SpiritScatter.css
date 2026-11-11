@@ -1,10 +1,12 @@
 /* Home (01) About x Kadanglabo spirit (SpiritScatter.tsx), after the Project archive scene on Our Work: a tall field of
    photos drifting at different depths while the middle holds and the four chapters change over.
+   Four layers, back to front: far photos, the text, near photos, then the label, title and button. The stage is drawn
+   twice (lower copy: the text; upper copy: everything else), so near photos can cross the text but never the title.
    Without [data-motion] (reduced motion) the chapters simply stack and the photos stay out of the way. */
 .sp {
   position: relative;
-  overflow-x: clip; /* the paper glow is wider than a phone; clip (unlike hidden) keeps the stage sticky */
-  padding-block: var(--sec);
+  isolation: isolate;
+  overflow-x: clip; /* clip (unlike hidden) keeps the stage sticky */
   border-top: 1px solid var(--line);
 }
 
@@ -12,9 +14,31 @@
   display: none;
 }
 
-.sp__stage {
+.sp__layer {
+  padding-block: var(--sec);
+}
+.sp__layer--text {
   position: relative;
   z-index: 1;
+}
+.sp__layer--top {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.sp__layer--top .sp__btn {
+  pointer-events: auto;
+}
+/* each copy hides the other copy's part (hidden, not removed: both keep the same layout) */
+.sp__layer--top .sp__body,
+.sp__layer--text .sp__pill,
+.sp__layer--text .sp__title,
+.sp__layer--text .sp__btn {
+  visibility: hidden;
+}
+
+.sp__stage {
   display: grid;
   justify-items: center;
   gap: 22px;
@@ -112,6 +136,11 @@
 /* ---------- the held field ---------- */
 .sp[data-motion] {
   height: calc(100svh + var(--n) * 85svh);
+}
+
+.sp[data-motion] .sp__layer {
+  position: absolute;
+  inset: 0;
   padding: 0;
 }
 
@@ -120,6 +149,13 @@
   inset: 0;
   display: block;
   overflow: clip;
+  pointer-events: none;
+}
+.sp__photos--far {
+  z-index: 0;
+}
+.sp__photos--near {
+  z-index: 2;
 }
 
 .sp__photo {
@@ -151,33 +187,48 @@
   pointer-events: none;
 }
 
-.sp[data-motion] .sp__stage > * {
-  pointer-events: auto;
-}
-
 .sp[data-motion] .sp__pill {
   align-self: end;
 }
 
-/* the chapters share one spot; the paper glow behind them lets photos pass without crossing the words */
+/* one rounded sheet of paper around each chapter's lines, drawn in SpiritScatter.tsx (drawSheet) from the lines'
+   widths, so the words stay clear while photos pass behind them. Lines are as wide as their words for the measure. */
+.sp__sheet {
+  display: none;
+}
+.sp[data-motion] .sp__ch {
+  position: relative;
+  isolation: isolate;
+}
+.sp[data-motion] .sp__sheet {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.sp__sheet path {
+  fill: var(--color-paper);
+}
+.sp[data-motion] .sp__title .split-line,
+.sp[data-motion] .sp__body .split-line {
+  width: fit-content;
+  margin-inline: auto;
+}
+/* the label keeps its own paper, so a photo behind it does not show through */
+.sp[data-motion] .sp__layer--top .sp__pill {
+  background: var(--color-paper);
+}
+
+/* the chapters share one spot */
 .sp[data-motion] .sp__chs {
   position: relative;
   display: grid;
   gap: 0;
   margin-block: 4px;
-}
-
-.sp[data-motion] .sp__chs::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: -1;
-  /* wide enough that its solid middle covers the words on every screen; photos fade as they pass under it */
-  width: min(1400px, 160vw);
-  height: min(760px, 86svh);
-  background: radial-gradient(closest-side, var(--color-paper) 66%, rgb(243 240 234 / 0) 100%);
-  translate: -50% -50%;
 }
 
 .sp[data-motion] .sp__ch {

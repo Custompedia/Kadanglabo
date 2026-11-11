@@ -736,11 +736,16 @@
   position: fixed;
   inset: 0;
   z-index: 80;
+  overflow: hidden;
+  visibility: hidden; /* a mask: this frame and its fill slide in opposite directions (transition.tsx) */
+}
+
+.curtain__fill {
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
   background: var(--color-navy-deep);
-  clip-path: inset(100% 0% 0% 0%);
-  visibility: hidden;
 }
 
 .curtain__inner {
@@ -803,8 +808,14 @@
   inset: 0;
   z-index: 3;
   overflow: hidden;
+  visibility: hidden; /* shown and raised by Preloader.tsx: a mask, like the curtain */
+}
+
+.preloader__fill {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
   background: #111;
-  clip-path: inset(100% 0% 0% 0%);
 }
 
 .preloader__img--hero {

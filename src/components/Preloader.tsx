@@ -96,7 +96,11 @@ export function Preloader() {
           // home: the panel already shows the first hero slide, so simply drop the overlay;
           // other pages: fade the overlay away to reveal the page
           .to(el, { autoAlpha: 0, duration: isHome ? 0.01 : 0.6, ease: 'power2.out' }, isHome ? 1.5 : 1.25)
-        if (panel) tl.fromTo(panel, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'expo.inOut' }, 0.35)
+        // a mask, like the curtain: the panel rises while its fill holds still (moved on the GPU, not repainted)
+        if (panel) {
+          tl.fromTo(panel, { yPercent: 100, autoAlpha: 1 }, { yPercent: 0, duration: 1.1, ease: 'expo.inOut' }, 0.35)
+          tl.fromTo(panel.firstElementChild, { yPercent: -100 }, { yPercent: 0, duration: 1.1, ease: 'expo.inOut' }, 0.35)
+        }
         if (heroImg) tl.fromTo(heroImg, { scale: 1.15 }, { scale: 1, duration: 1.6, ease: 'power3.out' }, 0.35)
       })
 
@@ -164,14 +168,16 @@ export function Preloader() {
 
       {isHome && (
         <div className="preloader__hero">
-          <Img
-            id={heroId}
-            className="preloader__img--hero"
-            sizes={heroImageSizes(heroId)}
-            priority
-            style={{ backgroundColor: 'transparent' }}
-          />
-          <div className="hero__shade" />
+          <div className="preloader__fill">
+            <Img
+              id={heroId}
+              className="preloader__img--hero"
+              sizes={heroImageSizes(heroId)}
+              priority
+              style={{ backgroundColor: 'transparent' }}
+            />
+            <div className="hero__shade" />
+          </div>
         </div>
       )}
     </div>

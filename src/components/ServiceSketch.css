@@ -1,66 +1,61 @@
-/* Home (02), after Archidomo's sketch block, on the site's 12-column grid so it lines up with every other
-   section: heading from the left edge, the model in columns 4-12 with a small note beside it,
-   nothing under it.
+/* Home (02), after Archidomo's sketch block, on the site's 12-column grid: the words in columns 1-5,
+   the model large beside them in 6-12 (label, heading, the services as one sentence, the way in).
    Everything stands straight on the page colour: no boxes, no white grounds, no decorations. */
 .svs {
   --svs-gap: clamp(16px, 2vw, 32px);
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--svs-gap);
-  padding-block: var(--sec) calc(var(--sec) * 0.5);
-}
-.svs__stage {
-  display: grid;
-  grid-template-columns: subgrid;
-  grid-column: 1 / -1;
+  align-items: center;
+  padding-block: var(--sec) calc(var(--sec) * 0.6);
 }
 
-.svs__head {
-  grid-column: 1 / 9;
+.svs__text {
+  display: grid;
+  grid-column: 1 / 6;
+  grid-row: 1;
+  justify-items: start;
+  align-content: center;
 }
 .svs__title {
-  max-width: 15ch;
+  max-width: 14ch;
   margin-top: 22px;
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(2.4rem, 5vw, 5.4rem);
-  line-height: 1.02;
+  font-size: clamp(2.2rem, 3.6vw, 4.2rem);
+  line-height: 1.04;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
-
-/* the model, with its note in the first two columns */
-.svs__stage {
-  align-items: center;
-  /* the model's top left is empty paper, so it rises beside the heading instead of leaving a gap */
-  margin-top: clamp(-200px, -11vw, -40px);
+/* the services as one editorial sentence: serif, the three verbs in orange italics */
+.svs__story {
+  max-width: 30ch;
+  margin-top: clamp(22px, 2.2vw, 34px);
+  color: rgb(21 21 21 / 0.62);
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 1.75vw, 1.95rem);
+  font-weight: 400;
+  line-height: 1.38;
+  letter-spacing: -0.005em;
+  text-wrap: pretty;
 }
-.svs__head {
-  position: relative;
-  z-index: 1;
+.svs__story em {
+  color: var(--color-orange-text);
+  font-style: italic;
 }
-.svs__aside {
-  display: grid;
-  grid-column: 1 / 3;
-  justify-items: start;
-  gap: 14px;
-  max-width: 22ch;
-  color: var(--color-mute);
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.45;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+.svs__more {
+  margin-top: clamp(28px, 3vw, 44px);
 }
 
 /* the model: the finished house (what stays) and a canvas of the same size on which the take is played: the
    pencil sketch, then the parts laid onto it. The sketch image itself is never shown, the canvas reads it. */
 .svs__model {
   position: relative;
-  grid-column: 4 / -1;
-  justify-self: center;
-  /* never taller than the screen: the whole house has to be in view to watch it come about */
-  width: min(100%, min(72vh, 720px) * 1.159);
+  grid-column: 6 / -1;
+  grid-row: 1;
+  justify-self: end;
+  /* as large as the columns allow, never taller than the screen: the whole house is in view as it comes about */
+  width: min(100%, min(86vh, 900px) * 1.159);
   margin: 0;
 }
 .svs__full {
@@ -85,32 +80,19 @@
   display: none;
 }
 
-.svs__plus {
-  display: inline-block;
-  color: var(--color-orange-text);
-  font-size: 22px;
-  font-weight: 300;
-  line-height: 1;
-}
-
 @media (max-width: 899px) {
-  .svs,
-  .svs__stage {
+  .svs {
     grid-template-columns: minmax(0, 1fr);
+    row-gap: 32px;
   }
-  .svs__head,
-  .svs__aside,
+  .svs__text,
   .svs__model {
-    grid-row: auto;
     grid-column: 1;
   }
-  .svs__stage {
-    margin-top: 24px;
-  }
   .svs__model {
-    order: -1;
+    justify-self: center;
   }
-  .svs__aside {
-    margin-top: 8px;
+  .svs__text {
+    grid-row: 2;
   }
 }

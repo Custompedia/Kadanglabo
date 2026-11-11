@@ -49,14 +49,16 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     currentPath.current = location.pathname
   }, [location.pathname])
 
+  // the curtain is a mask: the frame slides one way and its fill the other, so the edge sweeps across the screen
+  // while the navy stays put - the look of a clip-path wipe, but moved on the GPU instead of repainted every frame
   const parts = () => {
     const el = curtain.current!
-    return { el, inner: [el.querySelector('.curtain-mark'), label.current] }
+    return { el, fill: el.firstElementChild!, inner: [el.querySelector('.curtain-mark'), label.current] }
   }
 
   /** Lift the curtain as soon as the next page reports that it has mounted (with a safety timeout). */
   const revealOnMount = useCallback(() => {
-    const { el, inner } = parts()
+    const { el, fill, inner } = parts()
     let done = false
     const reveal = () => {
       if (done) return
@@ -75,7 +77,8 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
             },
           })
           .to(inner, { yPercent: -80, autoAlpha: 0, duration: 0.45, stagger: 0.04, ease: 'power3.in' }, 0)
-          .to(el, { clipPath: 'inset(0% 0% 100% 0%)', duration: 1, ease: 'power4.inOut' }, 0.1)
+          .to(el, { yPercent: -100, duration: 1, ease: 'power4.inOut' }, 0.1)
+          .to(fill, { yPercent: 100, duration: 1, ease: 'power4.inOut' }, 0.1)
           // start the page intro while the curtain uncovers it, so the reveal is actually seen
           .add(openGate, 0.42)
       })
@@ -113,14 +116,16 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       closeGate()
       lockScroll(true)
       if (label.current) label.current.textContent = labelFor(url.pathname)
-      const { el, inner } = parts()
+      const { el, fill, inner } = parts()
       revealOnMount()
 
       gsap
         .timeline()
-        .set(el, { visibility: 'visible', clipPath: 'inset(100% 0% 0% 0%)' })
+        .set(el, { visibility: 'visible', yPercent: 100 })
+        .set(fill, { yPercent: -100 })
         .set(inner, { yPercent: 70, autoAlpha: 0 })
-        .to(el, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.7, ease: 'power4.inOut' })
+        .to(el, { yPercent: 0, duration: 0.7, ease: 'power4.inOut' }, 0)
+        .to(fill, { yPercent: 0, duration: 0.7, ease: 'power4.inOut' }, 0)
         .to(inner, { yPercent: 0, autoAlpha: 1, duration: 0.6, stagger: 0.06, ease: 'power4.out' }, '-=0.3')
         .add(() => navigate(target), '-=0.15')
     },
@@ -135,8 +140,9 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       busy.current = true
       closeGate()
       if (label.current) label.current.textContent = labelFor(window.location.pathname)
-      const { el, inner } = parts()
-      gsap.set(el, { visibility: 'visible', clipPath: 'inset(0% 0% 0% 0%)' })
+      const { el, fill, inner } = parts()
+      gsap.set(el, { visibility: 'visible', yPercent: 0 })
+      gsap.set(fill, { yPercent: 0 })
       gsap.set(inner, { yPercent: 0, autoAlpha: 1 })
       revealOnMount()
     }
@@ -148,11 +154,13 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     <TransitionContext.Provider value={{ go }}>
       {children}
       <div ref={curtain} className="curtain" aria-hidden="true">
-        <div className="curtain__inner">
-          <BrandMark className="curtain-mark" ringColor="#ffffff" />
-          <span className="curtain__mask">
-            <span ref={label} className="curtain__label" />
-          </span>
+        <div className="curtain__fill">
+          <div className="curtain__inner">
+            <BrandMark className="curtain-mark" ringColor="#ffffff" />
+            <span className="curtain__mask">
+              <span ref={label} className="curtain__label" />
+            </span>
+          </div>
         </div>
       </div>
     </TransitionContext.Provider>
