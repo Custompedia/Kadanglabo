@@ -11,47 +11,35 @@ const pad = (n: number) => String(n).padStart(2, '0')
 
 // The field (after the Project archive on Our Work): x / y in % of the tall section, w as a width,
 // s = scroll speed (under 1 lags behind = far and faded, over 1 = near). Spread over the whole height in four lanes
-// beside the words, a few far ones through the middle and a few near ones that cross it. The far photos pass behind
+// beside the words (kept to near ones, so few layers move), a few far ones through the middle and a few near ones
+// that cross it. The far photos pass behind
 // the words, the near ones in front of the text - but always under the title, which is never covered.
 const field: { id: ImgKey; x: number; y: number; w: string; ar: string; s: number }[] = [
   { id: 'labarka-river', x: 5, y: 1.0, w: 'clamp(130px, 16vw, 290px)', ar: '3 / 4', s: 1.25 },
-  { id: 'hamzah-front', x: 16, y: 3.5, w: 'clamp(90px, 10.5vw, 190px)', ar: '3 / 4', s: 0.82 },
   { id: 'klinik-front', x: 63, y: 6.1, w: 'clamp(130px, 16vw, 290px)', ar: '1 / 1', s: 1.23 },
   { id: 'balecatur-lobby', x: 77, y: 8.6, w: 'clamp(110px, 13vw, 240px)', ar: '4 / 3', s: 1.16 },
-  { id: 'ivanna-front', x: 0, y: 11.2, w: 'clamp(90px, 10.5vw, 190px)', ar: '4 / 3', s: 0.86 },
   { id: 'giripeni-aerial', x: 13, y: 13.7, w: 'clamp(110px, 13vw, 240px)', ar: '3 / 4', s: 1.11 },
   { id: 'labarka-teppanyaki', x: 68, y: 16.2, w: 'clamp(130px, 16vw, 290px)', ar: '1 / 1', s: 1.17 },
-  { id: 'muji-front', x: 79, y: 18.8, w: 'clamp(90px, 10.5vw, 190px)', ar: '4 / 3', s: 0.72 },
   { id: 'hmw-dining', x: 6, y: 21.3, w: 'clamp(130px, 16vw, 290px)', ar: '4 / 3', s: 1.11 },
   { id: 'berbah-front', x: 19, y: 23.9, w: 'clamp(110px, 13vw, 240px)', ar: '3 / 4', s: 1.12 },
-  { id: 'labarka-gables', x: 65, y: 26.4, w: 'clamp(90px, 10.5vw, 190px)', ar: '3 / 4', s: 0.81 },
   { id: 'firlatata-street', x: 85, y: 28.9, w: 'clamp(110px, 13vw, 240px)', ar: '4 / 3', s: 1.25 },
   { id: 'klinik-corridor', x: 6, y: 31.5, w: 'clamp(130px, 16vw, 290px)', ar: '4 / 3', s: 1.11 },
-  { id: 'balecatur-pool', x: 13, y: 34.0, w: 'clamp(90px, 10.5vw, 190px)', ar: '3 / 4', s: 0.71 },
   { id: 'hmw-facade', x: 64, y: 36.6, w: 'clamp(130px, 16vw, 290px)', ar: '1 / 1', s: 1.15 },
   { id: 'tiara-front', x: 78, y: 39.1, w: 'clamp(110px, 13vw, 240px)', ar: '3 / 4', s: 1.19 },
-  { id: 'labarka-koi', x: 4, y: 41.6, w: 'clamp(90px, 10.5vw, 190px)', ar: '4 / 3', s: 0.8 },
   { id: 'firlatata-living', x: 20, y: 44.2, w: 'clamp(110px, 13vw, 240px)', ar: '3 / 4', s: 1.13 },
   { id: 'bangunjiwo-front', x: 71, y: 46.7, w: 'clamp(130px, 16vw, 290px)', ar: '1 / 1', s: 1.19 },
-  { id: 'klinik-plaza', x: 79, y: 49.3, w: 'clamp(90px, 10.5vw, 190px)', ar: '4 / 3', s: 0.77 },
   { id: 'labarka-path', x: 8, y: 51.8, w: 'clamp(130px, 16vw, 290px)', ar: '3 / 4', s: 1.21 },
   { id: 'giripeni-row', x: 19, y: 54.4, w: 'clamp(110px, 13vw, 240px)', ar: '3 / 4', s: 1.11 },
-  { id: 'hmw-garden', x: 65, y: 56.9, w: 'clamp(90px, 10.5vw, 190px)', ar: '1 / 1', s: 0.79 },
   { id: 'balecatur-front', x: 84, y: 59.4, w: 'clamp(110px, 13vw, 240px)', ar: '4 / 3', s: 1.17 },
   { id: 'klinik-tree', x: 5, y: 62.0, w: 'clamp(130px, 16vw, 290px)', ar: '4 / 3', s: 1.17 },
-  { id: 'labarka-balcony', x: 17, y: 64.5, w: 'clamp(90px, 10.5vw, 190px)', ar: '3 / 4', s: 0.77 },
   { id: 'wira-front', x: 65, y: 67.1, w: 'clamp(130px, 16vw, 290px)', ar: '1 / 1', s: 1.23 },
   { id: 'giripeni-gate', x: 87, y: 69.6, w: 'clamp(110px, 13vw, 240px)', ar: '4 / 3', s: 1.22 },
-  { id: 'hmw-kitchen', x: 1, y: 72.1, w: 'clamp(90px, 10.5vw, 190px)', ar: '4 / 3', s: 0.8 },
   { id: 'balecatur-sign', x: 18, y: 74.7, w: 'clamp(110px, 13vw, 240px)', ar: '3 / 4', s: 1.18 },
   { id: 'klinik-waiting', x: 67, y: 77.2, w: 'clamp(130px, 16vw, 290px)', ar: '3 / 4', s: 1.22 },
-  { id: 'labarka-stair', x: 80, y: 79.8, w: 'clamp(90px, 10.5vw, 190px)', ar: '4 / 3', s: 0.81 },
   { id: 'firlatata-day', x: 1, y: 82.3, w: 'clamp(130px, 16vw, 290px)', ar: '4 / 3', s: 1.12 },
   { id: 'hamzah-street', x: 16, y: 84.8, w: 'clamp(110px, 13vw, 240px)', ar: '3 / 4', s: 1.13 },
-  { id: 'labarka-exterior', x: 67, y: 87.4, w: 'clamp(90px, 10.5vw, 190px)', ar: '1 / 1', s: 0.73 },
   { id: 'hmw-entry', x: 83, y: 89.9, w: 'clamp(110px, 13vw, 240px)', ar: '3 / 4', s: 1.17 },
   { id: 'giripeni-street', x: 1, y: 92.5, w: 'clamp(130px, 16vw, 290px)', ar: '4 / 3', s: 1.22 },
-  { id: 'balecatur-twin', x: 19, y: 95.0, w: 'clamp(90px, 10.5vw, 190px)', ar: '3 / 4', s: 0.84 },
   { id: 'labarka-room', x: 30, y: 14, w: 'clamp(80px, 9vw, 160px)', ar: '4 / 3', s: 0.66 },
   { id: 'hmw-bedroom', x: 44, y: 39, w: 'clamp(80px, 9vw, 160px)', ar: '4 / 3', s: 0.66 },
   { id: 'klinik-signage', x: 34, y: 63, w: 'clamp(80px, 9vw, 160px)', ar: '4 / 3', s: 0.66 },
@@ -183,14 +171,14 @@ export function animateSpirit(page: HTMLElement) {
   )
   frames.forEach((f) => io.observe(f.parentElement!))
 
-  // soft focus at the edges: a photo is blurred while it enters at the bottom and as it leaves at the top, and sharp
-  // through the middle of the screen. Worked out from the scroll position alone (each photo's place in the section,
-  // measured once per refresh, plus its current drift), so nothing is measured while scrolling; set only on scroll
-  // and only when the blur actually changes (whole pixels, so a photo is re-rastered as rarely as possible).
+  // soft edges: a photo fades in as it enters at the bottom and out as it leaves at the top, full through the middle
+  // of the screen. Opacity only, which the GPU applies without repainting the photo. Worked out from the scroll
+  // position alone (each photo's place in the section, measured once per refresh, plus its current drift), set only
+  // on scroll and only when it changes.
   const lens = gsap.utils
     .toArray<HTMLElement>('.sp__photo', section)
     .filter((p) => p.offsetParent !== null)
-    .map((p) => ({ p, frame: p.firstElementChild as HTMLElement, mid: 0, blur: -1 }))
+    .map((p) => ({ p, frame: p.firstElementChild as HTMLElement, mid: 0, fade: -1 }))
   let sectionTop = 0
   const measureLens = () => {
     sectionTop = section.getBoundingClientRect().top + window.scrollY
@@ -203,11 +191,11 @@ export function animateSpirit(page: HTMLElement) {
       const y = top + l.mid + (gsap.getProperty(l.p, 'y') as number) // the photo's centre on screen
       const d = Math.abs(y / vh - 0.5) * 2 // 0 in the middle, 1 at the top or bottom edge
       if (d > 1.6) continue // far off screen
-      const k = gsap.utils.clamp(0, 1, (d - 0.4) / 0.6)
-      const blur = Math.round(k * k * 8)
-      if (blur === l.blur) continue
-      l.blur = blur
-      l.frame.style.filter = blur ? `blur(${blur}px)` : ''
+      const k = gsap.utils.clamp(0, 1, (d - 0.45) / 0.6)
+      const fade = Math.round((1 - k * k) * 20) / 20
+      if (fade === l.fade) continue
+      l.fade = fade
+      l.frame.style.opacity = fade === 1 ? '' : String(fade)
     }
   }
   const lensSt = ScrollTrigger.create({
@@ -330,7 +318,7 @@ export function animateSpirit(page: HTMLElement) {
     st.kill()
     lensSt.kill()
     cancelAnimationFrame(raf)
-    lens.forEach((l) => (l.frame.style.filter = ''))
+    lens.forEach((l) => (l.frame.style.opacity = ''))
     tl?.kill()
     splits.forEach((s) => s.revert())
     delete section.dataset.motion

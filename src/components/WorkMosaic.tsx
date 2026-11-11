@@ -203,8 +203,9 @@ function Mosaic() {
 
       gsap.set([...titles.slice(1), ...hitTitles.slice(1)], { autoAlpha: 0 })
 
-      // Every frame the section is on screen: cut the photo rectangles out of the ink title and show the
-      // orange copy through them, so the colour follows the photos exactly as they drift under the word.
+      // Whenever the photos move: cut the photo rectangles out of the ink title and show the orange copy through
+      // them, so the colour follows the photos exactly as they drift under the word. Run from the tweens that move
+      // the photos (not every frame), so a still page does no work at all.
       let lastHit = ''
       const paintHits = () => {
         const box = hitLayer.getBoundingClientRect()
@@ -224,13 +225,9 @@ function Mosaic() {
         hitLayer.style.clipPath = rects ? `path('${rects}')` : 'inset(50%)'
         baseLayer.style.clipPath = rects ? `path(evenodd, '${outer}${rects}')` : ''
       }
-      ScrollTrigger.create({
-        trigger: el,
-        start: 'top bottom',
-        end: 'bottom top',
-        onToggle: (s) => (s.isActive ? gsap.ticker.add(paintHits) : gsap.ticker.remove(paintHits)),
-      })
-      const stopHits = () => gsap.ticker.remove(paintHits)
+      const repaintHits = () => ((lastHit = ''), paintHits())
+      ScrollTrigger.addEventListener('refresh', repaintHits)
+      const stopHits = () => ScrollTrigger.removeEventListener('refresh', repaintHits)
       gsap.set(links.slice(1), { autoAlpha: 0 })
 
       const show = (next: number) => {
@@ -252,6 +249,7 @@ function Mosaic() {
 
       if (reducedMotion()) {
         gsap.set(pattern, { y: yStart })
+        paintHits()
         ScrollTrigger.create({ trigger: el, start: 'top top', end: 'bottom bottom', onUpdate: (s) => show(indexAt(s.progress)) })
         return stopHits
       }
@@ -263,7 +261,10 @@ function Mosaic() {
           y: yEnd,
           ease: 'none',
           // follows the rendered (smoothed) position, so title and photos always agree
-          onUpdate: () => show(indexFromY(gsap.getProperty(pattern, 'y') as number)),
+          onUpdate: () => {
+            show(indexFromY(gsap.getProperty(pattern, 'y') as number))
+            paintHits()
+          },
           scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true },
         },
       )
@@ -277,7 +278,7 @@ function Mosaic() {
 
       // first appearance: tiles of the first group rise in, the first word grows
       gsap
-        .timeline({ scrollTrigger: { trigger: el, start: 'top 70%', once: true } })
+        .timeline({ scrollTrigger: { trigger: el, start: 'top 70%', once: true }, onUpdate: paintHits })
         .from(el.querySelectorAll('.wm__block:first-child .wm__tile'), {
           yPercent: 30,
           autoAlpha: 0,

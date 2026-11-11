@@ -136,11 +136,13 @@ export function animateStudioNumbers(page: HTMLElement) {
       // a photo flying in also comes from closer to the camera, so it starts larger
       const s = depthScale(a) * (1 + 0.5 * fly)
       // before it arrives and once it has left it is hidden outright, so nothing can linger at an edge
-      ph.style.visibility = fly >= 1 ? 'hidden' : ''
+      const vis = fly >= 1 ? 'hidden' : ''
+      if (ph.style.visibility !== vis) ph.style.visibility = vis
       ph.style.transform =
         `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%) scale(${s.toFixed(4)}) ` +
         `perspective(900px) rotateY(${(Math.sin(a) * 28).toFixed(2)}deg) rotate(${TILT}deg)`
-      ph.style.zIndex = String(Math.round(100 + depth * 50))
+      const z = String(Math.round(100 + depth * 50)) // only when it changes: a new stacking order means a re-sort
+      if (ph.style.zIndex !== z) ph.style.zIndex = z
     })
     const out = clamp01((p - 0.16) / 0.06) // the intro holds while the photos gather, then steps away
     const show = clamp01((p - 0.2) / 0.05) // and the first figure rises in right behind it

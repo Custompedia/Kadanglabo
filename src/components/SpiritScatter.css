@@ -171,12 +171,6 @@
   overflow: hidden;
 }
 
-/* each photo on its own GPU layer, so the edge blur (SpiritScatter.tsx) is applied by the compositor instead of
-   repainting the photo every time it changes */
-.sp[data-motion] .sp__frame {
-  will-change: filter;
-}
-
 .sp__frame img {
   width: 100%;
   height: 100%;
