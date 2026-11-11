@@ -40,6 +40,7 @@ export function HomeHero() {
   const running = useRef(false)
   const inView = useRef(true)
   const busy = useRef(false)
+  const waiting = useRef(false) // the next slide's photo is still downloading
   useFitText(fit)
 
   const next = (cur + 1) % N
@@ -116,6 +117,25 @@ export function HomeHero() {
     const from = slides[i]
     const to = slides[n]
     if (!from || !to) return
+    // never wipe in a photo that has not arrived yet (slow connection: the slide would show only its flat colour).
+    // Hold the current slide until the next one is downloaded and decoded, then carry on.
+    const nextImg = to.querySelector('img')
+    if (nextImg && !nextImg.complete && !waiting.current) {
+      waiting.current = true
+      timer.current?.kill()
+      const go = () => {
+        nextImg.removeEventListener('load', go)
+        nextImg.removeEventListener('error', go)
+        void (nextImg.decode?.() ?? Promise.resolve()).catch(() => {}).then(() => {
+          waiting.current = false
+          advance()
+        })
+      }
+      nextImg.addEventListener('load', go)
+      nextImg.addEventListener('error', go)
+      return
+    }
+    if (waiting.current) return
     busy.current = true
     timer.current?.kill()
     const img = to.querySelector('img')
