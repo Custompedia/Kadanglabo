@@ -53,13 +53,13 @@
   text-transform: uppercase;
 }
 
-/* the model, one canvas for three things: the finished house (what stays), its line sketch (what waits),
-   and the canvas the parts are set onto the sketch with. See data-phase in ServiceSketch.tsx. */
+/* the model: the finished house (what stays) and a canvas of the same size on which the take is played: the
+   pencil sketch, then the parts laid onto it. The sketch image itself is never shown, the canvas reads it. */
 .svs__model {
   position: relative;
   grid-column: 4 / -1;
   justify-self: center;
-  /* never taller than the screen: the whole house has to be in view to watch it build */
+  /* never taller than the screen: the whole house has to be in view to watch it come about */
   width: min(100%, min(72vh, 720px) * 1.159);
   margin: 0;
 }
@@ -76,11 +76,12 @@
   height: 100%;
 }
 /* until the house is built the finished image only holds the place */
-.svs__model:not([data-phase='built']) .svs__full {
+.svs__model:not([data-built]) .svs__full,
+.svs__sketch {
   opacity: 0;
 }
-.svs__model[data-phase='built'] .svs__sketch,
-.svs__model[data-phase='built'] .svs__parts {
+.svs__model[data-built] .svs__sketch,
+.svs__model[data-built] .svs__parts {
   display: none;
 }
 

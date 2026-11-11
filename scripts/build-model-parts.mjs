@@ -2,10 +2,12 @@
 // only, upper floor without roof, finished house) give:
 //   build-full    the finished house, cut out
 //   build-sketch  the same house as a line drawing (ink on transparent), drawn from the render's own edges
-//   build-parts   the finished house cut into parts (lawn, drive, walls, canopy, roof planes ...) packed into one
-//                 sheet, with src/data/model-parts.json saying where each part sits and in which order it goes up:
-//                 what the ground-floor render already shows first, then the upper floor, then the roof.
-// On the page the parts are set onto the sketch one after another (src/components/ServiceSketch.tsx).
+//   build-parts   the finished house cut into its parts along the drawing's own lines (window panes, wall panels,
+//                 floor slabs, steps, canopy, roof planes ...), packed into one sheet
+//   src/data/model-parts.json   where each part sits and in which order it goes up (storey by storey, each piece
+//                 next to ones already placed, like a puzzle), and the sketch as pencil strokes: the lines traced into
+//                 paths, so the page can draw them the way a hand would.
+// On the page the sketch is drawn stroke by stroke, then the parts fly onto it (src/components/ServiceSketch.tsx).
 // Run:   node scripts/build-model-parts.mjs
 // Other renders (same size, same camera, transparent background):
 //        node scripts/build-model-parts.mjs <ground.png> <upper.png> <finished.png>
@@ -23,8 +25,10 @@ const files = process.argv.length >= 5 ? process.argv.slice(2, 5) : defaults
 
 const PAD = 6 // empty paper kept around the model
 const COLOURS = 12 // the render is reduced to this many colours to find its parts
-const CORE = 2 // a part needs a patch this many pixels clear of any other colour to count ...
-const MIN_AREA = 0.0007 // ... and at least this share of the picture (smaller bits join their neighbour)
+const WALL = 0.45 // a sketch line at least this strong parts two pieces
+const CORE = 1 // a part needs a patch this many pixels clear of any line or other colour to count ...
+const MIN_AREA = Number(process.env.MIN_AREA || 0.00006) // ... and this share of the picture (smaller bits join their neighbour)
+const STROKE_MIN = 5 // px: shorter traces are left to the sketch image itself
 const OVERLAP = 2 // parts reach this far into their neighbours, so no seam shows where two meet
 const GAP = 2 // clear pixels between parts on the sheet
 const INK = [38, 40, 48] // the sketch line
@@ -130,7 +134,98 @@ for (let round = 0; round < 12; round++) {
 const kind = new Int16Array(N).fill(-1) // storey and colour together: a part never spans two storeys
 for (const i of inked) kind[i] = storey[i] * 32 + nearest(i)
 
-// ---- parts: patches of one kind, then every loose pixel joins the part it touches --------------------------------
+// ---- the sketch: the render's own edges as an ink line ----------------------------------------------------------
+const grey = Buffer.alloc(N)
+for (let i = 0, p = 0; i < N; i++, p += 4) {
+  const a = full[p + 3] / 255 // over white paper
+  grey[i] = Math.round((0.299 * full[p] + 0.587 * full[p + 1] + 0.114 * full[p + 2]) * a + 255 * (1 - a))
+}
+const one = { raw: { width: W, height: H, channels: 1 } }
+const soft = await sharp(grey, one).blur(1.6).extractChannel(0).raw().toBuffer()
+if (soft.length !== N) throw new Error('blurred sketch base has the wrong size')
+const sketch = Buffer.alloc(N * 4)
+const wall = new Uint8Array(N) // lines strong enough to part two pieces
+for (let i = 0, p = 0; i < N; i++, p += 4) {
+  // darker than its surroundings = a line (the classic dodge); flat areas, however dark, stay paper
+  const dodge = Math.min(255, ((grey[i] + 10) * 255) / (soft[i] + 10))
+  const line = Math.min(1, Math.max(0, (238 - dodge) / 90))
+  sketch[p] = INK[0]; sketch[p + 1] = INK[1]; sketch[p + 2] = INK[2]
+  sketch[p + 3] = Math.round(255 * line ** 0.8)
+  if (line > WALL) wall[i] = 1
+}
+
+
+// ---- the sketch as pencil strokes: thin every line to its centre, then follow it as far as it runs straight -----
+const skel = Uint8Array.from(wall)
+for (let x = 0; x < W; x++) skel[x] = skel[N - W + x] = 0
+for (let y = 0; y < H; y++) skel[y * W] = skel[y * W + W - 1] = 0
+for (let changed = true; changed; ) {
+  changed = false
+  for (const step of [0, 1]) {
+    const gone = []
+    for (let i = W + 1; i < N - W - 1; i++) {
+      if (!skel[i]) continue
+      const p2 = skel[i - W], p3 = skel[i - W + 1], p4 = skel[i + 1], p5 = skel[i + W + 1]
+      const p6 = skel[i + W], p7 = skel[i + W - 1], p8 = skel[i - 1], p9 = skel[i - W - 1]
+      const around = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9
+      if (around < 2 || around > 6) continue
+      const turns = (!p2 && p3) + (!p3 && p4) + (!p4 && p5) + (!p5 && p6) + (!p6 && p7) + (!p7 && p8) + (!p8 && p9) + (!p9 && p2)
+      if (turns !== 1) continue
+      if (step === 0 ? !(p2 && p4 && p6) && !(p4 && p6 && p8) : !(p2 && p4 && p8) && !(p2 && p6 && p8)) gone.push(i)
+    }
+    if (gone.length) changed = true
+    for (const i of gone) skel[i] = 0
+  }
+}
+const around = [1, W + 1, W, W - 1, -1, -W - 1, -W, -W + 1]
+const drawn = new Uint8Array(N)
+/** Follow the line from the end of `pts` while it keeps its direction; a corner ends the stroke. */
+function follow(pts) {
+  for (;;) {
+    const cur = pts[pts.length - 1], back = pts[Math.max(0, pts.length - 7)]
+    const dx = (cur % W) - (back % W), dy = ((cur / W) | 0) - ((back / W) | 0), len = Math.hypot(dx, dy)
+    let best = -1, straight = -Infinity
+    for (const o of around) {
+      const j = cur + o
+      if (!skel[j] || drawn[j]) continue
+      const ox = (j % W) - (cur % W), oy = ((j / W) | 0) - ((cur / W) | 0)
+      const s = len ? (ox * dx + oy * dy) / (len * Math.hypot(ox, oy)) : 0
+      if (s > straight) { straight = s; best = j }
+    }
+    if (best < 0 || (pts.length >= 5 && straight < 0.7)) return pts
+    drawn[best] = 1
+    pts.push(best)
+  }
+}
+const ends = (i) => around.reduce((n, o) => n + skel[i + o], 0) === 1
+const traces = []
+for (const endsOnly of [true, false])
+  for (let i = 0; i < N; i++) {
+    if (!skel[i] || drawn[i] || (endsOnly && !ends(i))) continue
+    drawn[i] = 1
+    const pts = follow(follow([i]).reverse()) // both ways from where we happened to land on the line
+    if (pts.length >= STROKE_MIN) traces.push(pts.map((j) => [j % W, (j / W) | 0]))
+  }
+/** Fewer points, same line (Ramer-Douglas-Peucker). */
+function simplify(pts, eps = 0.8) {
+  const [a, b] = [pts[0], pts[pts.length - 1]]
+  let far = 0, at = -1
+  const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1
+  for (let n = 1; n < pts.length - 1; n++) {
+    const d = Math.abs((b[0] - a[0]) * (a[1] - pts[n][1]) - (a[0] - pts[n][0]) * (b[1] - a[1])) / len
+    if (d > far) { far = d; at = n }
+  }
+  return far > eps ? [...simplify(pts.slice(0, at + 1), eps).slice(0, -1), ...simplify(pts.slice(at), eps)] : [a, b]
+}
+const strokes = traces.map((t) => {
+  const pts = simplify(t)
+  // a hand draws left to right, and plumb lines top to bottom
+  const dx = pts[pts.length - 1][0] - pts[0][0], dy = pts[pts.length - 1][1] - pts[0][1]
+  if (Math.abs(dx) > Math.abs(dy) * 0.3 ? dx < 0 : dy < 0) pts.reverse()
+  return pts.flat()
+})
+
+// ---- parts: patches of one kind that no sketch line crosses, then every loose pixel joins the part it touches --------------------------------
 const part = new Int32Array(N).fill(-1)
 const sizes = []
 for (const start of inked) {
@@ -138,7 +233,11 @@ for (const start of inked) {
   const isCore = (i) => {
     const x = i % W, y = (i / W) | 0
     if (x < CORE || y < CORE || x >= W - CORE || y >= H - CORE) return false
-    for (let dy = -CORE; dy <= CORE; dy++) for (let dx = -CORE; dx <= CORE; dx++) if (kind[i + dy * W + dx] !== kind[i]) return false
+    for (let dy = -CORE; dy <= CORE; dy++)
+      for (let dx = -CORE; dx <= CORE; dx++) {
+        const j = i + dy * W + dx
+        if (wall[j] || kind[j] !== kind[i]) return false
+      }
     return true
   }
   if (!isCore(start)) continue
@@ -166,7 +265,8 @@ for (const sameStorey of [true, false]) {
   }
 }
 
-// ---- order: storey by storey, each from the front of the plot to the back ---------------------------------------
+// ---- order: like a puzzle. Storey by storey, each spreading from where the one before ended, so every piece
+// lands next to pieces already in place ----------------------------------------------------------------------------
 const info = new Map()
 for (const i of inked) {
   const id = part[i]
@@ -175,7 +275,16 @@ for (const i of inked) {
   if (!f) info.set(id, (f = { id, storey: storey[i], n: 0, sx: 0, sy: 0 }))
   f.n++; f.sx += i % W; f.sy += (i / W) | 0
 }
-const order = [...info.values()].sort((a, b) => a.storey - b.storey || b.sy / b.n - a.sy / a.n)
+const order = []
+let from = [0, H * 0.62] // the first storey starts at the left corner of the plot
+for (const s of [1, 2, 3]) {
+  const pieces = [...info.values()].filter((f) => f.storey === s)
+  const far = (f) => Math.hypot(f.sx / f.n - from[0], f.sy / f.n - from[1])
+  pieces.sort((a, b) => far(a) - far(b))
+  order.push(...pieces)
+  const last = pieces[pieces.length - 1]
+  if (last) from = [last.sx / last.n, last.sy / last.n]
+}
 
 // ---- cut every part (with its overlap) and pack the sheet --------------------------------------------------------
 const cuts = order.map((f) => {
@@ -210,24 +319,6 @@ for (const c of cuts)
       if (c.mask[i]) full.copy(sheet, ((c.ay + y) * sheetW + c.ax + x) * 4, i * 4, i * 4 + 4)
     }
 
-// ---- the sketch: the render's own edges as an ink line ----------------------------------------------------------
-const grey = Buffer.alloc(N)
-for (let i = 0, p = 0; i < N; i++, p += 4) {
-  const a = full[p + 3] / 255 // over white paper
-  grey[i] = Math.round((0.299 * full[p] + 0.587 * full[p + 1] + 0.114 * full[p + 2]) * a + 255 * (1 - a))
-}
-const one = { raw: { width: W, height: H, channels: 1 } }
-const soft = await sharp(grey, one).blur(1.6).extractChannel(0).raw().toBuffer()
-if (soft.length !== N) throw new Error('blurred sketch base has the wrong size')
-const sketch = Buffer.alloc(N * 4)
-for (let i = 0, p = 0; i < N; i++, p += 4) {
-  // darker than its surroundings = a line (the classic dodge); flat areas, however dark, stay paper
-  const dodge = Math.min(255, ((grey[i] + 10) * 255) / (soft[i] + 10))
-  const line = Math.min(1, Math.max(0, (238 - dodge) / 90))
-  sketch[p] = INK[0]; sketch[p + 1] = INK[1]; sketch[p + 2] = INK[2]
-  sketch[p + 3] = Math.round(255 * line ** 0.8)
-}
-
 // ---- write -------------------------------------------------------------------------------------------------------
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
 // the renders are small: the larger file is a Lanczos upscale, cleaner on dense screens than the browser's own
@@ -247,7 +338,8 @@ await write('build-parts', sheet, sheetW, sheetH)
 fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 1) + '\n')
 // per part: where it is on the sheet, its size, where it stands in the picture, its storey
 const parts = cuts.map((c) => [c.ax, c.ay, c.w, c.h, c.x, c.y, c.storey])
-fs.writeFileSync(partsPath, JSON.stringify({ w: W, h: H, sheet: sheetW, parts }) + '\n')
+fs.writeFileSync(partsPath, JSON.stringify({ w: W, h: H, sheet: sheetW, parts, strokes }) + '\n')
+console.log(`✓ ${strokes.length} pencil strokes`)
 console.log(`✓ ${parts.length} parts (${[1, 2, 3].map((s) => cuts.filter((c) => c.storey === s).length).join(' + ')}), sheet ${sheetW}×${sheetH}`)
 
 if (process.env.DEBUG_DIR) {
