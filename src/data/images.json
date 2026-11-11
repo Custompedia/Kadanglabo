@@ -885,7 +885,7 @@
    811
   ]
  },
- "build-ground": {
+ "build-full": {
   "w": 1442,
   "h": 1244,
   "c": "transparent",
@@ -894,7 +894,7 @@
    1442
   ]
  },
- "build-upper": {
+ "build-sketch": {
   "w": 1442,
   "h": 1244,
   "c": "transparent",
@@ -903,9 +903,9 @@
    1442
   ]
  },
- "build-roof": {
+ "build-parts": {
   "w": 1442,
-  "h": 1244,
+  "h": 3272,
   "c": "transparent",
   "s": [
    721,
