@@ -120,7 +120,7 @@ export function Preloader() {
       const run = async () => {
         await Promise.all([
           logo.then(),
-          Promise.race([Promise.all([loaded(heroImg), document.fonts?.ready, firstPageReady()]), wait(5000)]),
+          Promise.race([Promise.all([loaded(heroImg), document.fonts?.ready, firstPageReady()]), wait(12000)]),
         ])
         if (!cancelled) {
           exit()

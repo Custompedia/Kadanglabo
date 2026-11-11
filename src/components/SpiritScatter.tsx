@@ -164,10 +164,20 @@ export function animateSpirit(page: HTMLElement) {
         if (!e.isIntersecting) return
         io.unobserve(e.target)
         const frame = e.target.firstElementChild!
-        gsap
-          .timeline()
-          .to(frame, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.35, ease: 'expo.inOut' })
-          .from(frame.querySelector('img'), { scale: 1.25, duration: 1.9, ease: 'power3.out' }, 0.1)
+        const img = frame.querySelector('img')!
+        // open only once the photo is there (a slow connection would otherwise open onto its flat colour)
+        const open = () =>
+          gsap
+            .timeline()
+            .to(frame, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.35, ease: 'expo.inOut' })
+            .from(img, { scale: 1.25, duration: 1.9, ease: 'power3.out' }, 0.1)
+        if (img.complete) open()
+        else {
+          img.loading = 'eager'
+          const t = window.setTimeout(open, 6000)
+          img.addEventListener('load', () => (window.clearTimeout(t), open()), { once: true })
+          img.addEventListener('error', () => (window.clearTimeout(t), open()), { once: true })
+        }
       }),
     { threshold: 0.15 },
   )

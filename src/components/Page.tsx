@@ -1,5 +1,6 @@
 import { useLayoutEffect, type ReactNode } from 'react'
-import { notifyPageMounted } from '../lib/gate'
+import { notifyPageMounted, whenGateOpen } from '../lib/gate'
+import { warmUpImages } from '../lib/warmup'
 
 type Props = { title?: string; children: ReactNode; className?: string }
 
@@ -11,6 +12,20 @@ export function Page({ title, children, className }: Props) {
 
   useLayoutEffect(() => {
     notifyPageMounted()
+  }, [])
+
+  // once the page is uncovered and its intro has had a moment, fetch the photos further down in the background
+  useLayoutEffect(() => {
+    let stop: (() => void) | undefined
+    let timer = 0
+    const cancelGate = whenGateOpen(() => {
+      timer = window.setTimeout(() => (stop = warmUpImages()), 1500)
+    })
+    return () => {
+      cancelGate()
+      window.clearTimeout(timer)
+      stop?.()
+    }
   }, [])
 
   return (
