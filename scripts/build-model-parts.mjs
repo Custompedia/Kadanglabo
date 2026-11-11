@@ -2,7 +2,7 @@
 // only, upper floor without roof, finished house) give:
 //   build-full    the finished house, cut out
 //   build-sketch  the same house as a line drawing (ink on transparent), drawn from the render's own edges
-//   build-parts   the finished house cut into its parts along the drawing's own lines (window panes, wall panels,
+//   build-parts   the finished house cut into its parts along its own outlines (window panes, wall panels,
 //                 floor slabs, steps, canopy, roof planes ...), packed into one sheet
 //   src/data/model-parts.json   where each part sits and in which order it goes up (storey by storey, each piece
 //                 next to ones already placed, like a puzzle), and the sketch as pencil strokes: the lines traced into
@@ -24,10 +24,12 @@ const defaults = ['house-1-ground.png', 'house-2-upper.png', 'house-3-roof.png']
 const files = process.argv.length >= 5 ? process.argv.slice(2, 5) : defaults
 
 const PAD = 6 // empty paper kept around the model
-const COLOURS = 12 // the render is reduced to this many colours to find its parts
-const WALL = 0.45 // a sketch line at least this strong parts two pieces
-const CORE = 1 // a part needs a patch this many pixels clear of any line or other colour to count ...
-const MIN_AREA = Number(process.env.MIN_AREA || 0.00006) // ... and this share of the picture (smaller bits join their neighbour)
+const WALL = 0.45 // a sketch line at least this strong is traced as a pencil stroke
+const EDGE = Number(process.env.EDGE || 11) // an outline: this much darker (of 255) than the surface on both its sides
+const SHADE = Number(process.env.SHADE || 0.6) // a shadow dims a surface to no less than this; darker is another material
+const TINT = Number(process.env.TINT || 0.035) // change of colour (share of red and blue) that means another material
+const SPECK = 12 // px: outline bits smaller than this are grain (lawn, asphalt), not outlines
+const MIN_AREA = Number(process.env.MIN_AREA || 0.00006) // a part is at least this share of the picture (smaller bits join their neighbour)
 const STROKE_MIN = 5 // px: shorter traces are left to the sketch image itself
 const OVERLAP = 2 // parts reach this far into their neighbours, so no seam shows where two meet
 const GAP = 2 // clear pixels between parts on the sheet
@@ -102,37 +104,10 @@ const roofAdds = added(full, upper), upperAdds = added(upper, ground)
 const storey = new Uint8Array(N) // 0 = paper
 for (let i = 0; i < N; i++) if (full[i * 4 + 3]) storey[i] = roofAdds[i] ? 3 : upperAdds[i] ? 2 : 1
 
-// ---- the house in a few flat colours (lines and grain smoothed away first) ---------------------------------------
-const calm = await sharp(full, raw).median(5).raw().toBuffer()
 let seed = 7
 const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296)
 const inked = []
 for (let i = 0; i < N; i++) if (storey[i]) inked.push(i)
-const sample = Array.from({ length: 30000 }, () => inked[(rand() * inked.length) | 0])
-const d2 = (i, c) => (calm[i * 4] - c[0]) ** 2 + (calm[i * 4 + 1] - c[1]) ** 2 + (calm[i * 4 + 2] - c[2]) ** 2
-const rgb = (i) => [calm[i * 4], calm[i * 4 + 1], calm[i * 4 + 2]]
-const centres = [rgb(sample[0])]
-while (centres.length < COLOURS) {
-  // next centre: the sampled pixel farthest from every centre so far
-  let best = sample[0], far = -1
-  for (const i of sample) {
-    const d = Math.min(...centres.map((c) => d2(i, c)))
-    if (d > far) { far = d; best = i }
-  }
-  centres.push(rgb(best))
-}
-const nearest = (i) => {
-  let k = 0, best = Infinity
-  for (let c = 0; c < centres.length; c++) { const d = d2(i, centres[c]); if (d < best) { best = d; k = c } }
-  return k
-}
-for (let round = 0; round < 12; round++) {
-  const sum = centres.map(() => [0, 0, 0, 0])
-  for (const i of sample) { const s = sum[nearest(i)]; s[0] += calm[i * 4]; s[1] += calm[i * 4 + 1]; s[2] += calm[i * 4 + 2]; s[3]++ }
-  sum.forEach((s, c) => { if (s[3]) centres[c] = [s[0] / s[3], s[1] / s[3], s[2] / s[3]] })
-}
-const kind = new Int16Array(N).fill(-1) // storey and colour together: a part never spans two storeys
-for (const i of inked) kind[i] = storey[i] * 32 + nearest(i)
 
 // ---- the sketch: the render's own edges as an ink line ----------------------------------------------------------
 const grey = Buffer.alloc(N)
@@ -225,45 +200,81 @@ const strokes = traces.map((t) => {
   return pts.flat()
 })
 
-// ---- parts: patches of one kind that no sketch line crosses, then every loose pixel joins the part it touches --------------------------------
-const part = new Int32Array(N).fill(-1)
-const sizes = []
-for (const start of inked) {
-  if (part[start] !== -1) continue
-  const isCore = (i) => {
-    const x = i % W, y = (i / W) | 0
-    if (x < CORE || y < CORE || x >= W - CORE || y >= H - CORE) return false
-    for (let dy = -CORE; dy <= CORE; dy++)
-      for (let dx = -CORE; dx <= CORE; dx++) {
-        const j = i + dy * W + dx
-        if (wall[j] || kind[j] !== kind[i]) return false
-      }
-    return true
+// ---- outlines: thin dark lines, darker than the surface on BOTH their sides. The edge of a shadow is darker on
+// one side only, so it is no outline and never cuts a wall in two --------------------------------------------------
+const edge = new Uint8Array(N)
+for (let y = 3; y < H - 3; y++)
+  for (let x = 3; x < W - 3; x++) {
+    const i = y * W + x
+    let valley = 0
+    for (const o of [1, W, W + 1, W - 1])
+      for (const r of [1, 2, 3]) valley = Math.max(valley, Math.min(grey[i + o * r], grey[i - o * r]) - grey[i])
+    if (valley > EDGE) edge[i] = 1
   }
-  if (!isCore(start)) continue
-  const id = sizes.length, members = [start]
-  part[start] = id
-  for (let n = 0; n < members.length; n++)
-    near(members[n], (j) => { if (part[j] === -1 && kind[j] === kind[start] && isCore(j)) { part[j] = id; members.push(j) } })
-  sizes.push(members.length)
-  if (members.length < MIN_AREA * N) { for (const j of members) part[j] = -2; sizes[id] = 0 } // too small: loose again
+// ... and where one material ends and another begins without a line between them (lawn to paving, asphalt to
+// kerb): the colour itself changes, or it gets darker than any shadow in the render makes it. A shadow keeps the
+// colour and only dims it, so it still parts nothing.
+const calm = await sharp(full, raw).median(5).raw().toBuffer() // grain and hairlines smoothed away
+const lum = (i) => 0.299 * calm[i * 4] + 0.587 * calm[i * 4 + 1] + 0.114 * calm[i * 4 + 2]
+const otherMaterial = (i, j) => {
+  if (!storey[i] || !storey[j]) return false
+  const a = lum(i), b = lum(j)
+  if ((Math.min(a, b) + 24) / (Math.max(a, b) + 24) < SHADE) return true
+  if (Math.min(a, b) < 45) return false // too dark to tell a colour
+  const sa = calm[i * 4] + calm[i * 4 + 1] + calm[i * 4 + 2], sb = calm[j * 4] + calm[j * 4 + 1] + calm[j * 4 + 2]
+  return Math.abs(calm[i * 4] / sa - calm[j * 4] / sb) + Math.abs(calm[i * 4 + 2] / sa - calm[j * 4 + 2] / sb) > TINT
 }
-for (let i = 0; i < N; i++) if (part[i] === -2) part[i] = -1
-// loose pixels join a touching part, first only within their own storey, then anywhere
-for (const sameStorey of [true, false]) {
+for (let y = 3; y < H - 3; y++)
+  for (let x = 3; x < W - 3; x++) {
+    const i = y * W + x
+    if (otherMaterial(i - 1, i + 1) || otherMaterial(i - W, i + W)) edge[i] = 1
+  }
+{
+  // grain is not an outline: drop every bit that is not part of a line
+  const seen = new Uint8Array(N)
+  for (let i = 0; i < N; i++) {
+    if (!edge[i] || seen[i]) continue
+    const bit = [i]
+    seen[i] = 1
+    for (let n = 0; n < bit.length; n++)
+      for (const o of around) { const j = bit[n] + o; if (edge[j] && !seen[j]) { seen[j] = 1; bit.push(j) } }
+    if (bit.length < SPECK) for (const j of bit) edge[j] = 0
+  }
+}
+
+// ---- parts: the faces of the drawing. A part is an area no outline crosses, so its shape is the shape of the
+// thing itself: a wall face, a pane, a panel, a slab, a roof plane. Light, shadow and storey do not cut it ---------
+const part = new Int32Array(N).fill(-1)
+let count = 0
+const minPx = MIN_AREA * N
+/** Everything reachable from `start` through loose pixels that are `open`; kept as a part if large enough. */
+function face(start, open, least) {
+  const members = [start]
+  part[start] = count
+  for (let n = 0; n < members.length; n++)
+    near(members[n], (j) => { if (part[j] === -1 && storey[j] && open(j)) { part[j] = count; members.push(j) } })
+  if (members.length >= least) count++
+  else for (const j of members) part[j] = -2 // too small: stays loose, joins a neighbour below
+}
+const loosen = () => { for (let i = 0; i < N; i++) if (part[i] === -2) part[i] = -1 }
+/** Parts spread into the loose pixels they touch. */
+function spread(open) {
   let front = []
   for (const i of inked) if (part[i] >= 0) front.push(i)
   while (front.length) {
     const next = []
-    for (const i of front)
-      near(i, (j) => {
-        if (part[j] !== -1 || !storey[j] || (sameStorey && storey[j] !== storey[i])) return
-        part[j] = part[i]
-        next.push(j)
-      })
+    for (const i of front) near(i, (j) => { if (part[j] === -1 && storey[j] && open(j)) { part[j] = part[i]; next.push(j) } })
     front = next
   }
 }
+const sealed = grow(edge, 1) // outlines a little thicker, so a small break in a line lets nothing through
+for (const i of inked) if (part[i] === -1 && !sealed[i]) face(i, (j) => !sealed[j], minPx)
+loosen()
+spread((j) => !edge[j]) // back up to the outline itself
+// slim faces the thicker outlines closed off entirely (frames, slats, trims) are parts of their own
+for (const i of inked) if (part[i] === -1 && !edge[i]) face(i, (j) => !edge[j], minPx / 2)
+loosen()
+spread(() => true) // the outlines and what is left join the part beside them
 
 // ---- order: like a puzzle. Storey by storey, each spreading from where the one before ended, so every piece
 // lands next to pieces already in place ----------------------------------------------------------------------------
@@ -272,9 +283,12 @@ for (const i of inked) {
   const id = part[i]
   if (id < 0) continue
   let f = info.get(id)
-  if (!f) info.set(id, (f = { id, storey: storey[i], n: 0, sx: 0, sy: 0 }))
+  if (!f) info.set(id, (f = { id, storey: 0, n: 0, sx: 0, sy: 0, in: [0, 0, 0, 0] }))
   f.n++; f.sx += i % W; f.sy += (i / W) | 0
+  f.in[storey[i]]++
 }
+// a part belongs to the storey most of it stands in
+for (const f of info.values()) f.storey = f.in.indexOf(Math.max(...f.in))
 const order = []
 let from = [0, H * 0.62] // the first storey starts at the left corner of the plot
 for (const s of [1, 2, 3]) {
@@ -287,7 +301,7 @@ for (const s of [1, 2, 3]) {
 }
 
 // ---- cut every part (with its overlap) and pack the sheet --------------------------------------------------------
-const cuts = order.map((f) => {
+const cuts = order.map(({ in: _, ...f }) => {
   let mask = new Uint8Array(N)
   for (const i of inked) if (part[i] === f.id) mask[i] = 1
   mask = grow(mask, OVERLAP)
@@ -353,6 +367,14 @@ if (process.env.DEBUG_DIR) {
     view[i * 4] = tint[n][0]; view[i * 4 + 1] = tint[n][1]; view[i * 4 + 2] = tint[n][2]; view[i * 4 + 3] = 255
   }
   await sharp(view, raw).png().toFile(path.join(process.env.DEBUG_DIR, 'parts.png'))
+  // part borders drawn over the render, to see that every border is an outline of the house
+  const over = Buffer.from(full)
+  for (const i of inked) {
+    let border = false
+    near(i, (j) => { if (storey[j] && part[j] !== part[i]) border = true })
+    if (border) { over[i * 4] = 255; over[i * 4 + 1] = 0; over[i * 4 + 2] = 90 }
+  }
+  await sharp(over, raw).flatten({ background: '#f3f0ea' }).resize({ width: W * 2, kernel: 'nearest' }).png().toFile(path.join(process.env.DEBUG_DIR, 'borders.png'))
   await sharp(sketch, raw).flatten({ background: '#f3f0ea' }).png().toFile(path.join(process.env.DEBUG_DIR, 'sketch.png'))
   await sharp(sheet, { raw: { width: sheetW, height: sheetH, channels: 4 } }).flatten({ background: '#ec6434' }).png().toFile(path.join(process.env.DEBUG_DIR, 'sheet.png'))
 }

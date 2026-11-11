@@ -83,7 +83,8 @@ node scripts/build-model-parts.mjs <lantai-dasar.png> <lantai-atas.png> <rumah-j
 ```
 
 Skrip membuat: rumah jadi (`build-full`), sketsa garisnya (`build-sketch`, ditarik dari tepi render itu sendiri),
-lembar potongan bagian bangunan (`build-parts`, dipotong mengikuti garis sketsa), dan `src/data/model-parts.json`
+lembar potongan bagian bangunan (`build-parts`: tiap potongan adalah satu bidang utuh yang dibatasi garis tepi
+objek atau pergantian material di gambar rumah jadi; bayangan dan batas lantai tidak memotong bidang), dan `src/data/model-parts.json`
 yang mencatat letak serta urutan pasang tiap bagian (lantai dasar, lantai atas, atap; tiap bagian di samping yang
 sudah terpasang) dan garis sketsa sebagai tarikan pensil. Tempo adegan (lama menggambar, jeda, lama memasang) ada
 di konstanta `DRAW`, `HELD`, `BUILD` di awal `src/components/ServiceSketch.tsx`.
