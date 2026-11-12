@@ -1,5 +1,6 @@
 import type { ImgKey } from '../components/Img'
 import { getLang, type Tx } from '../lib/i18n'
+import type { RichTx } from '../../shared/content'
 
 /*
  * Data proyek. Sumber: Company Profile 2026, brief Canva, dan folder Drive "Asset Website Kadanglabo"
@@ -51,7 +52,7 @@ export type Block =
   | { t: 'full'; img: ImgKey; caption?: Tx }
   | { t: 'pair'; imgs: [ImgKey, ImgKey]; caption?: Tx }
   | { t: 'offset'; img: ImgKey; side?: 'left' | 'right'; caption?: Tx }
-  | { t: 'text'; label: Tx; body: Tx }
+  | { t: 'text'; label: Tx; body: Tx | RichTx }
   | { t: 'quote'; text: Tx; cite?: Tx }
 
 export interface Project {
@@ -72,8 +73,9 @@ export interface Project {
   color: string
   accent: string
   tagline: Tx
-  summary: Tx
-  story?: { key: StoryKey; text: Tx; img: ImgKey }[]
+  /** plain in the bundled data, formatted (bold, lists…) when it comes from the CMS */
+  summary: Tx | RichTx
+  story?: { key: StoryKey; text: Tx | RichTx; img: ImgKey }[]
   hero: ImgKey
   cover: ImgKey
   gallery: Block[]
@@ -760,7 +762,7 @@ export interface Area {
   regions: string[]
 }
 
-export const areas: Area[] = [
+export let areas: Area[] = [
   { key: 'diy', label: 'D.I. Yogyakarta', regions: ['Yogyakarta', 'Sleman', 'Bantul', 'Kulon Progo'] },
   { key: 'klaten', label: 'Klaten', regions: ['Klaten'] },
   { key: 'jepara', label: 'Jepara', regions: ['Jepara'] },
@@ -780,11 +782,13 @@ export interface ArchiveEntry {
   year: number | null
   status: Status | null
   slug?: string
+  /** shown beside the cursor over the row in the archive table */
+  cover?: ImgKey
 }
 
 /* Daftar proyek dari "KADANGLABO PROJECT LIST" (Company Profile 2026).
  * Kategori & wilayah disimpulkan dari nama proyek — mohon dikoreksi bila perlu. */
-const listOnly: [string, Category, string | null][] = [
+let listOnly: [string, Category, string | null, (number | null)?, (Status | null)?, ImgKey?][] = [
   ['AK Ruko Klaten', 'commercial', 'Klaten'],
   ['AH House', 'residential', null],
   ['IBAIA Coffee Point', 'commercial', null],
@@ -836,7 +840,7 @@ const listOnly: [string, Category, string | null][] = [
   ['Nightwok Demangan Baru', 'commercial', 'Sleman'],
 ]
 
-export const archive: ArchiveEntry[] = [
+const buildArchive = (): ArchiveEntry[] => [
   ...projects.map((p) => ({
     title: p.title,
     category: p.category,
@@ -844,11 +848,26 @@ export const archive: ArchiveEntry[] = [
     year: p.year,
     status: p.status,
     slug: p.slug,
+    cover: p.cover,
   })),
-  ...listOnly.map(([title, category, region]) => ({ title, category, region, year: null, status: null })),
+  ...listOnly.map(([title, category, region, year = null, status = null, cover]) => ({ title, category, region, year, status, cover })),
 ]
+const buildAreaStats = () =>
+  areas.map((a) => ({ ...a, count: archive.filter((e) => areaOf(e.region) === a.key).length })).filter((a) => a.count > 0)
+
+export let archive: ArchiveEntry[] = buildArchive()
 
 /** Areas that have at least one archived project, with how many (archive filter, About "in numbers") */
-export const areaStats = areas
-  .map((a) => ({ ...a, count: archive.filter((e) => areaOf(e.region) === a.key).length }))
-  .filter((a) => a.count > 0)
+export let areaStats = buildAreaStats()
+
+/**
+ * Swap in the projects published from the CMS (src/lib/content.ts), before the app first renders. The bundled
+ * list above stays as the fallback when the CMS cannot be reached.
+ */
+export function setProjects(next: Project[], archiveOnly: typeof listOnly, nextAreas?: Area[]) {
+  projects.splice(0, projects.length, ...next)
+  listOnly = archiveOnly
+  if (nextAreas?.length) areas = nextAreas
+  archive = buildArchive()
+  areaStats = buildAreaStats()
+}

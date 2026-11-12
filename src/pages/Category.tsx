@@ -17,11 +17,11 @@ import {
   categoryOrder,
   categoryTitle,
   getProject,
-  projects,
   type Category,
   fmtArea,
   type Project,
 } from '../data/projects'
+import { categoryHero, categorySelected } from '../data/pages'
 import { t, tr } from '../lib/i18n'
 import './Category.css'
 
@@ -33,11 +33,6 @@ import './Category.css'
  * form last; a WhatsApp button waits in the corner.
  */
 
-const heroImg: Record<Category, ImgKey> = {
-  commercial: 'klinik-hero-hd',
-  hospitality: 'labarka-bird-hd',
-  residential: 'hmw-facade-hd',
-}
 
 const PEEK = 10 // archive rows shown before "Show all"
 const GALLERY_MAX = 10
@@ -151,7 +146,9 @@ export default function CategoryPage({ cat }: { cat: Category }) {
   const ci = categoryOrder.indexOf(cat)
   const sector = sectors.find((s) => s.key === cat)!
   const lp = workLanding[cat]
-  const list = projects.filter((p) => p.category === cat)
+  // the chapters and the hero photo are chosen in the CMS ("Our Work" page); see data/pages.ts
+  const list = categorySelected(cat)
+  const hero = categoryHero(cat)
   const rows = archive
     .filter((a) => a.category === cat)
     .sort((a, b) => Number(!!b.slug) - Number(!!a.slug)) // projects with a page first
@@ -160,7 +157,7 @@ export default function CategoryPage({ cat }: { cat: Category }) {
   const others = categoryOrder.filter((c) => c !== cat)
 
   // the gallery: the photos the chapters do not show yet, every project taking its turn
-  const used = new Set<ImgKey>([heroImg[cat].replace(/-hd$/, '') as ImgKey, ...list.flatMap((p) => photosOf(p).slice(0, 2))])
+  const used = new Set<ImgKey>([hero.replace(/-hd$/, '') as ImgKey, ...list.flatMap((p) => photosOf(p).slice(0, 2))])
   const pools = list.map((p) => photosOf(p).filter((id) => !used.has(id)).map((id) => ({ id, p })))
   const gallery: { id: ImgKey; p: Project }[] = []
   for (let i = 0; gallery.length < GALLERY_MAX && pools.some((pool) => pool.length > i); i++)
@@ -251,7 +248,7 @@ export default function CategoryPage({ cat }: { cat: Category }) {
         {/* ---------- hero: the promise on the category's photo, two ways to act, the numbers ---------- */}
         <section className="lp-h" data-theme="dark" aria-labelledby="lp-h-title">
           <div className="lp-h__media">
-            <Img id={heroImg[cat]} alt={t(sector.imgAlt)} priority sizes="100vw" />
+            <Img id={hero} alt={t(sector.imgAlt)} priority sizes="100vw" />
           </div>
           <div className="lp-h__shade" aria-hidden="true" />
           <div className="lp-h__body wrap">

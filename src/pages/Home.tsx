@@ -66,7 +66,7 @@ export default function Home() {
         <section className="latest wrap" data-theme="light">
           <div className="latest__head">
             <SectionLabel n="04">{tr('Latest articles', 'Artikel terbaru')}</SectionLabel>
-            <TLink to="/news" className="link-line t-label">
+            <TLink to="/articles" className="link-line t-label">
               {tr('All articles →', 'Semua artikel →')}
             </TLink>
           </div>

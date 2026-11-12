@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState } from 'react'
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router'
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router'
 import { SmoothScroll, scrollToElement, scrollToTop } from './lib/smooth'
 import { TransitionProvider } from './lib/transition'
 import { whenGateOpen } from './lib/gate'
@@ -19,6 +19,7 @@ const pages = {
   work: () => import('./pages/Work'),
   category: () => import('./pages/Category'),
   project: () => import('./pages/ProjectDetail'),
+  archive: () => import('./pages/Archive'),
   news: () => import('./pages/News'),
   article: () => import('./pages/NewsDetail'),
   contact: () => import('./pages/Contact'),
@@ -31,6 +32,7 @@ const Services = lazy(pages.services)
 const Work = lazy(pages.work)
 const CategoryPage = lazy(pages.category)
 const ProjectDetail = lazy(pages.project)
+const Archive = lazy(pages.archive)
 const News = lazy(pages.news)
 const NewsDetail = lazy(pages.article)
 const Contact = lazy(pages.contact)
@@ -111,12 +113,16 @@ function Layout() {
             <Route key={s.key} path={`/services/${s.key}`} element={<Navigate to={`/work/${s.key}`} replace />} />
           ))}
           <Route path="/work" element={<Work />} />
+          <Route path="/work/archive" element={<Archive />} />
           {categoryOrder.map((c) => (
             <Route key={c} path={`/work/${c}`} element={<CategoryPage cat={c} />} />
           ))}
           <Route path="/work/:slug" element={<ProjectDetail />} />
-          <Route path="/news" element={<News />} />
-          <Route path="/news/:slug" element={<NewsDetail />} />
+          <Route path="/articles" element={<News />} />
+          <Route path="/articles/:slug" element={<NewsDetail />} />
+          {/* the old addresses, so shared links keep working */}
+          <Route path="/news" element={<Navigate to="/articles" replace />} />
+          <Route path="/news/:slug" element={<OldArticle />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -138,4 +144,10 @@ export default function App() {
       </SmoothScroll>
     </BrowserRouter>
   )
+}
+
+/** /news/:slug, the address articles used to have, now /articles/:slug. */
+function OldArticle() {
+  const { slug } = useParams()
+  return <Navigate to={`/articles/${slug ?? ''}`} replace />
 }

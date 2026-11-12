@@ -9,6 +9,8 @@
       content="Kadanglabo is a community-based architecture consultancy in Yogyakarta, delivering collaborative architectural solutions for commercial, hospitality and residential projects."
     />
     <meta name="theme-color" content="#F3F0EA" />
+    <!-- the CMS content, fetched alongside the scripts instead of after them (src/lib/content.ts) -->
+    <link rel="preload" href="/api/public/content" as="fetch" crossorigin="anonymous" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

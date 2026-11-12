@@ -26,8 +26,9 @@ export const useTransitionNav = () => useContext(TransitionContext)
 /** Name of the destination, shown on the curtain while the page changes. */
 function labelFor(pathname: string) {
   const [section, slug] = pathname.split('/').filter(Boolean)
+  if (section === 'work' && slug === 'archive') return tr('Project archive', 'Arsip proyek')
   if (section === 'work' && slug) return getProject(slug)?.title ?? tr('Our Work', 'Proyek')
-  if (section === 'news' && slug) return tr('Articles', 'Artikel')
+  if (section === 'articles' && slug) return tr('Articles', 'Artikel')
   const item = nav.find((n) => n.to === pathname)
   return item ? t(item.label) : 'Kadanglabo'
 }

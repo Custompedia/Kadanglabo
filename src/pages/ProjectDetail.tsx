@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useRef, type CSSProperties } from 'react'
 import { useParams } from 'react-router'
 import { Page } from '../components/Page'
+import { RichText } from '../components/RichText'
 import { Img, imgMeta } from '../components/Img'
 import { ProjectCard, SectionLabel } from '../components/Bits'
 import { usePageAnimations } from '../lib/anim'
-import { gsap, ScrollTrigger } from '../lib/gsap'
+import { gsap } from '../lib/gsap'
 import {
   categoryLabel,
   getProject,
   relatedProjects,
   fmtArea,
   statusLabel,
-  storyLabel,
   type Block,
   type Project,
 } from '../data/projects'
@@ -65,10 +65,9 @@ function GalleryBlock({ b }: { b: Block }) {
         <figure className="g-full">
           <div className="g-media" data-reveal>
             <div className="g-parallax" data-parallax="6">
-              <Img id={b.img} sizes="100vw" />
+              <Img id={b.img} sizes="(min-width: 768px) 66vw, 100vw" />
             </div>
           </div>
-          {b.caption && <figcaption className="g-cap wrap">{t(b.caption)}</figcaption>}
         </figure>
       )
     case 'pair': {
@@ -80,15 +79,14 @@ function GalleryBlock({ b }: { b: Block }) {
               <Img id={id} sizes="(min-width: 768px) 48vw, 100vw" />
             </div>
           ))}
-          {b.caption && <figcaption className="g-cap">{t(b.caption)}</figcaption>}
         </figure>
       )
     }
     case 'offset':
       return (
-        <figure className={`g-offset wrap g-offset--${b.side ?? 'right'}`}>
+        <figure className="g-offset wrap">
           <div className="g-media" data-reveal>
-            <Img id={b.img} sizes="(min-width: 768px) 58vw, 100vw" />
+            <Img id={b.img} sizes="100vw" />
           </div>
           {b.caption && <figcaption className="g-cap">{t(b.caption)}</figcaption>}
         </figure>
@@ -99,9 +97,7 @@ function GalleryBlock({ b }: { b: Block }) {
           <span className="pill" data-fade>
             {t(b.label)}
           </span>
-          <p className="t-lead" data-split>
-            {t(b.body)}
-          </p>
+          <RichText value={b.body} className="t-lead" wrap="g-text__body" data-split="" />
         </div>
       )
     case 'quote':
@@ -110,7 +106,6 @@ function GalleryBlock({ b }: { b: Block }) {
           <p className="g-quote__text" data-split>
             “{t(b.text)}”
           </p>
-          {b.cite && <cite className="t-label">{t(b.cite)}</cite>}
         </blockquote>
       )
   }
@@ -125,7 +120,6 @@ export default function ProjectDetail() {
 
 function ProjectView({ p }: { p: Project }) {
   const root = useRef<HTMLDivElement>(null)
-  const [open, setOpen] = useState(0)
 
   usePageAnimations(root, () => {
     const st = { trigger: '.p-teaser', start: 'top bottom', end: 'top top', scrub: true }
@@ -139,18 +133,6 @@ function ProjectView({ p }: { p: Project }) {
     })
   })
 
-  // The accordion changes the page height — keep scroll-triggered reveals below it in sync.
-  const toggled = useRef(false)
-  useEffect(() => {
-    if (!toggled.current) {
-      toggled.current = true
-      return
-    }
-    const id = window.setTimeout(() => ScrollTrigger.refresh(), 750)
-    return () => window.clearTimeout(id)
-  }, [open])
-
-  const shown = open < 0 ? 0 : open
   const related = relatedProjects(p)
   const vars = { '--p-color': p.color, '--p-accent': p.accent } as CSSProperties
   const heroTheme = p.color.toUpperCase() === '#D34614' ? 'accent' : 'dark' // deep orange (white text) or navy
@@ -197,49 +179,9 @@ function ProjectView({ p }: { p: Project }) {
             <SectionLabel>{tr('Project info', 'Info proyek')}</SectionLabel>
             <Meta p={p} />
           </div>
-          <p className="t-lead p-intro__summary" data-scrub>
-            {t(p.summary)}
-          </p>
+          <RichText value={p.summary} className="t-lead" wrap="p-intro__summary" data-scrub="" />
         </section>
 
-        {p.story && (
-          <section className="p-story wrap" data-theme="light">
-            <div className="p-story__list">
-              <SectionLabel className="pill--wrap">{p.story.map((s) => t(storyLabel[s.key])).join(' → ')}</SectionLabel>
-              <div className="acc-group">
-                {p.story.map((s, i) => (
-                  <div key={s.key} className="acc" data-open={open === i ? '' : undefined}>
-                    <button
-                      type="button"
-                      className="acc__head"
-                      aria-expanded={open === i}
-                      onClick={() => setOpen(open === i ? -1 : i)}
-                    >
-                      <span className="acc__num">0{i + 1}</span>
-                      <span className="acc__title">{t(storyLabel[s.key])}</span>
-                      <span className="acc__icon" aria-hidden="true" />
-                    </button>
-                    <div className="acc__body">
-                      <div>
-                        <p>{t(s.text)}</p>
-                        <div className="acc__img md:hidden">
-                          <Img id={s.img} sizes="100vw" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="p-story__media max-md:hidden">
-              <div className="p-story__sticky">
-                {p.story.map((s, i) => (
-                  <Img key={s.key} id={s.img} sizes="46vw" className="p-story__img" data-on={i === shown ? '' : undefined} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
 
         {p.gallery.length > 0 && (
           <section className="gallery" data-theme="light">

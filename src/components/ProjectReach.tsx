@@ -41,6 +41,8 @@ export function animateProjectReach(page: HTMLElement) {
 }
 
 export function ProjectReach({ selectedLocation, onChoose }: { selectedLocation: string; onChoose: (key: string) => void }) {
+  // the other places besides the studio's own region
+  const more = locations.filter((l) => l.key !== 'diy').length
   return (
     <section className="reach" aria-labelledby="reach-title">
       {/* left: the statement; right: the places, so a row never runs half empty across the page */}
@@ -49,9 +51,15 @@ export function ProjectReach({ selectedLocation, onChoose }: { selectedLocation:
           {tr('Project locations', 'Lokasi proyek')}
         </span>
         <h3 id="reach-title" className="reach__lead" data-split>
-          {tr('From Yogyakarta', 'Dari Yogyakarta')}
-          <br />
-          {tr(`to ${locations.length - 1} more cities.`, `ke ${locations.length - 1} kota lain.`)}
+          {more > 0 ? (
+            <>
+              {tr('From Yogyakarta', 'Dari Yogyakarta')}
+              <br />
+              {tr(`to ${more} more ${more === 1 ? 'city' : 'cities'}.`, `ke ${more} kota lain.`)}
+            </>
+          ) : (
+            tr('Rooted in Yogyakarta.', 'Berakar di Yogyakarta.')
+          )}
         </h3>
         <p className="reach__intro" data-fade>
           {tr('Different places. One approach: Contextual Design.', 'Beragam tempat, satu pendekatan: Desain Kontekstual.')}
@@ -88,7 +96,9 @@ export function ProjectReach({ selectedLocation, onChoose }: { selectedLocation:
                 <span className="reach-place__unit">{tr(location.count === 1 ? 'project' : 'projects', 'proyek')}</span>
               </span>
               <span className="reach-place__arrow" aria-hidden="true">
-                <span className="reach-place__arrow-glyph">↗</span>
+                <svg className="reach-place__arrow-glyph" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6" />
+                </svg>
               </span>
             </button>
           </li>

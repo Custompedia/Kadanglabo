@@ -5,9 +5,14 @@ import '@fontsource-variable/inter'
 import '@fontsource-variable/newsreader'
 import 'lenis/dist/lenis.css'
 import './styles.css'
-import App from './App'
+import { loadContent } from './lib/content'
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+
+// the CMS content first (falls back to the bundled data within a few seconds), then the app, so every module that
+// reads the content sees the published version
+await loadContent()
+const { default: App } = await import('./App')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

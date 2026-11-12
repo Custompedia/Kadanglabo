@@ -34,7 +34,7 @@ export const nav: { to: string; label: Tx; img: ImgKey }[] = [
   { to: '/about', label: { en: 'About', id: 'Tentang' }, img: 'labarka-garden' },
   { to: '/services', label: { en: 'Services', id: 'Layanan' }, img: 'klinik-plaza' },
   { to: '/work', label: { en: 'Our Work', id: 'Proyek' }, img: 'labarka-bird' },
-  { to: '/news', label: { en: 'Articles', id: 'Artikel' }, img: 'labarka-pond' },
+  { to: '/articles', label: { en: 'Articles', id: 'Artikel' }, img: 'labarka-pond' },
   { to: '/contact', label: { en: 'Contact', id: 'Kontak' }, img: 'hmw-facade' },
 ]
 

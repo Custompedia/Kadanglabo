@@ -16,9 +16,10 @@ export const heroSlides = [
   'la-barka-resort',
   'klinik-uii',
   'perum-firlatata',
-].map((slug) => {
-  const project = getProject(slug)!
-  return { ...project, hero: heroImages[project.hero] ?? project.hero }
+].flatMap((slug) => {
+  // a project taken off the site in the CMS simply drops out of the carousel
+  const project = getProject(slug)
+  return project ? [{ ...project, hero: heroImages[project.hero] ?? project.hero }] : []
 })
 
 /** Account for object-fit: cover, the 128% pan height, and the hero's 560px minimum height. */

@@ -1,5 +1,6 @@
 import { useRef, type CSSProperties } from 'react'
 import { gsap, ScrollTrigger, useGSAP, reducedMotion } from '../lib/gsap'
+import { categoryTiles } from '../data/pages'
 import { TLink } from '../lib/transition'
 import { whenGateOpen } from '../lib/gate'
 import { useMediaQuery } from '../lib/media'
@@ -47,7 +48,8 @@ const slots: Slot[] = [
   { x: 3, y: 12, w: 1, h: 3, mx: 0, my: 13, mw: 1, mh: 3 },
 ]
 
-const groups: { key: Category; title: string; tiles: Tile[] }[] = [
+/** The hand-picked tiles; a tile whose project is no longer live is replaced (see categoryTiles). */
+const picked: { key: Category; title: string; tiles: Tile[] }[] = [
   {
     key: 'commercial',
     title: 'Commercial',
@@ -89,6 +91,8 @@ const groups: { key: Category; title: string; tiles: Tile[] }[] = [
   },
 ]
 
+// what the CMS has live: the picks still on the site, topped up from the category's projects
+const groups = picked.map((g) => ({ ...g, tiles: categoryTiles(g.key, g.tiles, slots.length) })).filter((g) => g.tiles.length)
 const N = groups.length
 // the title switches when the drifting mosaic is halfway between two groups
 const indexAt = (p: number) => Math.min(N - 1, Math.floor(p * (N - 1) + 0.5))

@@ -10,12 +10,12 @@ export const TAGLINE = 'A Collaborative Architectural Solutions.'
 function centerFor(pathname: string): { label: string; to?: string } | null {
   if (pathname === '/') return null // home: the hero carries the one message (tagline under the name)
   if (pathname.startsWith('/work/')) return { label: tr('← Back to work', '← Kembali ke proyek'), to: '/work' }
-  if (pathname.startsWith('/news/')) return { label: tr('← All articles', '← Semua artikel'), to: '/news' }
+  if (pathname.startsWith('/articles/')) return { label: tr('← All articles', '← Semua artikel'), to: '/articles' }
   const map: Record<string, string> = {
     '/about': tr('About us', 'Tentang kami'),
     '/services': tr('Our services', 'Layanan kami'),
     '/work': tr('Selected projects', 'Proyek pilihan'),
-    '/news': tr('Articles', 'Artikel'),
+    '/articles': tr('Articles', 'Artikel'),
     '/contact': tr('Work with us', 'Bekerja sama'),
   }
   return map[pathname] ? { label: map[pathname] } : { label: 'Kadanglabo' }

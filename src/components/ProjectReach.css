@@ -128,6 +128,8 @@
   font-size: 13px;
 }
 .reach-place__arrow {
+  display: grid;
+  place-items: center;
   justify-self: end;
   color: var(--color-mute);
   font-size: 20px;
@@ -135,7 +137,9 @@
 }
 /* the hover nudge lives on the glyph; GSAP animates the arrow box itself on entry */
 .reach-place__arrow-glyph {
-  display: inline-block;
+  display: block;
+  width: 18px;
+  height: 18px;
   transition: transform 0.5s var(--ease-expo);
 }
 @media (hover: hover) {
