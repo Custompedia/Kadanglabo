@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // The Kadanglabo CMS: the dashboard (static SPA) and its API, at admin.kadanglabo.com.
+  "name": "kadanglabo-admin",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-11",
+  "workers_dev": true,
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/media/*"]
+  },
+  // One database per concern, so none of them carries the others' weight (and auth stays apart from content).
+  // database_id: fill in with the ids printed by `wrangler d1 create <name>` (see admin/README.md).
+  "d1_databases": [
+    { "binding": "AUTH_DB", "database_name": "kadanglabo-auth", "database_id": "00000000-0000-0000-0000-00000000a001", "migrations_dir": "migrations/auth" },
+    { "binding": "CONTENT_DB", "database_name": "kadanglabo-content", "database_id": "00000000-0000-0000-0000-00000000c001", "migrations_dir": "migrations/content" },
+    { "binding": "MEDIA_DB", "database_name": "kadanglabo-media", "database_id": "00000000-0000-0000-0000-00000000e001", "migrations_dir": "migrations/media" }
+  ],
+  // Published image sizes (read by the public site too), and the uploaded originals (private).
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "kadanglabo-media" },
+    { "binding": "ORIGINALS", "bucket_name": "kadanglabo-originals" }
+  ],
+  // Monday 03:00 UTC: remove images unused for a week (worker/media.ts, cleanupMedia)
+  "triggers": { "crons": ["0 3 * * 1"] },
+  "vars": {
+    "PUBLIC_SITE_URL": "https://kadanglabo.com"
+  }
+}
