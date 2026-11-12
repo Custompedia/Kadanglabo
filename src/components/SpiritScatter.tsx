@@ -54,68 +54,6 @@ const near = field.filter((ph) => ph.s >= 1)
 const far = field.filter((ph) => ph.s < 1)
 
 /**
- * The sheet behind a chapter: the outline of its lines (each as wide as its words, centred), stacked into one
- * stepped silhouette and drawn with rounded corners, inner corners included. Steps smaller than a corner are evened
- * out so the edge stays calm. `withText` takes the text's lines in too, bridging the gap under the title.
- */
-function drawSheet(ch: HTMLElement, withText: boolean) {
-  const path = ch.querySelector<SVGPathElement>('.sp__sheet path')
-  const title = ch.querySelector<HTMLElement>('.sp__title')
-  const body = ch.querySelector<HTMLElement>('.sp__body')
-  if (!path || !title || !body) return
-  const box = ch.getBoundingClientRect()
-  const fs = parseFloat(getComputedStyle(title).fontSize)
-  const bs = parseFloat(getComputedStyle(body).fontSize)
-  const R = Math.max(14, fs * 0.2)
-  const rows: { half: number; t: number; b: number }[] = []
-  const take = (el: HTMLElement, padX: number) =>
-    el.querySelectorAll<HTMLElement>('.split-line').forEach((line) => {
-      const w = line.getBoundingClientRect().width // x is untouched by the lines' vertical moves
-      const t = line.parentElement!.getBoundingClientRect().top - box.top // the mask does not move
-      if (w > 0) rows.push({ half: w / 2 + padX, t, b: t + line.offsetHeight })
-    })
-  take(title, fs * 0.2)
-  if (withText) take(body, bs * 1.2)
-  if (!rows.length) return path.setAttribute('d', '')
-
-  // one piece: each row meets the next (gaps bridged, overlaps split), then room above the caps and below the last line
-  for (let i = 0; i < rows.length - 1; i++) {
-    const m = rows[i].b < rows[i + 1].t ? rows[i + 1].t : (rows[i].b + rows[i + 1].t) / 2
-    rows[i].b = rows[i + 1].t = m
-  }
-  rows[0].t -= fs * 0.1
-  rows[rows.length - 1].b += withText ? bs * 0.9 : fs * 0.16
-  // even out steps too small to hold a corner
-  for (let pass = 0; pass < 2; pass++)
-    for (let i = 0; i < rows.length - 1; i++)
-      if (Math.abs(rows[i].half - rows[i + 1].half) < R * 2.2) rows[i].half = rows[i + 1].half = Math.max(rows[i].half, rows[i + 1].half)
-
-  const cx = box.width / 2
-  const pts: number[][] = []
-  rows.forEach((r) => pts.push([cx + r.half, r.t], [cx + r.half, r.b]))
-  for (let i = rows.length - 1; i >= 0; i--) pts.push([cx - rows[i].half, rows[i].b], [cx - rows[i].half, rows[i].t])
-  const at = (i: number) => pts[(i + pts.length) % pts.length]
-  const corners = pts.filter((p, i) => {
-    const [a, b] = [at(i - 1), at(i + 1)]
-    return !((a[0] === p[0] && p[0] === b[0]) || (a[1] === p[1] && p[1] === b[1]))
-  })
-  const n = corners.length
-  const f = (q: number[]) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`
-  let d = ''
-  corners.forEach((p, i) => {
-    const a = corners[(i - 1 + n) % n]
-    const b = corners[(i + 1) % n]
-    const la = Math.hypot(a[0] - p[0], a[1] - p[1]) || 1
-    const lb = Math.hypot(b[0] - p[0], b[1] - p[1]) || 1
-    const r = Math.min(R, la / 2, lb / 2)
-    const p1 = [p[0] + ((a[0] - p[0]) / la) * r, p[1] + ((a[1] - p[1]) / la) * r]
-    const p2 = [p[0] + ((b[0] - p[0]) / lb) * r, p[1] + ((b[1] - p[1]) / lb) * r]
-    d += `${i ? 'L' : 'M'}${f(p1)} Q${f(p)} ${f(p2)} `
-  })
-  path.setAttribute('d', d + 'Z')
-}
-
-/**
  * Home (01) About x Kadanglabo spirit. The section is a few screens tall: project photos drift past at their own
  * depths while the middle holds still, and each stretch of scroll changes the chapter. The change is told in steps,
  * so every line stays readable: the old words drop away one by one, the new title rises word by word from a slight
@@ -221,15 +159,6 @@ export function animateSpirit(page: HTMLElement) {
   const words: HTMLElement[][] = chs.map(() => [])
   const lines: HTMLElement[][] = chs.map(() => [])
   const hideWords = (w: Element[]) => gsap.set(w, { yPercent: 110, rotate: 5 })
-  // the paper sheet behind each chapter: one rounded shape around its lines (drawSheet). The upper copy wraps the
-  // title only, the lower one the title and the text together, so near photos cross the text but not the title.
-  const sheets = chs.map((pair) => pair.map((ch) => ch.querySelector<SVGSVGElement>('.sp__sheet')!))
-  let raf = 0
-  const redraw = () => {
-    cancelAnimationFrame(raf)
-    raf = requestAnimationFrame(() => chs.forEach(([top, text]) => (drawSheet(top, false), drawSheet(text, true))))
-  }
-  void document.fonts?.ready.then(redraw)
 
   // (the hidden copies are split the same way, so both layers keep exactly the same lines)
   const twin = (el: Element | null) =>
@@ -239,7 +168,6 @@ export function animateSpirit(page: HTMLElement) {
       linesClass: 'split-line',
       aria: 'none',
       autoSplit: true,
-      onSplit: redraw,
     })
   const splits = titleChs.flatMap((ch, i) => [
     twin(bodyChs[i].querySelector('.sp__title')),
@@ -254,7 +182,6 @@ export function animateSpirit(page: HTMLElement) {
       onSplit: (self) => {
         words[i] = self.words as HTMLElement[]
         if (i !== active) hideWords(self.words)
-        redraw()
       },
     }),
     SplitText.create(bodyChs[i].querySelector('.sp__body'), {
@@ -266,7 +193,6 @@ export function animateSpirit(page: HTMLElement) {
       onSplit: (self) => {
         lines[i] = self.lines as HTMLElement[]
         if (i !== active) gsap.set(self.lines, { yPercent: 105 })
-        redraw()
       },
     }),
   ])
@@ -275,14 +201,12 @@ export function animateSpirit(page: HTMLElement) {
   /** The incoming half of a change: the title word by word, then the text line by line. */
   const bringIn = (tl: gsap.core.Timeline, i: number, at: number) =>
     tl
-      .fromTo(sheets[i], { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.out' }, at)
       .fromTo(words[i], { yPercent: 110, rotate: 5 }, { yPercent: 0, rotate: 0, duration: 1.1, stagger: 0.055, ease: 'expo.out' }, at)
       .fromTo(lines[i], { yPercent: 105 }, { yPercent: 0, duration: 1, stagger: 0.08, ease: 'expo.out' }, at + 0.3)
 
   // the first chapter arrives with the field
   const intro = gsap.timeline({ scrollTrigger: { trigger: section, start: 'top 55%', once: true } })
   hideWords(words[0])
-  gsap.set(sheets[0], { opacity: 0 })
   gsap.set(lines[0], { yPercent: 105 })
   bringIn(intro, 0, 0)
 
@@ -300,7 +224,6 @@ export function animateSpirit(page: HTMLElement) {
       // out: the text sinks first, then the title's words lift away one after another
       .to(lines[from], { yPercent: -105 * dir, duration: 0.45, stagger: 0.04, ease: 'power3.in' }, 0)
       .to(words[from], { yPercent: -110 * dir, rotate: -3 * dir, duration: 0.55, stagger: 0.03, ease: 'power3.in' }, 0.05)
-      .to(sheets[from], { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0.3)
       .to(count, { yPercent: (-100 * to) / n, duration: 0.9, ease: 'expo.inOut' }, 0.2)
     bringIn(tl, to, 0.5)
   }
@@ -317,7 +240,6 @@ export function animateSpirit(page: HTMLElement) {
     io.disconnect()
     st.kill()
     lensSt.kill()
-    cancelAnimationFrame(raf)
     lens.forEach((l) => (l.frame.style.opacity = ''))
     tl?.kill()
     splits.forEach((s) => s.revert())
@@ -368,9 +290,6 @@ function Stage({ top }: { top?: boolean }) {
         <div className="sp__chs">
           {spiritChapters.map((c) => (
             <article key={c.title.en} className="sp__ch">
-              <svg className="sp__sheet" aria-hidden="true">
-                <path />
-              </svg>
               <h3 className="sp__title">{t(c.title)}</h3>
               <p className="sp__body">{t(c.body)}</p>
             </article>

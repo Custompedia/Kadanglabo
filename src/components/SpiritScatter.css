@@ -191,28 +191,6 @@
   align-self: end;
 }
 
-/* one rounded sheet of paper around each chapter's lines, drawn in SpiritScatter.tsx (drawSheet) from the lines'
-   widths, so the words stay clear while photos pass behind them. Lines are as wide as their words for the measure. */
-.sp__sheet {
-  display: none;
-}
-.sp[data-motion] .sp__ch {
-  position: relative;
-  isolation: isolate;
-}
-.sp[data-motion] .sp__sheet {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-.sp__sheet path {
-  fill: var(--color-paper);
-}
 .sp[data-motion] .sp__title .split-line,
 .sp[data-motion] .sp__body .split-line {
   width: fit-content;
