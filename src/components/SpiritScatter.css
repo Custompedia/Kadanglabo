@@ -218,8 +218,10 @@
 }
 
 @media (max-width: 767px) {
+  /* small photos on a phone: they drift through the free space above and below the words (the script fades each
+     one out as it nears the words), so they must fit in it */
   .sp__photo {
-    width: calc(var(--w) * 1.55);
+    width: calc(var(--w) * 0.8);
   }
 
   /* a third of the photos on a phone, so the words keep room to breathe */

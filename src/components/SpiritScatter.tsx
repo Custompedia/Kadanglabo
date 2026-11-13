@@ -120,23 +120,58 @@ export function animateSpirit(page: HTMLElement) {
   const lens = gsap.utils
     .toArray<HTMLElement>('.sp__photo', section)
     .filter((p) => p.offsetParent !== null)
-    .map((p) => ({ p, frame: p.firstElementChild as HTMLElement, mid: 0, fade: -1 }))
+    .map((p) => ({ p, frame: p.firstElementChild as HTMLElement, top: 0, h: 0, mid: 0, beside: false, fade: -1 }))
+  // phones and tablets: no photo crosses the words. Each photo fades out as it nears the box the words take (label
+  // to button, as wide as the widest line) and shows again past it, so the photos drift through the free space
+  // around the words only. (Wide screens keep near photos passing over the text, as designed.)
+  const phone = window.matchMedia('(max-width: 767px)')
+  const clearWords = window.matchMedia('(max-width: 1199px)')
+  const stage = section.querySelector<HTMLElement>('.sp__layer--top .sp__stage')!
+  const wordBoxes = gsap.utils.toArray<HTMLElement>('.sp__pill, .sp__title, .sp__body, .sp__btn', stage)
   let sectionTop = 0
+  let sectionH = 0
   let vh = window.innerHeight
+  let bandTop = 0 // the words' box: from the top of the held stage, and across the screen
+  let bandBottom = 0
+  let bandLeft = 0
+  let bandRight = 0
   const measureLens = () => {
     vh = window.innerHeight
-    sectionTop = section.getBoundingClientRect().top + window.scrollY
-    lens.forEach((l) => (l.mid = l.p.offsetTop + l.p.offsetHeight / 2))
+    const s = section.getBoundingClientRect()
+    sectionTop = s.top + window.scrollY
+    sectionH = s.height
+    const st = stage.getBoundingClientRect().top
+    const boxes = wordBoxes.map((el) => el.getBoundingClientRect())
+    bandTop = Math.min(...boxes.map((b) => b.top)) - st
+    bandBottom = Math.max(...boxes.map((b) => b.bottom)) - st
+    bandLeft = Math.min(...boxes.map((b) => b.left))
+    bandRight = Math.max(...boxes.map((b) => b.right))
+    lens.forEach((l) => {
+      l.top = l.p.offsetTop
+      l.h = l.p.offsetHeight
+      l.mid = l.top + l.h / 2
+      const r = l.p.getBoundingClientRect()
+      l.beside = r.right < bandLeft - 8 || r.left > bandRight + 8 // never crosses the words sideways
+    })
   }
   // the scroll position comes from the trigger, which has just read it: reading window.scrollY here, after the
   // photos were moved, made the browser lay out the page again on every frame
   const focus = (self: ScrollTrigger) => {
     const top = sectionTop - self.scroll()
+    const narrow = phone.matches
+    const clear = clearWords.matches
+    const stageTop = Math.max(top, Math.min(0, top + sectionH - vh)) // the stage holds at 0 while the section passes
     for (const l of lens) {
-      const y = top + l.mid + (gsap.getProperty(l.p, 'y') as number) // the photo's centre on screen
+      const dy = gsap.getProperty(l.p, 'y') as number
+      const y = top + l.mid + dy // the photo's centre on screen
       const d = Math.abs(y / vh - 0.5) * 2 // 0 in the middle, 1 at the top or bottom edge
       if (d > 1.6) continue // far off screen
-      const k = gsap.utils.clamp(0, 1, (d - 0.45) / 0.6)
+      let k = gsap.utils.clamp(0, 1, narrow ? (d - 0.75) / 0.5 : (d - 0.45) / 0.6)
+      if (clear && !l.beside) {
+        const pt = top + l.top + dy
+        const gap = Math.max(stageTop + bandTop - (pt + l.h), pt - (stageTop + bandBottom)) // < 0: over the words
+        k = Math.max(k, 1 - gsap.utils.clamp(0, 1, (gap - 6) / 40))
+      }
       const fade = Math.round((1 - k * k) * 20) / 20
       if (fade === l.fade) continue
       l.fade = fade

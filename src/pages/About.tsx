@@ -23,11 +23,13 @@ export default function About() {
       .from('.cta-block__mark .bm-piece', { scale: 0, transformOrigin: '50% 50%', duration: 0.8, stagger: 0.14, ease: 'back.out(1.8)' }, 0.7)
 
     // The doorway: a narrow arch in the middle widens to the full frame while the photo scrolls in
+    // (on a phone the doorway starts wide: a narrow arch there was a small photo floating in an empty band)
     const door = page.querySelector<HTMLElement>('.wide-media__frame')!
-    const arch = () => Math.round(door.offsetWidth * 0.19)
+    const side = () => (window.matchMedia('(max-width: 767px)').matches ? 12 : 31) // % hidden on each side
+    const arch = () => Math.round((door.offsetWidth * (50 - side())) / 100) // a full half circle over the opening
     gsap.fromTo(
       door,
-      { clipPath: () => `inset(0% 31% 0% 31% round ${arch()}px ${arch()}px 0px 0px)` },
+      { clipPath: () => `inset(0% ${side()}% 0% ${side()}% round ${arch()}px ${arch()}px 0px 0px)` },
       {
         clipPath: 'inset(0% 0% 0% 0% round 0px 0px 0px 0px)',
         ease: 'power1.inOut',

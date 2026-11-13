@@ -145,7 +145,7 @@ export function animateStudioNumbers(page: HTMLElement): (() => void) | undefine
       if (ph.style.zIndex !== z) ph.style.zIndex = z
     })
     const out = clamp01((p - 0.16) / 0.06) // the intro holds while the photos gather, then steps away
-    const show = clamp01((p - 0.2) / 0.05) // and the first figure rises in right behind it
+    const show = clamp01((p - 0.215) / 0.05) // and the first figure rises in right behind it, once the intro is gone
     const pos = clamp01((p - 0.25) / 0.53) * (items.length - 1) // which figure sits in the centre
     // the drum step: a short roll inside the orbit, each figure faded out before it reaches the photos around it
     const step = Math.min(stageH * 0.3, ry * 0.75)

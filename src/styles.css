@@ -627,6 +627,8 @@
   position: absolute;
   inset: 0;
   overflow-y: auto;
+  overscroll-behavior: contain; /* a swipe at the end of the panel never scrolls the page behind it */
+  -webkit-overflow-scrolling: touch;
   padding-top: var(--header-h);
   background: var(--color-orange-deep); /* the header's white logo / Close sit on it: 4.5:1 */
   color: var(--color-navy-deep);
@@ -695,6 +697,12 @@
   .menu__link {
     flex: none;
     padding-block: 12px 8px;
+  }
+
+  /* by width, but also by height so all six links and the contacts fit on a short screen (small Androids,
+     Safari with its bars showing); never below 40px, the panel scrolls past that */
+  .menu__link-text {
+    font-size: clamp(40px, min(calc((100vw - 2 * var(--gutter)) / 5.3), calc((100svh - var(--header-h) - 250px) / 6 / 1.05)), 120px);
   }
 
   .menu__foot {
@@ -1756,6 +1764,13 @@
   object-fit: cover;
 }
 
+/* phones: a tall doorway, so the arch reads as one (a wide, short frame made it a small floating photo) */
+@media (max-width: 767px) {
+  .wide-media__frame {
+    height: min(118vw, 74svh);
+  }
+}
+
 .p-intro,
 .nd-body {
   display: grid;
@@ -1901,6 +1916,11 @@
   text-align: center;
 }
 
+/* narrow enough to sit inside the orbit, clear of the photos at its sides (tablets in landscape, laptops) */
+.numbers[data-motion] .numbers__title {
+  max-width: 12em;
+}
+
 .numbers[data-motion] .numbers__list {
   position: absolute;
   inset: 0;
@@ -1976,8 +1996,8 @@
 @media (max-width: 767px) {
   .numbers[data-motion] .numbers__ring {
     --count: 10;
-    --pw: clamp(62px, 18vw, 92px);
-    --rx: 39vw;
+    --pw: clamp(56px, 15vw, 84px);
+    --rx: 41vw;
   }
 
   .numbers[data-motion] .numbers__item {
@@ -1994,6 +2014,14 @@
 @media (max-aspect-ratio: 1 / 1) {
   .numbers[data-motion] .numbers__ring {
     --ry: min(calc(var(--rx) * 1.2), calc(50svh - var(--pw) * 0.72 - 24px));
+  }
+}
+
+/* phones held upright: the words fill most of the width, so the orbit stands taller than it is wide and its
+   photos pass above and below the words rather than across their corners */
+@media (max-width: 767px) and (max-aspect-ratio: 1 / 1) {
+  .numbers[data-motion] .numbers__ring {
+    --ry: min(calc(var(--rx) * 1.55), calc(50svh - var(--pw) * 0.6 - 20px));
   }
 }
 
@@ -3714,10 +3742,17 @@
   }
 
   .arch-intro__photo {
-    width: calc(var(--w) * 1.9);
+    width: calc(var(--w) * 1.05);
   }
 
-  /* fewer, larger photos on a phone */
+  /* the paper glow covers the whole band of words on a phone, so the photos pass behind it */
+  .arch-intro__stage::before {
+    width: 120vw;
+    height: min(440px, 64svh);
+    background: radial-gradient(closest-side, var(--color-paper) 72%, rgb(243 240 234 / 0) 100%);
+  }
+
+  /* fewer photos on a phone */
   .arch-intro__photo:nth-child(3n) {
     display: none;
   }
@@ -4959,9 +4994,11 @@
   }
 
 
+  /* as large as the longest word allows: "ARCHITECTURE" is about 6.6em wide, so 1/7 of the line keeps every word
+     whole (at 14vw it was a pixel too wide and broke into "ARCHITECTUR / E") */
   .page-hero__title,
   .p-hero__title {
-    font-size: 14vw;
+    font-size: min(14vw, calc((100vw - 2 * var(--gutter)) / 7));
   }
 
 

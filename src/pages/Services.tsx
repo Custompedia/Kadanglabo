@@ -31,9 +31,12 @@ export default function Services() {
     // the screen, each line of the promise rising onto it in turn; the label and copy sit on the photo once it is full
     const stm = page.querySelector<HTMLElement>('.statement')!
     const lines = gsap.utils.toArray<HTMLElement>('.statement__line > span', stm)
+    // (a phone held upright starts from a wider frame: 32% off each side left a thin floating strip)
+    const startFrame = () =>
+      window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches ? 'inset(24% 14% 24% 14% round 16px)' : 'inset(32% 32% 32% 32% round 16px)'
     gsap
-      .timeline({ scrollTrigger: { trigger: stm, start: 'top top', end: 'bottom bottom', scrub: 0.6 } })
-      .fromTo('.statement__frame', { clipPath: 'inset(32% 32% 32% 32% round 16px)' }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'power2.inOut', duration: 1.2 }, 0)
+      .timeline({ scrollTrigger: { trigger: stm, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true } })
+      .fromTo('.statement__frame', { clipPath: startFrame }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'power2.inOut', duration: 1.2 }, 0)
       .fromTo('.statement__frame img', { scale: 1.3 }, { scale: 1, ease: 'none', duration: 3 }, 0)
       .fromTo('.statement__shade', { opacity: 0 }, { opacity: 1, duration: 0.8 }, 0.5)
       .from('.statement__copy .pill', { y: 20, autoAlpha: 0, duration: 0.4 }, 1)
