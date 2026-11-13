@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import { type Lang, type RichTx, type Tx } from '../../../shared/content'
-import { Check, MapPin, PencilSimple, X } from '@phosphor-icons/react'
+import { Check, Eye, EyeSlash, MapPin, PencilSimple, X } from '@phosphor-icons/react'
 import { RichEditor } from './RichEditor'
 
 /*
@@ -141,6 +141,33 @@ export function TextField({ label, value, onChange, hint, placeholder, required,
       <span className="flex items-stretch overflow-hidden rounded-lg ring-1 ring-kumo-line focus-within:ring-[1.5px] focus-within:ring-kumo-focus/60">
         {prefix && <span className="flex items-center bg-kumo-recessed px-3 text-sm text-kumo-subtle">{prefix}</span>}
         <input type={type} list={list} className="h-10 w-full min-w-0 bg-kumo-base px-3 text-[15px] outline-none placeholder:text-kumo-placeholder" value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
+      </span>
+    </FieldShell>
+  )
+}
+
+/** A password, hidden by default, with an eye button to show what was typed (the same as on the sign-in page). */
+export function PasswordField({ label, value, onChange, hint, autoComplete }: { label: ReactNode; value: string; onChange: (v: string) => void; hint?: ReactNode; autoComplete: 'current-password' | 'new-password' }) {
+  const [show, setShow] = useState(false)
+  return (
+    <FieldShell label={label} hint={hint}>
+      <span className="flex items-stretch overflow-hidden rounded-lg ring-1 ring-kumo-line focus-within:ring-[1.5px] focus-within:ring-kumo-focus/60">
+        <input
+          type={show ? 'text' : 'password'}
+          autoComplete={autoComplete}
+          className="h-10 w-full min-w-0 bg-kumo-base px-3 text-[15px] outline-none placeholder:text-kumo-placeholder"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          className="grid w-10 shrink-0 place-items-center bg-kumo-base text-kumo-subtle transition hover:bg-kumo-tint hover:text-kumo-default focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-kumo-focus"
+          aria-label={show ? 'Sembunyikan password' : 'Tampilkan password'}
+          aria-pressed={show}
+        >
+          {show ? <EyeSlash size={18} /> : <Eye size={18} />}
+        </button>
       </span>
     </FieldShell>
   )

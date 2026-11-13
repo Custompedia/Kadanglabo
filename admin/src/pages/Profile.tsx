@@ -4,7 +4,7 @@ import { Button, LayerCard } from '@cloudflare/kumo'
 import { Page } from '../layout/Page'
 import { api, ApiError } from '../lib/api'
 import { useSession, type User } from '../lib/session'
-import { TextField } from '../components/Fields'
+import { PasswordField, TextField } from '../components/Fields'
 
 /* Your own name, username and password. */
 export default function Profile() {
@@ -77,9 +77,9 @@ export default function Profile() {
           <LayerCard.Secondary>Ganti password</LayerCard.Secondary>
           <LayerCard.Primary>
             <form onSubmit={savePw} className="grid gap-4">
-              <TextField label="Password saat ini" type="password" value={pw.current} onChange={(v) => setPw({ ...pw, current: v })} />
-              <TextField label="Password baru" type="password" value={pw.next} onChange={(v) => setPw({ ...pw, next: v })} hint="Minimal 5 karakter. Lebih panjang lebih aman." />
-              <TextField label="Ulangi password baru" type="password" value={pw.again} onChange={(v) => setPw({ ...pw, again: v })} />
+              <PasswordField label="Password saat ini" autoComplete="current-password" value={pw.current} onChange={(v) => setPw({ ...pw, current: v })} />
+              <PasswordField label="Password baru" autoComplete="new-password" value={pw.next} onChange={(v) => setPw({ ...pw, next: v })} hint="Minimal 5 karakter. Lebih panjang lebih aman." />
+              <PasswordField label="Ulangi password baru" autoComplete="new-password" value={pw.again} onChange={(v) => setPw({ ...pw, again: v })} />
               {pwError && (
                 <p role="alert" className="rounded-lg bg-kumo-danger-tint px-3 py-2 text-sm text-kumo-default">
                   {pwError}
