@@ -49,7 +49,7 @@ function LangTag({ lang }: { lang: Lang }) {
 export function LangTabs({ lang, setLang, issues = [] }: { lang: Lang; setLang: (l: Lang) => void; issues?: string[] }) {
   const missing = (l: Lang) => issues.some((i) => i.includes('Indonesia & Inggris') || i.includes(`bahasa ${l === 'id' ? 'Indonesia' : 'Inggris'} belum`))
   return (
-    <div className="flex items-end gap-6 border-b border-kumo-line" role="tablist" aria-label="Bahasa isian">
+    <div className="flex flex-wrap items-end gap-x-4 gap-y-2 border-b border-kumo-line" role="tablist" aria-label="Bahasa isian">
       {(
         [
           ['id', 'Bahasa Indonesia'],
@@ -179,7 +179,7 @@ export function PasswordField({ label, value, onChange, hint, autoComplete }: { 
  */
 export function Section({ title, description, children, actions, id, n, where, href }: { title: ReactNode; description?: ReactNode; children: ReactNode; actions?: ReactNode; id?: string; n?: number; where?: ReactNode; href?: string }) {
   return (
-    <section id={id} className="scroll-mt-6 rounded-xl bg-kumo-base ring-1 ring-kumo-line">
+    <section id={id} className="min-w-0 scroll-mt-6 rounded-xl bg-kumo-base ring-1 ring-kumo-line">
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-kumo-hairline px-5 py-4">
         <div className="flex min-w-0 gap-3">
           {n !== undefined && <span className="mt-px grid size-6 shrink-0 place-items-center rounded-full bg-kumo-recessed text-xs font-semibold text-kumo-default ring-1 ring-kumo-hairline">{n}</span>}
@@ -187,7 +187,7 @@ export function Section({ title, description, children, actions, id, n, where, h
             <h2 className="text-[15px] font-semibold text-kumo-strong">{title}</h2>
             {description && <p className="mt-0.5 text-sm text-kumo-subtle">{description}</p>}
             {where && (
-              <p className="mt-2 inline-flex flex-wrap items-center gap-1.5 rounded-md bg-kumo-recessed px-2 py-1 text-xs text-kumo-default">
+              <p className="mt-2 inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-md bg-kumo-recessed px-2 py-1 text-xs text-kumo-default">
                 <MapPin size={13} weight="fill" className="text-kumo-brand" />
                 <span className="text-kumo-subtle">Tampil di</span>
                 {href ? (
@@ -203,7 +203,7 @@ export function Section({ title, description, children, actions, id, n, where, h
         </div>
         {actions}
       </header>
-      <div className="grid gap-5 p-5">{children}</div>
+      <div className="grid min-w-0 gap-5 p-4 sm:p-5">{children}</div>
     </section>
   )
 }
@@ -237,7 +237,7 @@ export function SlugField({ label, prefix, value, onChange, hint, live }: { labe
   const iconBtn = 'grid size-8 shrink-0 place-items-center rounded-md text-kumo-subtle transition hover:bg-kumo-tint hover:text-kumo-default'
   return (
     <FieldShell label={label} hint={editing && live ? 'Sudah tayang: mengganti alamat membuat link lama tidak bisa dibuka lagi.' : hint}>
-      <span className={`flex h-10 items-stretch overflow-hidden rounded-lg ring-1 ${editing ? 'ring-[1.5px] ring-kumo-focus/60' : 'ring-kumo-line'}`}>
+      <span className={`flex min-h-11 items-stretch overflow-hidden rounded-lg ring-1 ${editing ? 'ring-[1.5px] ring-kumo-focus/60' : 'ring-kumo-line'}`}>
         <span className="flex items-center bg-kumo-recessed px-3 text-sm text-kumo-subtle">{prefix}</span>
         {editing ? (
           <>

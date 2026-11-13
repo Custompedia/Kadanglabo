@@ -85,9 +85,9 @@ export default function Locations() {
                   ) : (
                     <ul className="divide-y divide-kumo-hairline">
                       {a.cities.map((c) => (
-                        <li key={c.id} className="flex items-center gap-3 px-5 py-2.5">
+                        <li key={c.id} className="admin-location-row flex flex-wrap items-center gap-2 px-3 py-2.5 sm:px-5">
                           <MapPin size={16} className="text-kumo-subtle" />
-                          <span className="flex-1 text-sm text-kumo-strong">{c.name}</span>
+                          <span className="min-w-0 flex-1 break-words text-sm text-kumo-strong">{c.name}</span>
                           {c.usedBy.length > 0 ? (
                             <Tooltip content={c.usedBy.join(', ')}>
                               <span className="cursor-default text-xs text-kumo-subtle underline decoration-dotted underline-offset-2">dipakai {c.usedBy.length} projek</span>

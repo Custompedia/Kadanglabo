@@ -48,8 +48,8 @@ export function Page({
   const mobileAside = responsiveAside && !desktop && !!aside
   useEffect(() => { if (desktop) setAsideOpen(false) }, [desktop])
   return (
-    <div className="flex min-h-full">
-      <main className="min-w-0 flex-1 px-4 py-8 sm:px-8 lg:px-10">
+    <div className="admin-page flex min-h-full">
+      <main className="min-w-0 flex-1 px-4 py-5 sm:py-8 sm:px-8 lg:px-10">
         <div className={`mx-auto ${wide ? 'max-w-[1240px]' : 'max-w-[1060px]'}`}>
         {back && (
           <a href={back.href} onClick={(ev) => (ev.preventDefault(), history.length > 1 ? history.back() : location.assign(back.href))} className="mb-2 inline-flex items-center gap-1 text-sm text-kumo-subtle transition hover:text-kumo-default">
@@ -60,12 +60,12 @@ export function Page({
         <div className="flex flex-wrap items-start justify-between gap-4 md:flex-nowrap">
           <div className="min-w-0 flex-1">
             <div className={`flex items-center gap-2.5 ${sticky ? 'min-w-0 flex-nowrap' : 'flex-wrap'}`}>
-              <h1 className={`font-semibold tracking-tight text-kumo-strong ${sticky ? 'min-w-0 truncate text-[22px] leading-9' : 'text-[26px]'}`}>{title}</h1>
+              <h1 className={`break-words font-semibold tracking-tight text-kumo-strong ${sticky ? 'min-w-0 truncate text-[22px] leading-9' : 'text-[26px]'}`}>{title}</h1>
               {pill && <span className="shrink-0">{pill}</span>}
             </div>
             {description && <p className="mt-1.5 max-w-2xl text-[15px] text-kumo-subtle">{description}</p>}
           </div>
-          {(actions || mobileAside) && <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {(actions || mobileAside) && <div className="admin-page-actions flex max-w-full shrink-0 flex-wrap items-center gap-2">
             {actions}
             {mobileAside && <Button variant="primary" onClick={() => setAsideOpen(true)}>Publikasi</Button>}
           </div>}
@@ -89,7 +89,7 @@ export function Page({
           </Dialog>
         </Dialog.Root>
       ) : aside && (
-        <aside className="hidden w-[300px] shrink-0 border-l border-kumo-hairline bg-kumo-base xl:block">
+        <aside className="admin-page-aside w-full shrink-0 border-t border-kumo-hairline bg-kumo-base xl:w-[300px] xl:border-l xl:border-t-0">
           {/* its own scroll, as tall as the screen: everything in the panel is reachable without scrolling the page to the end */}
           <div className="no-scrollbar sticky top-0 max-h-[calc(100dvh-58px)] overflow-y-auto overscroll-contain">{aside}</div>
         </aside>

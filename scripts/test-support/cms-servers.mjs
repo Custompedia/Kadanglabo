@@ -1,4 +1,5 @@
 import { createServer } from 'node:http'
+import { createServer as createHttpsServer } from 'node:https'
 import { readFile } from 'node:fs/promises'
 import { resolve, extname, sep } from 'node:path'
 import { root, worker, handlePublic } from './cms-harness.mjs'
@@ -15,14 +16,15 @@ async function assets(request, directory) {
   }
 }
 
-export async function startServers(env) {
+export async function startServers(env, { tls } = {}) {
+  const protocol = tls ? 'https' : 'http'
   const servers = []
   const start = async admin => {
-    const server = createServer(async (incoming, outgoing) => {
+    const server = (tls ? createHttpsServer.bind(null, tls) : createServer)(async (incoming, outgoing) => {
       try {
         const chunks = []
         for await (const chunk of incoming) chunks.push(chunk)
-        const request = new Request(`http://127.0.0.1:${server.address().port}${incoming.url}`, {
+        const request = new Request(`${protocol}://127.0.0.1:${server.address().port}${incoming.url}`, {
           method: incoming.method, headers: incoming.headers, body: chunks.length ? Buffer.concat(chunks) : undefined,
         })
         const pending = [], context = { waitUntil: promise => pending.push(promise), passThroughOnException() {} }
@@ -39,7 +41,7 @@ export async function startServers(env) {
     })
     await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve) })
     servers.push(server)
-    return `http://127.0.0.1:${server.address().port}`
+    return `${protocol}://127.0.0.1:${server.address().port}`
   }
   const admin = await start(true), web = await start(false)
   env.PUBLIC_SITE_URL = web

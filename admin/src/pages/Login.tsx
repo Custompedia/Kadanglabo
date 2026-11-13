@@ -22,7 +22,7 @@ export function Login() {
   const pwRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    userRef.current?.focus()
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) userRef.current?.focus()
   }, [])
 
   async function submit(e: FormEvent) {
@@ -55,11 +55,11 @@ export function Login() {
   }
 
   const field =
-    'peer h-12 w-full rounded-2xl border border-white/25 bg-white/10 px-4 text-[15px] text-white placeholder:text-white/45 outline-none transition ' +
+    'peer h-12 w-full rounded-2xl border border-white/25 bg-white/10 px-4 text-base text-white placeholder:text-white/45 outline-none transition ' +
     'focus:border-white/55 focus:bg-white/16 focus:ring-4 focus:ring-white/10 disabled:opacity-60'
 
   return (
-    <main className="relative grid min-h-full place-items-center overflow-hidden bg-[#1d1f22] px-4 py-10">
+    <main className="admin-login relative grid min-h-full place-items-center overflow-hidden bg-[#1d1f22] px-4 py-10">
       <img
         src="/login-1920.webp"
         srcSet="/login-1280.webp 1280w, /login-1920.webp 1920w"
@@ -72,7 +72,7 @@ export function Login() {
       <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_45%,rgba(16,18,22,0.15),rgba(16,18,22,0.62))]" />
 
       <section
-        className="relative w-full max-w-[400px] rounded-[30px] border border-white/25 bg-white/12 p-8 text-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.35)] backdrop-blur-2xl backdrop-saturate-150 sm:p-9"
+        className="relative w-full max-w-[400px] rounded-[30px] border border-white/25 bg-black/35 p-6 text-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.35)] backdrop-blur-2xl backdrop-saturate-150 sm:p-9"
         aria-labelledby="login-title"
       >
         <img src="/brand/kadanglabo-logo-white.svg" alt="Kadanglabo" className="mb-8 h-8 w-auto opacity-95" />
@@ -112,7 +112,8 @@ export function Login() {
               <button
                 type="button"
                 onClick={() => setShow((s) => !s)}
-                className="absolute inset-y-0 right-1.5 my-auto grid size-9 place-items-center rounded-xl text-white/65 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-white/50"
+                className="absolute inset-y-0 right-1.5 my-auto grid size-11 place-items-center rounded-xl text-white/65 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-white/50"
+                aria-pressed={show}
                 aria-label={show ? 'Sembunyikan password' : 'Tampilkan password'}
               >
                 {show ? <EyeSlash size={18} /> : <Eye size={18} />}

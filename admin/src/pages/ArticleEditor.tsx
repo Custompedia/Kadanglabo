@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState, type TextareaHTMLAttributes } from 'react'
 import { useParams } from 'react-router'
 import { Banner, Empty, LinkButton, Loader, Select, Switch } from '@cloudflare/kumo'
 import { ArrowLeft } from '@phosphor-icons/react'
@@ -129,7 +129,7 @@ export default function ArticleEditor() {
           <div className="article-canvas">
             {/* Title and opening share the borderless reading column. */}
             <div>
-              <textarea
+              <AutoTextarea
                 rows={1}
                 value={d.title[lang]}
                 onChange={(ev) => setTx('title', ev.target.value)}
@@ -139,7 +139,7 @@ export default function ArticleEditor() {
               />
             </div>
             <div className="mt-[18px]">
-              <textarea
+              <AutoTextarea
                 rows={1}
                 aria-label="Deskripsi singkat"
                 value={d.excerpt[lang]}
@@ -180,4 +180,27 @@ export default function ArticleEditor() {
       </SuggestContext.Provider>
     </EditLangProvider>
   )
+}
+
+/** Resize on language, content, and column changes, including browsers without field-sizing. */
+function AutoTextarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  useLayoutEffect(() => {
+    const node = ref.current
+    if (!node) return
+    const resize = () => {
+      node.style.height = 'auto'
+      node.style.height = `${node.scrollHeight}px`
+    }
+    resize()
+    let width = node.getBoundingClientRect().width
+    const observer = new ResizeObserver(() => {
+      const next = node.getBoundingClientRect().width
+      if (next !== width) { width = next; resize() }
+    })
+    observer.observe(node)
+    document.fonts.ready.then(() => { if (node.isConnected) resize() })
+    return () => observer.disconnect()
+  }, [props.value])
+  return <textarea {...props} ref={ref} />
 }

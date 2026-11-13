@@ -66,7 +66,7 @@ export default function Media() {
       description="Semua foto yang tersimpan, dikelompokkan per kategori dan per projek. Foto masuk ke sini otomatis setiap kali diunggah di projek atau artikel."
     >
       <div className="mb-6 rounded-xl bg-kumo-recessed p-1.5 ring-1 ring-kumo-hairline">
-        <div className="flex flex-wrap overflow-hidden rounded-lg bg-kumo-base ring-1 ring-kumo-line sm:flex-nowrap">
+        <div className="admin-filterbar flex flex-wrap overflow-hidden rounded-lg bg-kumo-base ring-1 ring-kumo-line sm:flex-nowrap">
           <InputGroup className="min-w-0 flex-1 rounded-none border-0 shadow-none ring-0">
             <InputGroup.Addon>
               <MagnifyingGlass size={16} />
@@ -160,7 +160,7 @@ function Details({ item, onClose }: { item: MediaItem | null; onClose: () => voi
 
   return (
     <Dialog.Root open={!!item} onOpenChange={(o) => !o && onClose()}>
-      <Dialog size="xl" className="w-[min(960px,96vw)] max-w-none overflow-hidden p-0">
+      <Dialog size="xl" className="w-[min(960px,96vw)] max-w-none overflow-y-auto p-0">
         {item && (
           <div className="grid md:grid-cols-[1.4fr_1fr]">
             <div className="grid min-h-72 place-items-center bg-kumo-recessed">

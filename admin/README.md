@@ -134,6 +134,7 @@ npm run test:cms
 npm run build
 npm run build --prefix admin
 npm run test:cms:browser
+npm run test:admin:responsive
 ```
 
 Uji browser memakai Chrome/Chromium yang sudah terpasang. Jika tidak terdeteksi otomatis, tentukan
@@ -147,3 +148,17 @@ Pada desktop panel publikasi tetap di kanan; di layar kecil gunakan tombol **Pub
 
 Port dev dikunci: website `5173`, admin `5174`. Jika port terpakai, server gagal mulai dengan pesan yang jelas alih-alih
 berpindah port diam-diam. Untuk backend dev di alamat lain, set `CMS_DEV_URL` ketika menjalankan website.
+
+Suite responsivitas memeriksa seluruh halaman admin pada lebar 320, 390, 640 (landscape), 768, 1024, 1280,
+1440, dan 1920px, termasuk sidebar mobile, pencarian, dialog, ukuran font input, dan simpan artikel.
+Suite ini memerlukan OpenSSL untuk sertifikat HTTPS sementara agar cookie `Secure` juga berfungsi di WebKit.
+Untuk tiga mesin browser, pasang browser uji lalu jalankan dari root repository:
+
+```sh
+npx playwright-core install firefox webkit
+BROWSERS=chromium,firefox,webkit npm run test:admin:responsive
+```
+
+Pustaka sistem yang dibutuhkan dapat diperiksa dengan `npx playwright-core install-deps --dry-run`.
+Gunakan `WIDTHS=320,768` untuk membatasi ukuran saat menelusuri kegagalan, dan `FIREFOX_BIN` atau `WEBKIT_BIN`
+jika executable browser ada di lokasi khusus. Tangkapan layar disimpan di folder sementara `kadang-admin-responsive`.

@@ -12,7 +12,7 @@ export type Sort = { key: string; dir: 'asc' | 'desc' }
 export function DataTable({ children }: { children: ReactNode }) {
   return (
     <LayerCard className="overflow-hidden p-0">
-      <Table className="text-[14px] [&_td]:py-3 [&_tbody_tr]:!bg-kumo-base [&_tbody_tr:hover]:!bg-kumo-tint [&_tbody_tr]:border-t [&_tbody_tr]:border-kumo-hairline [&_tbody_td]:!bg-transparent">{children}</Table>
+      <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Tabel data, geser untuk melihat kolom lainnya"><Table className="text-[14px] [&_td]:py-3 [&_tbody_tr]:!bg-kumo-base [&_tbody_tr:hover]:!bg-kumo-tint [&_tbody_tr]:border-t [&_tbody_tr]:border-kumo-hairline [&_tbody_td]:!bg-transparent">{children}</Table></div>
     </LayerCard>
   )
 }

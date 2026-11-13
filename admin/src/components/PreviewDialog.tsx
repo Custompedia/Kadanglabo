@@ -22,7 +22,7 @@ export function PreviewDialog({ url, onClose }: { url: string | null; onClose: (
   return (
     <Dialog.Root open={!!url} onOpenChange={(o) => !o && onClose()}>
       <Dialog size="xl" className="flex h-[90dvh] max-h-[90dvh] w-[96vw] max-w-none flex-col overflow-hidden p-0 sm:max-h-[90dvh] sm:w-[min(1400px,96vw)]">
-        <div className="flex shrink-0 items-center gap-3 border-b border-kumo-line px-4 py-2.5">
+        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-kumo-line px-4 py-2.5">
           <Dialog.Title className="text-[15px] font-semibold text-kumo-strong">Preview</Dialog.Title>
           <span className="hidden text-xs text-kumo-subtle sm:inline">Versi draft, hanya terlihat di sini</span>
           <span className="flex-1" />
@@ -45,7 +45,7 @@ export function PreviewDialog({ url, onClose }: { url: string | null; onClose: (
               key={url}
               src={url}
               title="Preview"
-              className={`mx-auto block h-full bg-white transition-[width] ${device === 'mobile' ? 'w-[390px] border-x border-kumo-line' : 'w-full'}`}
+              className={`mx-auto block h-full bg-white transition-[width] ${device === 'mobile' ? 'w-[390px] max-w-full border-x border-kumo-line' : 'w-full'}`}
             />
           )}
         </div>

@@ -35,7 +35,7 @@ export function ProjectPicker({ value, onChange, options, max }: { value: string
         </SortableContext>
       </DndContext>
       {value.length === 0 && <p className="rounded-lg border border-dashed border-kumo-fill px-4 py-6 text-center text-sm text-kumo-subtle">Belum ada projek dipilih. Website memakai urutan projek di daftar Projek.</p>}
-      <div className="mt-3 flex items-center justify-between gap-3">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <span className="text-sm tabular-nums text-kumo-subtle">
           {value.length} / {max} dipilih
         </span>
@@ -54,7 +54,7 @@ function Row({ slug, n, item, onRemove }: { slug: string; n: number; item?: List
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`flex items-center gap-3 rounded-lg bg-kumo-base px-3 py-2 ring-1 ring-kumo-line ${isDragging ? 'relative z-10 shadow-lg' : ''}`}
+      className={`admin-project-pick flex min-w-0 items-center gap-2 rounded-lg bg-kumo-base px-2 py-2 sm:gap-3 sm:px-3 ring-1 ring-kumo-line ${isDragging ? 'relative z-10 shadow-lg' : ''}`}
     >
       <button {...attributes} {...listeners} type="button" className="cursor-grab touch-none text-kumo-subtle active:cursor-grabbing" aria-label="Seret untuk mengubah urutan">
         <DotsSixVertical size={18} weight="bold" />

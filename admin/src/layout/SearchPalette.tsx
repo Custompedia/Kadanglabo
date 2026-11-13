@@ -110,7 +110,7 @@ export function SearchPalette({ open, onOpenChange }: { open: boolean; onOpenCha
   let n = -1
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog size="lg" className="w-[min(680px,94vw)] max-w-none overflow-hidden p-0">
+      <Dialog size="lg" className="w-[min(680px,94vw)] max-w-none overflow-hidden p-0 flex flex-col">
         <Dialog.Title className="sr-only">Cari cepat</Dialog.Title>
         <div className="flex items-center gap-3 border-b border-kumo-hairline px-5">
           <MagnifyingGlass size={20} className="shrink-0 text-kumo-subtle" />
@@ -124,12 +124,12 @@ export function SearchPalette({ open, onOpenChange }: { open: boolean; onOpenCha
               if (e.key === 'Enter') (e.preventDefault(), go(flat[at]))
             }}
             placeholder="Cari projek, artikel, dan halaman…"
-            className="h-16 flex-1 bg-transparent text-[16px] outline-none placeholder:text-kumo-placeholder"
+            className="h-16 min-w-0 flex-1 bg-transparent text-[16px] outline-none placeholder:text-kumo-placeholder"
           />
           <kbd className="rounded-md border border-kumo-line px-1.5 py-0.5 font-sans text-xs text-kumo-subtle">Esc</kbd>
         </div>
 
-        <div ref={list} className="max-h-[min(56vh,420px)] overflow-y-auto px-2 py-2" role="listbox">
+        <div ref={list} className="min-h-0 flex-1 max-h-[min(56vh,420px)] overflow-y-auto px-2 py-2" role="listbox">
           {flat.length === 0 && <p className="px-3 py-12 text-center text-sm text-kumo-subtle">Tidak ada yang cocok dengan “{q}”.</p>}
           {groups.map((g) => (
             <div key={g.title} className="mb-1">
@@ -149,7 +149,7 @@ export function SearchPalette({ open, onOpenChange }: { open: boolean; onOpenCha
                   >
                     <h.icon size={18} className="shrink-0 text-kumo-subtle" />
                     <span className="min-w-0 truncate text-kumo-strong">{h.label}</span>
-                    <span className="shrink-0 text-kumo-subtle">- {h.kind}</span>
+                    <span className="hidden shrink-0 text-kumo-subtle sm:inline">- {h.kind}</span>
                     <span className="flex-1" />
                     {on && <ArrowRight size={16} className="shrink-0 text-kumo-subtle" />}
                   </button>
@@ -159,7 +159,7 @@ export function SearchPalette({ open, onOpenChange }: { open: boolean; onOpenCha
           ))}
         </div>
 
-        <div className="flex items-center gap-4 border-t border-kumo-hairline bg-kumo-recessed/60 px-5 py-3 text-[13px] text-kumo-subtle">
+        <div className="flex flex-wrap items-center gap-4 border-t border-kumo-hairline bg-kumo-recessed/60 px-5 py-3 text-[13px] text-kumo-subtle">
           <span className="flex items-center gap-1.5">
             <Key><ArrowUp size={12} /></Key>
             <Key><ArrowDown size={12} /></Key>

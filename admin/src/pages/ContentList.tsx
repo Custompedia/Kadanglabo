@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { Button, DropdownMenu, Empty, InputGroup, LayerCard, Pagination, Select } from '@cloudflare/kumo'
 import type { Sort } from '../components/DataTable'
 import {
@@ -121,7 +121,7 @@ export function ContentList({ kind }: { kind: Kind }) {
 
       {/* the toolbar: a card around the bar, like Cloudflare's search */}
       <div className="mb-5 rounded-xl bg-kumo-recessed p-1.5 ring-1 ring-kumo-hairline">
-        <div className="flex flex-wrap items-stretch gap-0 overflow-hidden rounded-lg bg-kumo-base ring-1 ring-kumo-line sm:flex-nowrap">
+        <div className="admin-filterbar flex flex-wrap items-stretch gap-0 overflow-hidden rounded-lg bg-kumo-base ring-1 ring-kumo-line sm:flex-nowrap">
           <InputGroup className="min-w-0 flex-1 rounded-none border-0 shadow-none ring-0 focus-within:ring-0">
             <InputGroup.Addon>
               <MagnifyingGlass size={16} />
@@ -197,10 +197,10 @@ export function ContentList({ kind }: { kind: Kind }) {
                   </li>
                 ))}
               {pageRows.map((r) => (
-                <li key={r.id} className="flex cursor-pointer items-center gap-3 px-5 py-3 transition hover:bg-kumo-tint" onClick={() => navigate(`${base}/${r.id}`)}>
+                <li key={r.id} className="admin-content-row flex cursor-pointer items-center gap-3 px-5 py-3 transition hover:bg-kumo-tint" onClick={() => navigate(`${base}/${r.id}`)}>
                   <Thumb id={r.cover} className="h-11 w-16 rounded-md" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-kumo-strong">{r.title || 'Tanpa judul'}</span>
+                    <Link to={`${base}/${r.id}`} className="block truncate text-sm font-medium text-kumo-strong hover:underline" onClick={(event) => event.stopPropagation()}>{r.title || 'Tanpa judul'}</Link>
                     <span className="block truncate text-xs text-kumo-subtle">
                       {isProject
                         ? [categoryName[r.category ?? ''] ?? r.category, r.archive_only ? 'hanya arsip' : null, r.region].filter(Boolean).join(' · ')
@@ -212,7 +212,7 @@ export function ContentList({ kind }: { kind: Kind }) {
                     Diubah {ago(r.updated_at)}
                     {r.updated_by && r.updated_by !== 'seed' && <span className="block text-kumo-inactive">oleh {r.updated_by}</span>}
                   </span>
-                  <span className="flex w-40 shrink-0 justify-end">
+                  <span className="admin-content-status flex w-40 shrink-0 justify-end">
                     <StateBadge state={r.state} dirty={!!r.dirty} />
                   </span>
                   <span onClick={(e) => e.stopPropagation()}>
