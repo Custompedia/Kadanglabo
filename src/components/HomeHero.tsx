@@ -15,6 +15,7 @@ const N = heroSlides.length
 
 function CapsuleSet({ idx, current, filled }: { idx: number; current?: boolean; filled?: boolean }) {
   const p = heroSlides[idx]
+  if (!p) return null
   return (
     <span className="hero-capsule__set" data-current={current ? '' : undefined} data-filled={filled ? '' : undefined}>
       <Img id={p.hero} sizes="160px" className="hero-capsule__base" />
@@ -43,7 +44,7 @@ export function HomeHero() {
   const waiting = useRef(false) // the next slide's photo is still downloading
   useFitText(fit)
 
-  const next = (cur + 1) % N
+  const next = N ? (cur + 1) % N : 0
 
   const { contextSafe } = useGSAP(
     (_ctx, safe) => {
@@ -110,7 +111,7 @@ export function HomeHero() {
   })
 
   const advance = contextSafe(() => {
-    if (busy.current || !root.current) return
+    if (N < 2 || busy.current || !root.current) return
     const slides = Array.from(root.current.querySelectorAll<HTMLElement>('.hero__slide'))
     const i = curRef.current
     const n = (i + 1) % N
@@ -159,7 +160,7 @@ export function HomeHero() {
   })
 
   const startTimer = contextSafe(() => {
-    if (!running.current || reducedMotion() || !root.current) return
+    if (N < 2 || !running.current || reducedMotion() || !root.current) return
     const fill = root.current.querySelector('.hero-capsule__set[data-current] .hero-capsule__fill')
     if (!fill) return
     timer.current?.kill()
@@ -221,7 +222,7 @@ export function HomeHero() {
         </div>
       </div>
 
-      <button
+      {N > 1 && <button
         type="button"
         className="hero-capsule"
         onClick={() => advance()}
@@ -232,7 +233,7 @@ export function HomeHero() {
           {leaving !== null && leaving !== next && <CapsuleSet key={`leaving-${leaving}`} idx={leaving} filled />}
           <CapsuleSet key={`next-${next}`} idx={next} current />
         </span>
-      </button>
+      </button>}
 
       <button type="button" className="hero-scroll" onClick={() => scrollToElement('#intro', 0)} aria-label={tr('Scroll to learn about us', 'Gulir untuk mengenal kami')}>
         <span className="hero-scroll__body">

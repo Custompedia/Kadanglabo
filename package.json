@@ -10,7 +10,9 @@
     "preview:worker": "npm run build && wrangler dev",
     "deploy": "wrangler deploy",
     "deploy:check": "npm run build && wrangler deploy --dry-run",
-    "img": "node scripts/optimize-image.mjs"
+    "img": "node scripts/optimize-image.mjs",
+    "test:cms": "node scripts/test-cms-integration.mjs && node scripts/test-cms-lifecycle.mjs && node scripts/test-article-canvas.mjs",
+    "test:cms:browser": "node scripts/test-cms-browser.mjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
@@ -29,6 +31,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "playwright-core": "1.65.0",
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",

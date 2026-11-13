@@ -10,11 +10,12 @@
     "run_worker_first": ["/api/*", "/media/*"]
   },
   // One database per concern, so none of them carries the others' weight (and auth stays apart from content).
-  // database_id: fill in with the ids printed by `wrangler d1 create <name>` (see admin/README.md).
+  // database_id: the production databases (Cloudflare account hello@custompedia.id). preview_database_id keeps local
+  // development (npm run dev, --local) on its own local copy, so it never touches production.
   "d1_databases": [
-    { "binding": "AUTH_DB", "database_name": "kadanglabo-auth", "database_id": "00000000-0000-0000-0000-00000000a001", "migrations_dir": "migrations/auth" },
-    { "binding": "CONTENT_DB", "database_name": "kadanglabo-content", "database_id": "00000000-0000-0000-0000-00000000c001", "migrations_dir": "migrations/content" },
-    { "binding": "MEDIA_DB", "database_name": "kadanglabo-media", "database_id": "00000000-0000-0000-0000-00000000e001", "migrations_dir": "migrations/media" }
+    { "binding": "AUTH_DB", "database_name": "kadanglabo-auth", "database_id": "2ac698b8-99b2-4bec-9388-2595039ad353", "preview_database_id": "00000000-0000-0000-0000-00000000a001", "migrations_dir": "migrations/auth" },
+    { "binding": "CONTENT_DB", "database_name": "kadanglabo-content", "database_id": "3d5ac06a-60c8-4dd4-87a5-19f99611f5aa", "preview_database_id": "00000000-0000-0000-0000-00000000c001", "migrations_dir": "migrations/content" },
+    { "binding": "MEDIA_DB", "database_name": "kadanglabo-media", "database_id": "c1d35b7d-0004-4442-abf7-b8522db23981", "preview_database_id": "00000000-0000-0000-0000-00000000e001", "migrations_dir": "migrations/media" }
   ],
   // Published image sizes (read by the public site too), and the uploaded originals (private).
   "r2_buckets": [

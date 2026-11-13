@@ -50,17 +50,24 @@ pagesApi.put('/', async (c) => {
   return c.json({ ok: true, updated_at: at })
 })
 
-/** When a project's address changes, the page settings follow it. */
-export async function renameInPages(env: Env, from: string, to: string) {
+/** Statements joined to the project's publish transaction, so references switch with the live slug. */
+export async function projectReferenceUpdates(env: Env, from: string, to: string): Promise<D1PreparedStatement[]> {
   const pages = await readPages(env)
-  if (!pages) return
+  const statements: D1PreparedStatement[] = []
   let changed = false
   for (const cat of categories) {
-    const s = pages.categories[cat]
+    const s = pages?.categories[cat]
+    if (!s) continue
     for (const key of ['highlight', 'selected'] as const)
       if (s[key].includes(from)) (s[key] = s[key].map((x) => (x === from ? to : x))), (changed = true)
   }
-  if (changed) await env.CONTENT_DB.prepare(`UPDATE settings SET value = ? WHERE key = 'pages'`).bind(JSON.stringify(pages)).run()
+  if (changed) statements.push(env.CONTENT_DB.prepare(`UPDATE settings SET value = ? WHERE key = 'pages'`).bind(JSON.stringify(pages)))
+  for (const column of ['draft', 'published'] as const) {
+    statements.push(env.CONTENT_DB.prepare(
+      `UPDATE articles SET ${column} = json_set(${column}, '$.project', ?) WHERE json_extract(${column}, '$.project') = ?`,
+    ).bind(to, from))
+  }
+  return statements
 }
 
 /* ---- locations ------------------------------------------------------------------------------------------------ */

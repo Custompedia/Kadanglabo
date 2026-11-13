@@ -86,6 +86,7 @@ export default function ProjectEditor() {
       <SuggestContext.Provider value={{ owner: d.title, group: categoryLabel[d.category] }}>
       <Page
         wide
+        responsiveAside
         title={d.title || 'Projek baru'}
         pill={e.meta && <StateBadge state={e.meta.state} dirty={!!e.meta.dirty} />}
         back={{ label: 'Projek', href: '/projects' }}
@@ -97,6 +98,7 @@ export default function ProjectEditor() {
             id={e.meta?.id ?? null}
             title={d.title || 'Tanpa judul'}
             slug={d.slug}
+            liveSlug={e.meta?.published?.slug}
             state={e.meta?.state ?? 'draft'}
             dirty={!!e.meta?.dirty}
             isNew={e.isNew}
@@ -107,7 +109,7 @@ export default function ProjectEditor() {
             issues={e.issues}
             publishedAt={e.meta?.published_at ?? null}
             onSave={() => e.save()}
-            onStateChange={(s, at) => (e.setState(s, at ? { published_at: at, dirty: 0 } : {}), mutate('/projects'))}
+            onStateChange={(s, at) => (e.setState(s, at ? { published_at: at, dirty: 0, published: d } : {}), mutate('/projects'))}
             liveLink={!d.archiveOnly}
           />
         }
@@ -148,7 +150,7 @@ export default function ProjectEditor() {
           {!d.archiveOnly && (
             <>
               <GroupDivider hint="Urutannya sama seperti halaman projek dari atas ke bawah.">Halaman projek</GroupDivider>
-              <Section n={2} title="Bagian atas" where="Halaman projek › judul dan foto besar" href={e.meta?.state === 'published' && d.slug ? `${PUBLIC_SITE}/work/${d.slug}` : undefined}>
+              <Section n={2} title="Bagian atas" where="Halaman projek › judul dan foto besar" href={e.meta?.state === 'published' && d.slug ? `${PUBLIC_SITE}/work/${e.meta?.published?.slug || d.slug}` : undefined}>
                 <TxField label="Tagline" required value={d.tagline} onChange={(v) => set('tagline', v)} placeholder={{ en: 'One line about the project', id: 'Satu kalimat tentang projek' }} hint="Tampil di bawah judul." />
                 <FieldShell label="Warna latar">
                   <div className="flex flex-wrap gap-2">
@@ -174,7 +176,7 @@ export default function ProjectEditor() {
                 <ImageSlot label="Foto besar" hint="lebar penuh di bawah judul" value={d.hero} onChange={(v) => set('hero', v)} aspect="aspect-[21/9]" />
               </Section>
 
-              <Section n={3} title="Info projek dan paragraf pembuka" where="Halaman projek › Project info" href={e.meta?.state === 'published' && d.slug ? `${PUBLIC_SITE}/work/${d.slug}` : undefined}>
+              <Section n={3} title="Info projek dan paragraf pembuka" where="Halaman projek › Project info" href={e.meta?.state === 'published' && d.slug ? `${PUBLIC_SITE}/work/${e.meta?.published?.slug || d.slug}` : undefined}>
                 <TxField label="Tipologi" required value={d.typology} onChange={(v) => set('typology', v)} placeholder={{ en: 'e.g. Resort', id: 'mis. Resort' }} />
                 <FieldShell label="Lingkup pekerjaan">
                   <div className="flex flex-wrap gap-2">
@@ -205,7 +207,7 @@ export default function ProjectEditor() {
                 <RichField label="Paragraf pembuka" required value={d.summary} onChange={(v) => set('summary', v)} hint="Teks besar di samping Project info." />
               </Section>
 
-              <Section n={4} title="Galeri" description="Foto dan teks dari atas ke bawah, sesuai urutan di halaman." where="Halaman projek › bawah" href={e.meta?.state === 'published' && d.slug ? `${PUBLIC_SITE}/work/${d.slug}` : undefined}>
+              <Section n={4} title="Galeri" description="Foto dan teks dari atas ke bawah, sesuai urutan di halaman." where="Halaman projek › bawah" href={e.meta?.state === 'published' && d.slug ? `${PUBLIC_SITE}/work/${e.meta?.published?.slug || d.slug}` : undefined}>
                 <GalleryBuilder value={d.gallery} onChange={(g) => set('gallery', g)} />
               </Section>
             </>

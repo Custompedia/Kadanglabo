@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from '@tiptap/react'
-import { DotsSixVertical, Trash } from '@phosphor-icons/react'
+import { BlockControls } from './ArticleCardNode'
 import { mediaUrl, useMediaMap } from './Thumb'
 
 /*
@@ -20,13 +20,13 @@ export const Photo = Node.create({
   atom: true,
   draggable: true,
   addAttributes() {
-    return { id: { default: '' }, caption: { default: '' } }
+    return { id: { default: '' }, caption: { default: '' }, alt: { default: '' }, layout: { default: 'normal' } }
   },
   parseHTML() {
-    return [{ tag: 'figure[data-photo]', getAttrs: (el) => ({ id: (el as HTMLElement).dataset.id ?? '', caption: (el as HTMLElement).textContent ?? '' }) }]
+    return [{ tag: 'figure[data-photo]', getAttrs: (el) => ({ id: (el as HTMLElement).dataset.id ?? '', caption: (el as HTMLElement).dataset.caption ?? (el as HTMLElement).textContent ?? '', alt: (el as HTMLElement).dataset.alt ?? '', layout: (el as HTMLElement).dataset.layout ?? 'normal' }) }]
   },
   renderHTML({ HTMLAttributes }) {
-    return ['figure', mergeAttributes({ 'data-photo': '', 'data-id': HTMLAttributes.id }), HTMLAttributes.caption ?? '']
+    return ['figure', mergeAttributes({ 'data-photo': '', 'data-id': HTMLAttributes.id, 'data-caption': HTMLAttributes.caption, 'data-alt': HTMLAttributes.alt, 'data-layout': HTMLAttributes.layout }), HTMLAttributes.caption ?? '']
   },
   addCommands() {
     return {
@@ -41,22 +41,21 @@ export const Photo = Node.create({
   },
 })
 
-function PhotoView({ node, updateAttributes, deleteNode, selected }: NodeViewProps) {
+function PhotoView(props: NodeViewProps) {
+  const { node, updateAttributes, selected } = props
   const { map } = useMediaMap()
   const id = node.attrs.id as string
   const m = map.get(id)
   return (
-    <NodeViewWrapper as="figure" className={`group relative my-5 ${selected ? 'rounded-xl ring-2 ring-kumo-brand ring-offset-2' : ''}`} contentEditable={false}>
-      <img src={mediaUrl(m, id, 1280)} alt="" draggable={false} className="block h-auto w-full rounded-xl" style={{ backgroundColor: m?.color ?? '#eee', aspectRatio: m ? `${m.w} / ${m.h}` : '16 / 10' }} />
-      <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:opacity-100">
-        <span data-drag-handle className="grid size-8 cursor-grab place-items-center rounded-md bg-white/90 text-kumo-default shadow" title="Seret untuk memindah">
-          <DotsSixVertical size={16} weight="bold" />
-        </span>
-        <button type="button" onClick={deleteNode} className="grid size-8 place-items-center rounded-md bg-white/90 text-kumo-default shadow hover:text-kumo-danger" title="Hapus foto">
-          <Trash size={15} />
-        </button>
+    <NodeViewWrapper as="figure" className={`article-photo article-photo--${node.attrs.layout} group relative my-5 ${selected ? 'rounded-xl ring-2 ring-kumo-brand ring-offset-2' : ''}`} contentEditable={false}>
+      <img src={mediaUrl(m, id, 1280)} alt={node.attrs.alt as string} draggable={false} className="block h-auto w-full rounded-xl" style={{ backgroundColor: m?.color ?? '#eee', aspectRatio: m ? `${m.w} / ${m.h}` : '16 / 10' }} />
+      <BlockControls {...props} />
+      <div className="article-photo-widths" role="group" aria-label="Lebar gambar">
+        {(['normal', 'wide', 'full'] as const).map((layout, i) => <button type="button" key={layout} aria-pressed={node.attrs.layout === layout} onClick={() => updateAttributes({ layout })}>{['Normal', 'Lebar', 'Penuh'][i]}</button>)}
       </div>
+      <input aria-label="Teks alternatif gambar" value={node.attrs.alt as string} placeholder="Teks alternatif: jelaskan isi gambar" onChange={e => updateAttributes({ alt: e.target.value })} className="article-photo-alt" />
       <input
+        aria-label="Keterangan gambar"
         value={node.attrs.caption as string}
         onChange={(e) => updateAttributes({ caption: e.target.value })}
         placeholder="Tulis keterangan foto (opsional)"

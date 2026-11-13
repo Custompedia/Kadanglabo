@@ -114,7 +114,7 @@ export function ContentList({ kind }: { kind: Kind }) {
             className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 pb-2.5 text-sm transition ${state === k ? 'border-kumo-brand font-medium text-kumo-strong' : 'border-transparent text-kumo-subtle hover:text-kumo-strong'}`}
           >
             {label}
-            <span className={`rounded-full px-1.5 py-px text-xs tabular-nums ${state === k ? 'bg-kumo-tint text-kumo-strong' : 'bg-kumo-recessed text-kumo-subtle'}`}>{data ? count(k) : '–'}</span>
+            <span className={`rounded-full px-1.5 py-px text-xs tabular-nums ${state === k ? 'bg-kumo-tint text-kumo-strong' : 'bg-kumo-recessed text-kumo-subtle'}`}>{data ? count(k) : '-'}</span>
           </button>
         ))}
       </nav>
@@ -156,8 +156,8 @@ export function ContentList({ kind }: { kind: Kind }) {
             }}
             items={
               isProject
-                ? { 'position:asc': 'Urutan website', 'updated:desc': 'Terakhir diubah', 'title:asc': 'Judul A–Z', ...(['position:asc', 'updated:desc', 'title:asc'].includes(`${sort.key}:${sort.dir}`) ? {} : { [`${sort.key}:${sort.dir}`]: 'Urutan kolom' }) }
-                : { 'date:desc': 'Tanggal terbaru', 'updated:desc': 'Terakhir diubah', 'title:asc': 'Judul A–Z', ...(['date:desc', 'updated:desc', 'title:asc'].includes(`${sort.key}:${sort.dir}`) ? {} : { [`${sort.key}:${sort.dir}`]: 'Urutan kolom' }) }
+                ? { 'position:asc': 'Urutan website', 'updated:desc': 'Terakhir diubah', 'title:asc': 'Judul A-Z', ...(['position:asc', 'updated:desc', 'title:asc'].includes(`${sort.key}:${sort.dir}`) ? {} : { [`${sort.key}:${sort.dir}`]: 'Urutan kolom' }) }
+                : { 'date:desc': 'Tanggal terbaru', 'updated:desc': 'Terakhir diubah', 'title:asc': 'Judul A-Z', ...(['date:desc', 'updated:desc', 'title:asc'].includes(`${sort.key}:${sort.dir}`) ? {} : { [`${sort.key}:${sort.dir}`]: 'Urutan kolom' }) }
             }
           />
           <Divider />
@@ -256,7 +256,7 @@ function RowMenu({
   onCopied: (id: number) => void
 }) {
   const live = row.state === 'published'
-  const path = `${PUBLIC_SITE}/${kind === 'project' ? 'work' : 'articles'}/${row.slug}`
+  const path = `${PUBLIC_SITE}/${kind === 'project' ? 'work' : 'articles'}/${row.published_slug || row.slug}`
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger render={<Button variant="ghost" size="sm" shape="square" aria-label="Pilihan lain" icon={<DotsThree weight="bold" size={18} />} />} />

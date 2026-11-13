@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Page } from '../components/Page'
-import { Img, imgMeta, type ImgKey } from '../components/Img'
+import { Img, coverSizes, imgMeta, type ImgKey } from '../components/Img'
 import { Counter, SectionLabel, TeamStack } from '../components/Bits'
 import { WaFloat } from '../components/WaFloat'
 import { InquiryForm } from '../components/InquiryForm'
@@ -248,7 +248,8 @@ export default function CategoryPage({ cat }: { cat: Category }) {
         {/* ---------- hero: the promise on the category's photo, two ways to act, the numbers ---------- */}
         <section className="lp-h" data-theme="dark" aria-labelledby="lp-h-title">
           <div className="lp-h__media">
-            <Img id={hero} alt={t(sector.imgAlt)} priority sizes="100vw" />
+            {/* the frame is 116% of the hero (min-height max(100svh, 640px)) for the drift */}
+            <Img id={hero} alt={t(sector.imgAlt)} priority sizes={coverSizes(hero, 116, 1.16 * 640)} />
           </div>
           <div className="lp-h__shade" aria-hidden="true" />
           <div className="lp-h__body wrap">

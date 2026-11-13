@@ -14,7 +14,10 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     lenis = instance
     instance.on('scroll', ScrollTrigger.update)
     const tick = (time: number) => instance.raf(time * 1000)
-    gsap.ticker.add(tick)
+    // first on the ticker: Lenis moves the page (window.scrollTo) before GSAP renders this frame's tweens, so the
+    // scroll does not have to recalculate the styles those tweens just wrote; the scroll-linked tweens then render
+    // in the same tick, from the new position
+    gsap.ticker.add(tick, false, true)
     gsap.ticker.lagSmoothing(0)
     return () => {
       gsap.ticker.remove(tick)

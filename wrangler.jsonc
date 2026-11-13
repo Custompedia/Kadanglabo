@@ -10,10 +10,11 @@
     // only the CMS routes reach the Worker; every page and file is served straight from the assets
     "run_worker_first": ["/api/*", "/media/*"]
   },
-  // The CMS's databases and image bucket, read-only from here. The ids must be the same as in admin/wrangler.jsonc.
+  // The CMS's databases and image bucket, read-only from here. The ids must be the same as in admin/wrangler.jsonc
+  // (preview_database_id: the local copies used in development).
   "d1_databases": [
-    { "binding": "CONTENT_DB", "database_name": "kadanglabo-content", "database_id": "00000000-0000-0000-0000-00000000c001" },
-    { "binding": "MEDIA_DB", "database_name": "kadanglabo-media", "database_id": "00000000-0000-0000-0000-00000000e001" }
+    { "binding": "CONTENT_DB", "database_name": "kadanglabo-content", "database_id": "3d5ac06a-60c8-4dd4-87a5-19f99611f5aa", "preview_database_id": "00000000-0000-0000-0000-00000000c001" },
+    { "binding": "MEDIA_DB", "database_name": "kadanglabo-media", "database_id": "c1d35b7d-0004-4442-abf7-b8522db23981", "preview_database_id": "00000000-0000-0000-0000-00000000e001" }
   ],
   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "kadanglabo-media" }]
 }

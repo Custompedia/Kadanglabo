@@ -64,7 +64,7 @@ export default function Profile() {
                 prefix="@"
                 value={username}
                 onChange={(v) => setUsername(v.toLowerCase().replace(/\s/g, ''))}
-                hint="Dipakai untuk masuk. 3–32 karakter: huruf kecil, angka, titik, garis bawah, atau tanda hubung."
+                hint="Dipakai untuk masuk. 3-32 karakter: huruf kecil, angka, titik, garis bawah, atau tanda hubung."
               />
               <Button type="submit" variant="primary" className="justify-self-start" loading={busy === 'name'} disabled={!name.trim() || username.length < 3 || (name === user?.name && username === user?.username)}>
                 Simpan

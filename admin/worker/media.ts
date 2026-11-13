@@ -4,12 +4,12 @@ import type { AppEnv, Env } from './env'
 import { firstError } from './validate'
 
 /*
- * Images. The dashboard resizes every upload in the browser (WebP at 640 / 1280 / 1920, never wider than the
+ * Images. The dashboard resizes every upload in the browser (WebP at 640 / 960 / 1280 / 1920, never wider than the
  * original) and sends the sizes together with the original. They are stored as media/{id}-{width}.webp, the same
  * naming the site already uses in public/img, so <Img> serves both the same way.
  */
 
-export const MEDIA_WIDTHS = [640, 1280, 1920]
+export const MEDIA_WIDTHS = [640, 960, 1280, 1920]
 const MAX_ORIGINAL = 40 * 1024 * 1024
 const MAX_VARIANT = 8 * 1024 * 1024
 
@@ -24,11 +24,12 @@ const shortId = () => Array.from(crypto.getRandomValues(new Uint8Array(4)), (b) 
 export type Use = { title: string; group: string; kind: 'project' | 'article' | 'page' }
 const groupName: Record<string, string> = { commercial: 'Commercial', hospitality: 'Hospitality', residential: 'Residential' }
 
-/** Where every media id is used: { id: [{ title: 'La Barka Resort', group: 'Hospitality', kind: 'project' }, ...] }. */
+/** Includes Trash: a restorable record must keep its photos until permanent deletion.
+ * Where every media id is used: { id: [{ title: 'La Barka Resort', group: 'Hospitality', kind: 'project' }, ...] }. */
 export async function mediaUsage(env: Env) {
   const [p, a, pages] = await env.CONTENT_DB.batch([
-    env.CONTENT_DB.prepare(`SELECT title, category, draft, published FROM projects WHERE state != 'trashed'`),
-    env.CONTENT_DB.prepare(`SELECT title, draft, published FROM articles WHERE state != 'trashed'`),
+    env.CONTENT_DB.prepare(`SELECT title, category, draft, published FROM projects`),
+    env.CONTENT_DB.prepare(`SELECT title, draft, published FROM articles`),
     env.CONTENT_DB.prepare(`SELECT value FROM settings WHERE key = 'pages'`),
   ])
   const used = new Map<string, Use[]>()

@@ -18,8 +18,11 @@ export default function Home() {
   const root = useRef<HTMLDivElement>(null)
   usePageAnimations(root, (page) => {
     const undoSpirit = animateSpirit(page) // first: it sets the held field's height that later triggers measure against
-    animateStudioNumbers(page)
-    return undoSpirit
+    const undoNumbers = animateStudioNumbers(page)
+    return () => {
+      undoSpirit?.()
+      undoNumbers?.()
+    }
   })
 
   return (

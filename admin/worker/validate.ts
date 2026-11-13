@@ -1,5 +1,6 @@
+import { cleanArticleCard } from '../../shared/article-blocks'
 import { z } from 'zod'
-import type { Block, Doc, Inline, ListItem, Mark, Paragraph } from '../../shared/content'
+import type { Block, Doc, Inline, ListItem, Mark } from '../../shared/content'
 
 /*
  * What the API accepts. Rich text is not validated but rebuilt: only the nodes and marks the editor offers survive,
@@ -31,29 +32,42 @@ function cleanInline(nodes: unknown): Inline[] | undefined {
   return out.length ? out : undefined
 }
 function cleanBlocks(nodes: unknown, depth = 0): Block[] {
-  if (!Array.isArray(nodes)) return []
+  if (!Array.isArray(nodes) || depth > 24) return []
   const out: Block[] = []
   for (const n of nodes) {
     if (n?.type === 'paragraph') {
       const content = cleanInline(n.content)
       out.push(content ? { type: 'paragraph', content } : { type: 'paragraph' })
-    } else if ((n?.type === 'bulletList' || n?.type === 'orderedList') && depth < 3 && Array.isArray(n.content)) {
+    } else if ((n?.type === 'bulletList' || n?.type === 'orderedList') && Array.isArray(n.content)) {
       const items: ListItem[] = n.content
         .filter((li: { type?: string }) => li?.type === 'listItem')
         .map((li: { content?: unknown }) => ({
           type: 'listItem' as const,
-          content: cleanBlocks(li.content, depth + 1).filter((b): b is ListItem['content'][number] => b.type === 'paragraph' || b.type === 'bulletList' || b.type === 'orderedList'),
+          content: cleanBlocks(li.content, depth + 1),
         }))
         .filter((li: ListItem) => li.content.length)
-      if (items.length) out.push({ type: n.type, content: items })
-    } else if (n?.type === 'heading' && depth === 0) {
+      if (items.length) {
+        // Tiptap list items require a leading paragraph, including when a block was pasted.
+        for (const item of items) if (item.content[0]?.type !== 'paragraph') item.content.unshift({ type: 'paragraph' })
+        const start = n.type === 'orderedList' && Number.isSafeInteger(n.attrs?.start) && n.attrs.start >= 1 ? n.attrs.start : undefined
+        out.push({ type: n.type, ...(start !== undefined ? { attrs: { start } } : {}), content: items })
+      }
+    } else if (n?.type === 'heading') {
       const content = cleanInline(n.content)
       if (content) out.push({ type: 'heading', attrs: { level: n.attrs?.level === 3 ? 3 : 2 }, content })
-    } else if (n?.type === 'blockquote' && depth === 0) {
-      const content = cleanBlocks(n.content, depth + 1).filter((b): b is Paragraph => b.type === 'paragraph' && !!b.content)
+    } else if (n?.type === 'blockquote') {
+      const content = cleanBlocks(n.content, depth + 1)
       if (content.length) out.push({ type: 'blockquote', content })
-    } else if (n?.type === 'image' && depth === 0 && typeof n.attrs?.id === 'string' && /^[a-z0-9-]{1,80}$/.test(n.attrs.id)) {
-      out.push({ type: 'image', attrs: { id: n.attrs.id, caption: String(n.attrs.caption ?? '').slice(0, 300) } })
+    } else if (n?.type === 'image' && typeof n.attrs?.id === 'string' && /^[a-z0-9-]{1,80}$/.test(n.attrs.id)) {
+      out.push({ type: 'image', attrs: { id: n.attrs.id, caption: String(n.attrs.caption ?? '').slice(0, 300), alt: String(n.attrs.alt ?? '').slice(0, 500), layout: n.attrs.layout === 'wide' || n.attrs.layout === 'full' ? n.attrs.layout : 'normal' } })
+    } else if (n?.type === 'horizontalRule') {
+      out.push({ type: 'horizontalRule' })
+    } else if (n?.type === 'codeBlock') {
+      const content = cleanInline(n.content)?.map(x => x.type === 'text' ? { type: 'text' as const, text: x.text } : x)
+      out.push({ type: 'codeBlock', ...(content ? { content } : {}) })
+    } else if (n?.type === 'articleCard') {
+      const data = cleanArticleCard(n.attrs?.data)
+      if (data) out.push({ type: 'articleCard', attrs: { data } })
     }
   }
   return out
@@ -112,12 +126,11 @@ export const articleSchema = z.object({
   excerpt: tx,
   cover: imgRef,
   coverCaption: tx.optional(),
-  summary: tx.optional(),
   body: rich,
   project: z.string().max(100).optional(),
 })
 
-export const username = z.string().trim().toLowerCase().regex(/^[a-z0-9._-]{3,32}$/, 'Username 3–32 karakter: huruf, angka, titik, garis bawah atau tanda hubung')
+export const username = z.string().trim().toLowerCase().regex(/^[a-z0-9._-]{3,32}$/, 'Username 3-32 karakter: huruf, angka, titik, garis bawah atau tanda hubung')
 export const password = z.string().min(5, 'Password minimal 5 karakter').max(200)
 export const role = z.enum(['admin', 'editor'])
 

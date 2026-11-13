@@ -1,4 +1,4 @@
-// Tambah / ganti gambar: membuat WebP responsif (640/1280/1920) + mendaftarkannya di src/data/images.json.
+// Tambah / ganti gambar: membuat WebP responsif (640/960/1280/1920) + mendaftarkannya di src/data/images.json.
 // Pemakaian:  npm run img -- <key> <path-gambar>
 // Contoh:     npm run img -- wira-living "~/Downloads/Interior ruang keluarga 1.png"
 // Setelah itu gunakan <Img id="wira-living" /> atau isi key-nya di src/data/projects.ts.
@@ -28,7 +28,7 @@ if (!keepAlpha) pipeline = pipeline.removeAlpha()
 const master = await pipeline.png().toBuffer({ resolveWithObject: true })
 
 const { width, height } = master.info
-const sizes = [...new Set([640, 1280, 1920].filter((w) => w < width).concat(width))]
+const sizes = [...new Set([640, 960, 1280, 1920].filter((w) => w < width).concat(width))]
 
 for (const w of sizes) {
   await sharp(master.data)

@@ -76,12 +76,6 @@ function Article({ n }: { n: NewsItem }) {
         <div className="art-layout wrap">
           <Share title={t(n.title)} />
           <div className="art-body">
-            {n.summary && t(n.summary) && (
-              <aside className="art-summary">
-                <p className="t-label art-summary__label">{tr('In short', 'Ringkasnya')}</p>
-                <p className="art-summary__text">{t(n.summary)}</p>
-              </aside>
-            )}
             <RichText value={n.body} className="art-p" />
           </div>
           <Sidebar current={n} project={project} />

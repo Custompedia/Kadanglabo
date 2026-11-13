@@ -63,15 +63,22 @@ export function Header({ menuOpen, onToggleMenu }: Props) {
       raf = 0
       const y = window.scrollY
       let next: 'light' | 'dark' | 'accent' = 'light'
-      for (const node of document.elementsFromPoint(window.innerWidth / 2, 30)) {
-        if (!(node instanceof Element) || node.closest('.site-header')) continue
-        const themed = node.closest<HTMLElement>('[data-theme]')
-        if (themed) {
-          const t = themed.dataset.theme
-          next = t === 'dark' || t === 'accent' ? t : 'light'
-          break
+      const x = window.innerWidth / 2
+      // usually the top element there is already the page (the header lets the pointer through), and a single hit
+      // test is ~30x cheaper than listing every layer; only when that misses, walk the whole stack as before
+      const top = document.elementFromPoint(x, 30)
+      const quick = top && !top.closest('.site-header') ? top.closest<HTMLElement>('[data-theme]') : null
+      const theme = (t: string | undefined) => (t === 'dark' || t === 'accent' ? t : 'light')
+      if (quick) next = theme(quick.dataset.theme)
+      else
+        for (const node of document.elementsFromPoint(x, 30)) {
+          if (!(node instanceof Element) || node.closest('.site-header')) continue
+          const themed = node.closest<HTMLElement>('[data-theme]')
+          if (themed) {
+            next = theme(themed.dataset.theme)
+            break
+          }
         }
-      }
       setTone(next)
       setSolid(y > 80)
       if (y < 60) setHidden(false)
@@ -81,13 +88,32 @@ export function Header({ menuOpen, onToggleMenu }: Props) {
     const queue = () => {
       if (!raf) raf = requestAnimationFrame(update)
     }
-    window.addEventListener('scroll', queue, { passive: true })
+    // Scrolling: look right away. Scroll events arrive at the start of a frame, while the page is still laid out from
+    // the last one; capturing on the window runs this before ScrollTrigger's listener (on the document) moves
+    // anything, so the hit test reads the finished layout instead of forcing a fresh one every frame.
+    // While scrolling it looks every third frame or so (the colours fade over 0.35s, so a frame or two later is
+    // invisible), plus once more after the last scroll event, so it always settles on the right tone.
+    let lastLook = -Infinity
+    let trailing = 0
+    const look = () => {
+      lastLook = performance.now()
+      window.clearTimeout(trailing)
+      trailing = 0
+      if (raf) cancelAnimationFrame(raf)
+      update()
+    }
+    const onScroll = () => {
+      if (performance.now() - lastLook >= 45) look()
+      else if (!trailing) trailing = window.setTimeout(look, 60)
+    }
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true })
     window.addEventListener('resize', queue)
     window.addEventListener('page:mounted', queue)
     queue()
     return () => {
       cancelAnimationFrame(raf)
-      window.removeEventListener('scroll', queue)
+      window.clearTimeout(trailing)
+      window.removeEventListener('scroll', onScroll, { capture: true })
       window.removeEventListener('resize', queue)
       window.removeEventListener('page:mounted', queue)
     }

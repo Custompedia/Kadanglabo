@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import type { Icon } from '@phosphor-icons/react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { DropdownMenu, Sidebar, useSidebar } from '@cloudflare/kumo'
-import { ArrowSquareOut, Buildings, CaretDown, GearSix, House, SquaresFour, ImagesSquare, MagnifyingGlass, Newspaper, SignOut, User, UserCircle, UsersThree } from '@phosphor-icons/react'
+import { ArrowSquareOut, Buildings, CaretDown, GearSix, House, Pulse, SquaresFour, ImagesSquare, MagnifyingGlass, Newspaper, SignOut, User, UserCircle, UsersThree } from '@phosphor-icons/react'
 import { useSession } from '../lib/session'
 import { SearchPalette } from './SearchPalette'
 
@@ -85,10 +85,18 @@ export function Shell({ children }: { children: ReactNode }) {
               </Sidebar.MenuItem>
             </Sidebar.Menu>
           </Sidebar.Group>
+          {user?.role === 'admin' && (
+            <Sidebar.Group>
+              <Sidebar.GroupLabel>Admin</Sidebar.GroupLabel>
+              <Sidebar.Menu>
+                <NavItem icon={Pulse} to="/monitoring" active={at('/monitoring')} label="Monitoring" />
+                <NavItem icon={UsersThree} to="/users" active={at('/users')} label="Pengguna" />
+              </Sidebar.Menu>
+            </Sidebar.Group>
+          )}
           <Sidebar.Group>
             <Sidebar.GroupLabel>Akun</Sidebar.GroupLabel>
             <Sidebar.Menu>
-              {user?.role === 'admin' && <NavItem icon={UsersThree} to="/users" active={at('/users')} label="Pengguna" />}
               <NavItem icon={GearSix} to="/profile" active={at('/profile')} label="Kelola akun" />
             </Sidebar.Menu>
           </Sidebar.Group>

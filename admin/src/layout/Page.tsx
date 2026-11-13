@@ -1,22 +1,31 @@
-import type { ReactNode } from 'react'
-import { ArrowLeft } from '@phosphor-icons/react'
-import { StoragePanel } from './StoragePanel'
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { Button, Dialog } from '@cloudflare/kumo'
+import { ArrowLeft, X } from '@phosphor-icons/react'
+
+const desktopQuery = '(min-width: 1280px)'
+const subscribeDesktop = (notify: () => void) => {
+  const query = window.matchMedia(desktopQuery)
+  query.addEventListener('change', notify)
+  return () => query.removeEventListener('change', notify)
+}
 
 /*
  * One dashboard page: title (with an optional small pill next to it), a line of description, the main action on the
- * right, the content, and the right-hand side panel (Storage by default; an editor brings its own).
+ * right, the content, and an optional right-hand side panel (an editor brings its Publikasi panel; storage and the
+ * rest of the site's health live on the Monitoring page).
  */
 export function Page({
   title,
   pill,
   description,
   actions,
-  aside = <StoragePanel />,
+  aside = false,
   children,
   wide,
   back,
   sticky,
   tabs,
+  responsiveAside = false,
 }: {
   title: ReactNode
   pill?: ReactNode
@@ -31,7 +40,13 @@ export function Page({
   sticky?: boolean
   /** a tab bar under the title (inside the sticky bar), e.g. the language an editor is filled in */
   tabs?: ReactNode
+  /** Editors expose their existing publish panel in a dialog below the desktop breakpoint. */
+  responsiveAside?: boolean
 }) {
+  const desktop = useSyncExternalStore(subscribeDesktop, () => window.matchMedia(desktopQuery).matches, () => true)
+  const [asideOpen, setAsideOpen] = useState(false)
+  const mobileAside = responsiveAside && !desktop && !!aside
+  useEffect(() => { if (desktop) setAsideOpen(false) }, [desktop])
   return (
     <div className="flex min-h-full">
       <main className="min-w-0 flex-1 px-4 py-8 sm:px-8 lg:px-10">
@@ -50,14 +65,30 @@ export function Page({
             </div>
             {description && <p className="mt-1.5 max-w-2xl text-[15px] text-kumo-subtle">{description}</p>}
           </div>
-          {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+          {(actions || mobileAside) && <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {actions}
+            {mobileAside && <Button variant="primary" onClick={() => setAsideOpen(true)}>Publikasi</Button>}
+          </div>}
         </div>
         {tabs && <div className="mt-3">{tabs}</div>}
         </div>
         {children}
         </div>
       </main>
-      {aside && (
+      {mobileAside ? (
+        <Dialog.Root open={asideOpen} onOpenChange={setAsideOpen}>
+          <Dialog size="lg" className="flex max-h-[90dvh] w-[min(560px,94vw)] max-w-none flex-col overflow-hidden p-0">
+            <div className="flex shrink-0 items-center justify-between gap-4 border-b border-kumo-hairline px-5 py-4">
+              <div>
+                <Dialog.Title className="font-semibold">Publikasi</Dialog.Title>
+                <Dialog.Description className="sr-only">Simpan, pratinjau, dan tayangkan konten.</Dialog.Description>
+              </div>
+              <Button variant="ghost" shape="square" aria-label="Tutup panel publikasi" onClick={() => setAsideOpen(false)} icon={<X size={18} />} />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{aside}</div>
+          </Dialog>
+        </Dialog.Root>
+      ) : aside && (
         <aside className="hidden w-[300px] shrink-0 border-l border-kumo-hairline bg-kumo-base xl:block">
           {/* its own scroll, as tall as the screen: everything in the panel is reachable without scrolling the page to the end */}
           <div className="no-scrollbar sticky top-0 max-h-[calc(100dvh-58px)] overflow-y-auto overscroll-contain">{aside}</div>

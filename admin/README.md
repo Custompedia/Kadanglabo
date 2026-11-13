@@ -13,7 +13,7 @@ Konten disimpan di Cloudflare **D1**, foto di **R2**. Website membaca konten yan
 | D1 `kadanglabo-auth` | Akun dan sesi login (tidak pernah dibaca website) |
 | D1 `kadanglabo-content` | Projek, entri arsip, artikel (draft + versi tayang) |
 | D1 `kadanglabo-media` | Data foto (ukuran, warna, alt text) |
-| R2 `kadanglabo-media` | Foto dalam ukuran WebP 640 / 1280 / 1920 (`media/{id}-{lebar}.webp`) |
+| R2 `kadanglabo-media` | Foto dalam ukuran WebP 640 / 960 / 1280 / 1920 (`media/{id}-{lebar}.webp`) |
 | R2 `kadanglabo-originals` | File asli upload (privat) |
 
 Database dipisah per fungsi supaya tidak ada satu database yang menanggung semuanya, dan data login terpisah dari
@@ -26,11 +26,11 @@ cd admin
 npm install
 npm run db:migrate:local        # sekali: buat tabel di D1 lokal
 node scripts/seed.mjs           # sekali: pindahkan 12 projek, 49 arsip, 5 artikel, dan fotonya ke CMS lokal
-npm run dev                     # dashboard di http://localhost:5180
+npm run dev                     # dashboard di http://localhost:5174
 ```
 
 Lalu di root repo `npm run dev` (website di http://localhost:5173). Website dev otomatis mengambil konten dari
-dashboard dev (`/api/public` dan `/media` di-proxy ke port 5180). Kalau dashboard tidak jalan, website tetap tampil
+dashboard dev (`/api/public` dan `/media` di-proxy ke port 5174). Kalau dashboard tidak jalan, website tetap tampil
 memakai data bawaan di `src/data`.
 
 Login pertama: **custompedia** / **12345** (akun ini dibuat otomatis saat database masih kosong). Ganti password
@@ -63,7 +63,33 @@ Butuh login: `npx wrangler login`.
 6. **Domain**: di Cloudflare → Workers → `kadanglabo-admin` → Settings → Domains & Routes → Custom Domain
    `admin.kadanglabo.com` (setelah zona `kadanglabo.com` ada di Cloudflare). Sampai saat itu dashboard bisa dibuka
    di alamat `*.workers.dev`-nya.
-7. Login dengan `custompedia` / `12345`, lalu buat akun tim di menu **Pengguna**.
+7. Login dengan `custompedia` / `12345`, **langsung ganti password-nya** (menu **Kelola akun**), lalu buat akun tim di
+   menu **Pengguna**. Password awal ini tertulis di repo, jadi jangan dibiarkan di production.
+
+## Deploy otomatis dari GitHub (Workers Builds)
+
+Website dan dashboard adalah dua Worker terpisah dari repo yang sama. Masing-masing dihubungkan sekali di dashboard
+Cloudflare; setelah itu setiap push ke `main` men-deploy yang berubah saja.
+
+Di Cloudflare: **Workers & Pages → Create application → Import a repository** → pilih `Custompedia/Kadanglabo`.
+
+| Pengaturan | Website | Dashboard (CMS) |
+| --- | --- | --- |
+| Worker name | `kadanglabo-website` | `kadanglabo-admin` (harus sama dengan `name` di `admin/wrangler.jsonc`) |
+| Production branch | `main` | `main` |
+| Root directory | `/` (root repo) | `admin` |
+| Build command | `npm run build` | `npm run build` |
+| Deploy command | `npm run deploy` | `npx wrangler deploy` |
+| Build watch paths (include) | `*` | `admin/*`, `shared/*` |
+| Build watch paths (exclude) | `admin/*` | – |
+
+- Node.js 22.22.0 terbaca dari `.node-version` (ada di root dan di `admin/`).
+- **Watch paths** membuat perubahan di dashboard tidak ikut men-deploy website, dan sebaliknya. Perubahan di `shared/`
+  (dipakai keduanya) men-deploy keduanya.
+- **Migrasi database tidak otomatis.** Jika satu perubahan menambah file di `admin/migrations/`, jalankan sekali dari laptop
+  *sebelum* push: `cd admin && npm run db:migrate:remote`. Perubahan kode biasa tidak butuh ini.
+- Build yang gagal tidak menurunkan apa pun: versi production sebelumnya tetap jalan. Lihat log di
+  **Worker → Deployments**.
 
 ## Menu
 
@@ -93,8 +119,31 @@ Draft ──Publish──► Tayang ──Turunkan──► Diturunkan ──Pub
   └────────── Pindahkan ke Trash ──► Trash ──► Pulihkan / Hapus permanen
 ```
 
-- Editor menyimpan otomatis 2 detik setelah berhenti mengetik. Mengedit projek yang sedang tayang **tidak** mengubah
+- Perubahan disimpan saat tombol **Simpan** ditekan. Mengedit projek yang sedang tayang **tidak** mengubah
   website sampai *Publish perubahan* ditekan.
 - **Preview** membuka draft di website lewat link yang berlaku 1 jam (ada penanda "Pratinjau draft").
 - Sebelum publish, panel kanan menampilkan field yang masih kosong (teks wajib harus terisi EN dan ID).
-- Foto yang masih dipakai projek/artikel tidak bisa dihapus dari Media.
+- Foto yang masih dipakai projek/artikel tidak bisa dihapus dari Media, termasuk foto konten di Trash. Foto baru dianggap tidak dipakai setelah kontennya dihapus permanen atau referensi fotonya dilepas.
+
+## Pemeriksaan regresi
+
+Jalankan dari root repository dengan Node.js 22 atau lebih baru:
+
+```sh
+npm run test:cms
+npm run build
+npm run build --prefix admin
+npm run test:cms:browser
+```
+
+Uji browser memakai Chrome/Chromium yang sudah terpasang. Jika tidak terdeteksi otomatis, tentukan
+`CHROME_BIN=/path/ke/chrome`. Suite memakai database SQLite baru di memori, bucket uji di memori, dan port acak;
+tidak memakai database lokal `.wrangler` maupun database production. Build admin dan website diperlukan sebelum
+uji browser karena suite membuka aset hasil build dan memanggil handler Worker asli.
+
+Cakupan regresi: port proxy, draft/publish slug dan referensinya, rollback transaksi publish, ringkasan artikel lama,
+perlindungan foto konten di Trash, panel publikasi tablet/ponsel, dan hero dengan nol/satu/beberapa proyek tayang.
+Pada desktop panel publikasi tetap di kanan; di layar kecil gunakan tombol **Publikasi** di header editor.
+
+Port dev dikunci: website `5173`, admin `5174`. Jika port terpakai, server gagal mulai dengan pesan yang jelas alih-alih
+berpindah port diam-diam. Untuk backend dev di alamat lain, set `CMS_DEV_URL` ketika menjalankan website.

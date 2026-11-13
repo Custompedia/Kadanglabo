@@ -37,7 +37,7 @@ export default function News() {
   const items = sortedNews.filter(
     (n) =>
       (!tag || n.tag.en === tag) &&
-      words.every((w) => fold(`${t(n.title)} ${t(n.excerpt)} ${t(n.tag)} ${n.summary ? t(n.summary) : ''} ${plainText(n.body)}`).includes(w)),
+      words.every((w) => fold(`${t(n.title)} ${t(n.excerpt)} ${t(n.tag)} ${plainText(n.body)}`).includes(w)),
   )
   const filtered = !!tag || words.length > 0
   const heading = words.length

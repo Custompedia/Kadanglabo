@@ -1,6 +1,6 @@
 import type { RefObject } from 'react'
 import { gsap, SplitText, useGSAP, reducedMotion } from './gsap'
-import { whenGateOpen } from './gate'
+import { isGateOpen, whenGateOpen, whenPagePrepared } from './gate'
 
 const num = (v: string | undefined, fallback: number) => (v === undefined || v === '' ? fallback : parseFloat(v))
 
@@ -122,8 +122,21 @@ export function attachReveals(root: HTMLElement) {
   })
 }
 
+/** Every tween and timeline a context has created, including those of nested contexts (e.g. SplitText's). */
+function animationsOf(ctx: gsap.Context): gsap.core.Animation[] {
+  const out: gsap.core.Animation[] = []
+  const walk = (items: unknown[]) =>
+    items.forEach((item) => {
+      if (item instanceof gsap.core.Animation) out.push(item)
+      else if (item && Array.isArray((item as gsap.Context).data)) walk((item as gsap.Context).data)
+    })
+  walk(ctx.data)
+  return out
+}
+
 /**
- * Sets up a page's animations once the intro gate opens (after the preloader / transition curtain).
+ * Sets up a page's animations while the preloader / transition curtain still covers the page (see preparePage);
+ * their intros play once the intro gate opens, as the cover lifts.
  * `setup` is for bespoke timelines and may return a cleanup (e.g. an observer to disconnect);
  * data-attribute reveals inside `scope` are attached automatically.
  */
@@ -133,18 +146,28 @@ export function usePageAnimations(
   deps: unknown[] = [],
 ) {
   useGSAP(
-    (_ctx, contextSafe) => {
+    (ctx, contextSafe) => {
       const root = scope.current
       if (!root || !contextSafe) return
       let undo: void | (() => void)
+      let offHeld = () => {}
       const run = contextSafe(() => {
         if (reducedMotion()) return
+        const before = new Set(animationsOf(ctx))
         undo = setup?.(root)
         attachReveals(root)
+        if (isGateOpen()) return
+        // Built behind the cover (see preparePage): everything that already started running - intros on a timer,
+        // reveals whose trigger is already on screen - holds at its first frame and goes on when the cover lifts,
+        // exactly as if it had been created then. Scrubbed and not-yet-reached animations are left to ScrollTrigger.
+        const held = animationsOf(ctx).filter((a) => !before.has(a) && a.parent === gsap.globalTimeline && !a.paused())
+        held.forEach((a) => a.pause())
+        offHeld = whenGateOpen(() => held.forEach((a) => a.resume()))
       })
-      const off = whenGateOpen(run)
+      const off = whenPagePrepared(run)
       return () => {
         off()
+        offHeld()
         if (typeof undo === 'function') undo()
       }
     },

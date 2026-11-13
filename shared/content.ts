@@ -1,3 +1,5 @@
+import { articleCardText } from './article-blocks'
+import type { ArticleCard, ArticleCardNode } from './article-blocks'
 /*
  * The content model shared by the CMS (admin/), its API (admin/worker) and the public site (src/).
  * Pure types and constants only, no dependencies, so every side can import it.
@@ -17,13 +19,13 @@ export type Mark = { type: 'bold' } | { type: 'italic' } | { type: 'link'; attrs
 export type TextNode = { type: 'text'; text: string; marks?: Mark[] }
 export type Inline = TextNode | { type: 'hardBreak' }
 export type Paragraph = { type: 'paragraph'; content?: Inline[] }
-export type ListItem = { type: 'listItem'; content: (Paragraph | List)[] }
-export type List = { type: 'bulletList' | 'orderedList'; content: ListItem[] }
+export type ListItem = { type: 'listItem'; content: Block[] }
+export type List = { type: 'bulletList' | 'orderedList'; attrs?: { start?: number }; content: ListItem[] }
 /** article only: a subheading, a quote, a photo inside the text */
 export type Heading = { type: 'heading'; attrs: { level: 2 | 3 }; content?: Inline[] }
-export type Quote = { type: 'blockquote'; content: Paragraph[] }
-export type Photo = { type: 'image'; attrs: { id: string; caption: string } }
-export type Block = Paragraph | List | Heading | Quote | Photo
+export type Quote = { type: 'blockquote'; content: Block[] }
+export type Photo = { type: 'image'; attrs: { id: string; caption: string; alt?: string; layout?: 'normal' | 'wide' | 'full' } }
+export type Block = Paragraph | List | Heading | Quote | Photo | ArticleCardNode | { type: 'horizontalRule' } | { type: 'codeBlock'; content?: Inline[] }
 export type Doc = { type: 'doc'; content: Block[] }
 export type RichTx = { en: Doc; id: Doc }
 
@@ -38,8 +40,8 @@ export const emptyDoc = (): Doc => ({ type: 'doc', content: [{ type: 'paragraph'
 /** The document's words without formatting (search, excerpts, "is it empty?"). */
 export function docText(doc: Doc | undefined): string {
   if (!doc) return ''
-  const walk = (n: { type: string; text?: string; content?: unknown[] }): string =>
-    n.type === 'text' ? n.text ?? '' : n.type === 'hardBreak' ? ' ' : (n.content ?? []).map((c) => walk(c as never)).join(n.type === 'doc' ? '\n' : ' ')
+  const walk = (n: { type: string; text?: string; content?: unknown[]; attrs?: { data?: ArticleCard } }): string =>
+    n.type === 'articleCard' && n.attrs?.data ? articleCardText(n.attrs.data) : n.type === 'text' ? n.text ?? '' : n.type === 'hardBreak' ? ' ' : (n.content ?? []).map((c) => walk(c as never)).join(n.type === 'doc' ? '\n' : ' ')
   return walk(doc as never).trim()
 }
 

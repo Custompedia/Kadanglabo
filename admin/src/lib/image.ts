@@ -3,12 +3,12 @@ import { mutate } from './useFetch'
 
 /*
  * Every upload is resized here, in the browser, exactly like scripts/optimize-image.mjs does for the site's own
- * images: fit inside 1920 × 1920 (never enlarged), WebP at 640 / 1280 / 1920 below the master width plus the master
+ * images: fit inside 1920 × 1920 (never enlarged), WebP at 640 / 960 / 1280 / 1920 below the master width plus the master
  * width itself, and the dominant colour for the placeholder. The original travels along and is kept privately.
  */
 
 const MAX = 1920
-const WIDTHS = [640, 1280, 1920]
+const WIDTHS = [640, 960, 1280, 1920] // 960 between: frames of ~700-950px need not decode a 1280 file
 const QUALITY = 0.8
 export const ACCEPT = 'image/jpeg,image/png,image/webp,image/avif'
 

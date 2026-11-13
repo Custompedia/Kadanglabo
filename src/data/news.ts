@@ -9,7 +9,7 @@ import { articles } from './articles'
  * Semua teks dua bahasa ({ en, id }), dibaca lewat t() saat render (lib/i18n.ts).
  */
 
-/** One article as the site shows it: banner, title, an optional "In short" box and one formatted text. */
+/** One article as the site shows it: banner, title and one formatted text. */
 export type NewsItem = ArticleContent
 
 export const news: NewsItem[] = [...articles]

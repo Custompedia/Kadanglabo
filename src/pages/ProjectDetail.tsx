@@ -2,7 +2,7 @@ import { useRef, type CSSProperties } from 'react'
 import { useParams } from 'react-router'
 import { Page } from '../components/Page'
 import { RichText } from '../components/RichText'
-import { Img, imgMeta } from '../components/Img'
+import { Img, coverSizes, imgMeta } from '../components/Img'
 import { ProjectCard, SectionLabel } from '../components/Bits'
 import { usePageAnimations } from '../lib/anim'
 import { gsap } from '../lib/gsap'
@@ -158,7 +158,7 @@ function ProjectView({ p }: { p: Project }) {
 
         <section className="p-teaser" data-theme={heroTheme}>
           <div className="p-teaser__frame">
-            <Img id={p.hero} alt={p.title} priority sizes="100vw" />
+            <Img id={p.hero} alt={p.title} priority sizes={coverSizes(p.hero, 100)} />
           </div>
         </section>
 

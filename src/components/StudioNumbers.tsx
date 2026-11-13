@@ -49,7 +49,7 @@ const figures = () => [
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
 /** Kadanglabo in numbers (Home, after the About block): sets up the ring scene inside `page` */
-export function animateStudioNumbers(page: HTMLElement) {
+export function animateStudioNumbers(page: HTMLElement): (() => void) | undefined {
   // Kadanglabo in numbers, on every screen size: the stage holds; the project photos fly in from beyond the screen
   // edges onto a tilted orbit (a ring seen from slightly above: an ellipse, the front photos larger and on top, the
   // back ones smaller), the intro steps aside and the figures roll past the centre like a drum, then the photos fly
@@ -169,6 +169,19 @@ export function animateStudioNumbers(page: HTMLElement) {
   // [data-motion] makes the section 400svh tall: every trigger below it (the Our Work mosaic,
   // created when the page mounted) has to measure again, or it thinks the page is already past it
   ScrollTrigger.refresh()
+
+  // The photos wait far beyond the screen edges before they fly in, where the browser's lazy loading never counts
+  // them as near: fetch them all once the section is a couple of screens away, so none arrives on screen still empty.
+  const fetchAhead = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) return
+      fetchAhead.disconnect()
+      numbers.querySelectorAll<HTMLImageElement>('.numbers__photo img').forEach((img) => (img.loading = 'eager'))
+    },
+    { rootMargin: '200% 0px' },
+  )
+  fetchAhead.observe(numbers)
+  return () => fetchAhead.disconnect()
 }
 
 /* Kadanglabo in numbers: a tilted orbit of project photos turns while the figures roll past (phones to wide screens);

@@ -154,7 +154,7 @@ Menambah/mengganti gambar:
 npm run img -- <key> "<path/ke/gambar.png>"
 ```
 
-Skrip membuat WebP 640/1280/1920 di `public/img/` dan mendaftarkan `key` di `src/data/images.json`. Untuk gambar potongan yang latarnya transparan (PNG), tambahkan `--alpha` di akhir perintah agar transparansinya tetap ada. Pakai key tersebut di `projects.ts` (mis. `hero`, `cover`, `gallery`) atau `<Img id="key" />`.
+Skrip membuat WebP 640/960/1280/1920 di `public/img/` dan mendaftarkan `key` di `src/data/images.json`. Untuk gambar potongan yang latarnya transparan (PNG), tambahkan `--alpha` di akhir perintah agar transparansinya tetap ada. Pakai key tersebut di `projects.ts` (mis. `hero`, `cover`, `gallery`) atau `<Img id="key" />`.
 
 Model rumah di Home (02) dibuat dari tiga render dengan kamera yang sama (lantai dasar, lantai atas tanpa atap,
 rumah jadi; latar transparan) di `assets/model/`. Untuk menggantinya (mis. dengan ekspor beresolusi lebih tinggi):

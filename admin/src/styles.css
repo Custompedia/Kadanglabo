@@ -64,20 +64,60 @@ button[role='combobox'] {
   height: 2.5rem;
 }
 
-/* the article editor: a borderless page that reads like the published article */
+/* Article writing canvas, matching Artikel Flow's reading column. */
+.article-canvas {
+  --article-serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+  width: min(720px, 100%);
+  margin: 24px auto 80px;
+  color: var(--text-color-kumo-strong);
+  font-family: var(--article-serif);
+}
+.article-canvas-title, .article-canvas-lead {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  resize: none;
+  field-sizing: content;
+  background: transparent;
+  font-family: inherit;
+  outline: none;
+}
+.article-canvas-title { font-size: clamp(32px, 4.6vw, 44px); font-weight: 400; line-height: 1.18; letter-spacing: -.015em; }
+.article-canvas-lead { font-size: 20px; line-height: 1.6; letter-spacing: -.003em; }
+.article-canvas-title::placeholder, .article-canvas-lead::placeholder { @apply text-kumo-placeholder; }
+.article-canvas-cover { margin: 40px 0; font-family: var(--font-sans); }
+.article-canvas-cover .group { border-radius: 4px; }
 .rt--article {
   min-height: 420px;
-  padding: 20px 2px 40px;
-  font-size: 18px;
-  line-height: 1.7;
+  padding: 0 0 40px;
+  font-family: var(--article-serif);
+  font-size: 20px;
+  line-height: 1.6;
+  letter-spacing: -.003em;
 }
-.rt--article p { margin: 0 0 0.9em; }
-.rt--article h2 { margin: 1.4em 0 0.4em; font-size: 1.6em; font-weight: 650; line-height: 1.2; letter-spacing: -0.02em; }
-.rt--article h3 { margin: 1.2em 0 0.3em; font-size: 1.25em; font-weight: 650; line-height: 1.3; }
-.rt--article blockquote { margin: 1.2em 0; padding-left: 1em; border-left: 3px solid var(--color-kumo-brand); font-size: 1.15em; color: var(--text-color-kumo-default, inherit); }
-.rt--article ul, .rt--article ol { margin-bottom: 0.9em; }
-.rt--article li { margin: 0.25em 0; }
-.rt--article li::marker { color: var(--color-kumo-brand); }
+.rt--article p { margin: 0 0 30px; }
+.rt--article h2, .rt--article h3 { margin: 46px 0 8px; font-family: inherit; font-weight: 400; letter-spacing: -.012em; }
+.rt--article h2 { font-size: 30px; line-height: 1.25; }
+.rt--article h3 { font-size: 23px; line-height: 1.3; }
+.rt--article blockquote { margin: 0 0 30px; padding-left: 20px; border-left: 3px solid currentColor; font-style: italic; }
+.rt--article ul, .rt--article ol { margin: 0 0 30px; padding-left: 30px; }
+.rt--article li { margin-bottom: 12px; padding-left: 4px; }
+.rt--article li p { margin: 0; }
+.rt--article a { color: inherit; text-underline-offset: 3px; }
+.rt--article figure { margin: 40px 0; }
+.rt--article figure img { border-radius: 4px; }
+.rt--article figure input { font-family: var(--font-sans); font-size: 14px; }
+.article-format-menu { position: relative; max-width: calc(100vw - 32px); font-family: var(--font-sans); background: #242424; color: #fff; border-radius: 6px; box-shadow: 0 2px 8px #0004; }
+.article-format-menu::after { content: ''; position: absolute; bottom: -6px; left: 50%; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: #242424; }
+.article-format-menu button { color: inherit; background: transparent; box-shadow: none; }
+.article-format-menu button:hover { background: #ffffff20; }
+.article-format-menu button[aria-pressed=true] { color: #b7e1bf; background: #ffffff15; }
+.article-format-menu > span:not(.flex-1) { background: #ffffff50; }
+@media (max-width: 900px) {
+  .rt--article, .article-canvas-lead { font-size: 18px; }
+}
 
 /* scroll areas that scroll without showing a scrollbar */
 .no-scrollbar {
@@ -85,4 +125,50 @@ button[role='combobox'] {
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Contextual writing tools: individual round controls, like the reference canvas. */
+/* Anchor only the plus button; expanding tools must not move it away from the paragraph. */
+.article-insert-anchor { width: 41px !important; height: 41px; z-index: 10; }
+.article-insert-menu { width: max-content; display: flex; flex-wrap: wrap; align-items: center; gap: 9px; max-width: calc(100vw - 32px); padding: 3px; background: transparent; font-family: var(--font-sans); }
+/* just the icons in orange: no circle, no fill of their own (the page shows through) */
+.article-insert-menu button { display: grid; place-items: center; width: 35px; height: 35px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--color-kumo-brand); box-shadow: none; transition: color 0.15s; }
+.article-insert-menu button:hover { background: transparent; color: var(--color-kumo-brand-hover); }
+.article-insert-menu .article-insert-toggle { color: var(--color-kumo-brand); }
+.article-card { position: relative; margin: 32px 0; font: 16px/1.6 var(--font-sans); }
+.article-card.is-selected { outline: 2px solid var(--color-kumo-brand); outline-offset: 6px; }
+.article-card input, .article-card textarea { width: 100%; min-width: 0; border: 0; outline: none; padding: 6px 0; background: transparent; font: inherit; color: inherit; }
+.article-card textarea { resize: vertical; min-height: 80px; field-sizing: content; }
+.article-card figure { margin: 0; }
+.article-card iframe { width: 100%; aspect-ratio: 16/9; border: 0; margin: 12px 0; }
+.article-card--embed > figure > input:last-child, .article-card--table > input { text-align: center; font-size: 14px; }
+.article-block-controls { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-bottom: 8px; font-family: var(--font-sans); }
+.article-block-controls button, .article-block-controls span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 6px; background: var(--color-kumo-base); }
+.article-block-controls button:hover { background: var(--color-kumo-recessed); }
+.article-block-controls span { cursor: grab; }
+.article-block-controls button:disabled, .article-table-tools button:disabled { opacity: .35; }
+.article-callout { padding: 16px 18px; border: 1px solid var(--color-kumo-line); border-radius: 8px; background: var(--color-kumo-recessed); }
+.article-callout--tip { background: #39834b12; }
+.article-callout--warning { background: #c49b1818; }
+.article-callout select { font: 13px var(--font-sans); background: transparent; }
+.article-cta-fields { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.article-cta-fields input:first-child { width: auto; max-width: 100%; border-radius: 999px; padding: 10px 18px; background: var(--color-kumo-brand); color: white; }
+.article-cta-fields input:last-child { flex: 1; min-width: 160px; border-bottom: 1px dashed var(--color-kumo-line); }
+.article-table-scroll { overflow-x: auto; }
+.article-card table { width: 100%; border-collapse: collapse; }
+.article-card th, .article-card td { min-width: 120px; padding: 10px 12px; border-bottom: 1px solid var(--color-kumo-line); text-align: left; }
+.article-card th { border-bottom: 2px solid currentColor; font-weight: 600; }
+.article-table-tools { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 13px; }
+.article-photo-widths { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 10px; font: 13px var(--font-sans); }
+.article-photo-widths button[aria-pressed=true] { color: var(--color-kumo-brand); text-decoration: underline; }
+.article-photo-alt { width: 100%; padding: 6px 0; background: transparent; font: 13px var(--font-sans); outline: none; }
+.article-photo--wide { margin-inline: -12px !important; }
+.article-photo--full { margin-inline: -24px !important; }
+.rt--article pre { overflow-x: auto; margin: 30px 0; padding: 18px 20px; border-radius: 4px; background: var(--color-kumo-recessed); font: 15px/1.6 Menlo, monospace; white-space: pre; }
+.rt--article hr { height: 30px; overflow: visible; margin: 30px auto; width: 80px; border: 0; text-align: center; line-height: 30px; }
+.rt--article hr::before { content: '·　·　·'; font-size: 28px; }
+@media (max-width: 640px) { .article-photo--wide, .article-photo--full { margin-inline: 0 !important; } }
+
+@media (max-width: 1400px) {
+  .article-writing-surface { padding-left: 52px; }
 }

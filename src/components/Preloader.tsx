@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { gsap, useGSAP, reducedMotion } from '../lib/gsap'
-import { onPageMounted, openGate } from '../lib/gate'
+import { nextFrame, onPageMounted, openGate, preparePage } from '../lib/gate'
 import { lockScroll } from '../lib/smooth'
 import { heroSlides, heroImageSizes } from '../data/hero'
 import { MARK_PIECES, MARK_RING } from '../data/brandMark'
@@ -43,7 +43,7 @@ export function Preloader() {
   const root = useRef<HTMLDivElement>(null)
   const [gone, setGone] = useState(false)
   const [isHome] = useState(() => window.location.pathname === '/')
-  const heroId = heroSlides[0].hero
+  const heroId = heroSlides[0]?.hero
 
   useGSAP(
     (_ctx, contextSafe) => {
@@ -64,6 +64,8 @@ export function Preloader() {
       const heroImg = el.querySelector<HTMLImageElement>('.preloader__hero img')
 
       // the mark starts alone in the centre of the lockup (svg units: lockup 1609 wide, mark ≈330)
+      let logoDrawn = () => {}
+      const drawn = new Promise<void>((r) => (logoDrawn = r))
       const logo = gsap
         .timeline({ delay: 0.25 })
         .set(mark, { x: 1609 / 2 - 165 })
@@ -82,6 +84,7 @@ export function Preloader() {
         // wordmark and tagline wipe in left → right, only once the mark has cleared their space
         .fromTo('#il-clip-word rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 1.9)
         .fromTo('#il-clip-tag rect', { attr: { width: 0 } }, { attr: { width: 1300 }, duration: 0.9, ease: 'power3.inOut' }, 2.35)
+        .add(() => logoDrawn())
         .to({}, { duration: 0.6 }) // hold the finished logo for a beat
 
       const exit = contextSafe(() => {
@@ -119,9 +122,17 @@ export function Preloader() {
 
       const run = async () => {
         await Promise.all([
-          logo.then(),
+          drawn,
           Promise.race([Promise.all([loaded(heroImg), document.fonts?.ready, firstPageReady()]), wait(12000)]),
         ])
+        if (cancelled) return
+        // while the finished logo holds still, the page builds its animations (the heavy part) and the browser lays
+        // that out, so none of it lands in the frames of the reveal
+        await nextFrame()
+        if (cancelled) return
+        preparePage()
+        await nextFrame()
+        await logo.then()
         if (!cancelled) {
           exit()
           easeHeaderIn()
@@ -166,7 +177,7 @@ export function Preloader() {
         </svg>
       </div>
 
-      {isHome && (
+      {isHome && heroId && (
         <div className="preloader__hero">
           <div className="preloader__fill">
             <Img

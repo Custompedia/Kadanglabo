@@ -17,6 +17,7 @@ export function PublishPanel({
   id,
   title,
   slug,
+  liveSlug,
   state,
   dirty,
   isNew,
@@ -35,6 +36,7 @@ export function PublishPanel({
   id: number | null
   title: string
   slug: string
+  liveSlug?: string
   state: RecordState
   dirty: boolean
   isNew: boolean
@@ -51,7 +53,8 @@ export function PublishPanel({
 }) {
   const actions = useContentActions(kind)
   const live = state === 'published'
-  const url = `${PUBLIC_SITE}/${kind === 'project' ? 'work' : 'articles'}/${slug}`
+  const shownSlug = live && liveSlug ? liveSlug : slug
+  const url = `${PUBLIC_SITE}/${kind === 'project' ? 'work' : 'articles'}/${shownSlug}`
 
   async function publish() {
     if (!id) return
@@ -85,7 +88,11 @@ export function PublishPanel({
 
         <div className="grid gap-2">
           {state === 'trashed' ? (
-            <Button className="w-full justify-center" icon={ArrowCounterClockwise} onClick={async () => id && (await actions.restore(id, title)) && onStateChange('draft')}>
+            <Button className="w-full justify-center" icon={ArrowCounterClockwise} onClick={async () => {
+              if (!id) return
+              const result = await actions.restore(id, title)
+              if (result) onStateChange(result.state as RecordState)
+            }}>
               Pulihkan dari Trash
             </Button>
           ) : (
@@ -135,7 +142,7 @@ export function PublishPanel({
             <dd className="truncate text-right">
               {live && liveLink ? (
                 <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-kumo-link hover:underline">
-                  /{kind === 'project' ? 'work' : 'articles'}/{slug} <ArrowSquareOut size={12} />
+                  /{kind === 'project' ? 'work' : 'articles'}/{shownSlug} <ArrowSquareOut size={12} />
                 </a>
               ) : (
                 <span className="text-kumo-subtle">

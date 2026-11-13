@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useEditor, EditorContent, useEditorState, type Editor } from '@tiptap/react'
+import { BubbleMenu, FloatingMenu } from '@tiptap/react/menus'
 import StarterKit from '@tiptap/starter-kit'
 import { Placeholder } from '@tiptap/extensions'
 import { Popover, Button, DropdownMenu } from '@cloudflare/kumo'
-import { LinkSimple, ListBullets, ListNumbers, TextB, TextItalic, TextTSlash, ArrowUUpLeft, ArrowUUpRight, TextHTwo, TextHThree, Quotes, ImageSquare, CloudArrowUp, ImagesSquare } from '@phosphor-icons/react'
+import { LinkSimple, ListBullets, ListNumbers, TextB, TextItalic, TextTSlash, ArrowUUpLeft, ArrowUUpRight, TextHTwo, TextHThree, Quotes, ImageSquare, CloudArrowUp, ImagesSquare, Plus, Video, Code, Minus, Table, ChatText, CursorClick } from '@phosphor-icons/react'
+import { ArticleCardExtension } from './ArticleCardNode'
+import { newArticleCard, type ArticleCard } from '../../../shared/article-blocks'
 import { Photo } from './PhotoNode'
 import { MediaPicker } from './MediaPicker'
 import { useUploads } from './Upload'
@@ -18,19 +21,23 @@ import type { Doc } from '../../../shared/content'
 
 /**
  * `article` turns on what a long article needs as well: subheadings, quotes and photos inside the text (insert from
- * the toolbar, or drop or paste image files straight into the text), on a borderless page with a sticky toolbar.
+ * the toolbar, or drop or paste image files straight into the text), on a borderless page with selection and insertion menus.
  */
 export function RichEditor({ value, onChange, placeholder, lang, article }: { value: Doc; onChange: (d: Doc) => void; placeholder?: string; lang: string; article?: boolean }) {
-  // photos dropped or pasted into the text: uploaded, then placed where they landed
-  const at = useRef<number | null>(null)
-  const { jobs, add } = useUploads((u) => {
-    const ed = editorRef.current
-    if (!ed) return
-    const pos = at.current ?? ed.state.selection.to
-    ed.chain().focus().insertContentAt(pos, [{ type: 'image', attrs: { id: u.id, caption: '' } }, { type: 'paragraph' }]).run()
-    at.current = null
-  })
+  // Each file keeps its own insertion point while typing or another upload changes the document.
+  const positions = useRef(new Map<File, number>())
   const editorRef = useRef<ReturnType<typeof useEditor>>(null)
+  const { jobs, add } = useUploads((u, file) => {
+    const ed = editorRef.current
+    if (!ed || ed.isDestroyed) return
+    const pos = Math.min(positions.current.get(file) ?? ed.state.selection.to, ed.state.doc.content.size)
+    ed.commands.insertContentAt(pos, [{ type: 'image', attrs: { id: u.id, caption: '', alt: '', layout: 'normal' } }, { type: 'paragraph' }], { updateSelection: false })
+    positions.current.delete(file)
+  })
+  const queueUpload = (list: File[], pos = editorRef.current?.state.selection.to ?? 0) => {
+    for (const file of list) positions.current.set(file, pos)
+    void add(list).finally(() => { for (const file of list) positions.current.delete(file) })
+  }
   const files = (list: FileList | undefined | null) => Array.from(list ?? []).filter((f) => f.type.startsWith('image/'))
 
   const editor = useEditor({
@@ -39,14 +46,14 @@ export function RichEditor({ value, onChange, placeholder, lang, article }: { va
         heading: article ? { levels: [2, 3] } : false,
         blockquote: article ? {} : false,
         code: false,
-        codeBlock: false,
-        horizontalRule: false,
+        codeBlock: article ? {} : false,
+        horizontalRule: article ? {} : false,
         strike: false,
         underline: false,
         link: { openOnClick: false, autolink: true, defaultProtocol: 'https', HTMLAttributes: { rel: 'noopener', target: null } },
       }),
       Placeholder.configure({ placeholder: placeholder ?? (lang === 'en' ? 'Write in English…' : 'Tulis dalam Bahasa Indonesia…') }),
-      ...(article ? [Photo] : []),
+      ...(article ? [Photo, ArticleCardExtension] : []),
     ],
     content: value,
     editorProps: {
@@ -56,18 +63,20 @@ export function RichEditor({ value, onChange, placeholder, lang, article }: { va
           const list = files((event as DragEvent).dataTransfer?.files)
           if (!list.length) return false
           event.preventDefault()
-          at.current = view.posAtCoords({ left: (event as DragEvent).clientX, top: (event as DragEvent).clientY })?.pos ?? null
-          void add(list)
+          queueUpload(list, view.posAtCoords({ left: (event as DragEvent).clientX, top: (event as DragEvent).clientY })?.pos)
           return true
         },
         handlePaste: (_view, event) => {
           const list = files(event.clipboardData?.files)
           if (!list.length) return false
           event.preventDefault()
-          void add(list)
+          queueUpload(list)
           return true
         },
       }),
+    },
+    onTransaction: ({ transaction }) => {
+      if (transaction.docChanged) for (const [file, pos] of positions.current) positions.current.set(file, transaction.mapping.map(pos))
     },
     onUpdate: ({ editor }) => onChange(editor.getJSON() as Doc),
   })
@@ -75,8 +84,15 @@ export function RichEditor({ value, onChange, placeholder, lang, article }: { va
   const job = jobs.find((j) => !j.error)
 
   return (
-    <div className={article ? 'relative' : 'overflow-hidden rounded-lg bg-kumo-base ring-1 ring-kumo-line focus-within:ring-[1.5px] focus-within:ring-kumo-focus/60'}>
-      {editor && <Toolbar editor={editor} article={article} onUpload={(f) => void add(f)} />}
+    <div className={article ? 'article-writing-surface relative' : 'overflow-hidden rounded-lg bg-kumo-base ring-1 ring-kumo-line focus-within:ring-[1.5px] focus-within:ring-kumo-focus/60'}>
+      {editor && (article ? <>
+        <BubbleMenu editor={editor} options={{ placement: 'top', offset: 10 }}>
+          <Toolbar editor={editor} article />
+        </BubbleMenu>
+        <FloatingMenu editor={editor} className="article-insert-anchor" options={{ placement: 'left', offset: 11, flip: false, shift: false }}>
+          <ArticleInsert editor={editor} onUpload={(f) => queueUpload(f)} />
+        </FloatingMenu>
+      </> : <Toolbar editor={editor} />)}
       {job && (
         <p className="my-2 rounded-md bg-kumo-recessed px-3 py-2 text-xs text-kumo-subtle">
           Mengunggah {job.name}… {Math.round(job.progress * 100)}%
@@ -87,7 +103,7 @@ export function RichEditor({ value, onChange, placeholder, lang, article }: { va
   )
 }
 
-function Toolbar({ editor, article, onUpload }: { editor: Editor; article?: boolean; onUpload: (f: File[]) => void }) {
+function Toolbar({ editor, article }: { editor: Editor; article?: boolean }) {
   const s = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -105,7 +121,7 @@ function Toolbar({ editor, article, onUpload }: { editor: Editor; article?: bool
   })
   const chain = () => editor.chain().focus()
   return (
-    <div className={`flex flex-wrap items-center gap-0.5 px-1.5 py-1 ${article ? 'sticky top-[86px] z-10 rounded-lg bg-kumo-base shadow-sm ring-1 ring-kumo-line' : 'border-b border-kumo-hairline bg-kumo-recessed/50'}`} role="toolbar" aria-label="Format teks">
+    <div className={`flex flex-wrap items-center gap-0.5 px-1.5 py-1 ${article ? 'article-format-menu rounded-lg bg-kumo-base shadow-lg ring-1 ring-kumo-line' : 'border-b border-kumo-hairline bg-kumo-recessed/50'}`} role="toolbar" aria-label="Format teks">
       {article && (
         <>
           <Tool label="Subjudul besar" active={s.h2} onClick={() => chain().toggleHeading({ level: 2 }).run()} icon={<TextHTwo size={17} />} />
@@ -121,11 +137,36 @@ function Toolbar({ editor, article, onUpload }: { editor: Editor; article?: bool
       <Sep />
       {article && <Tool label="Kutipan" active={s.quote} onClick={() => chain().toggleBlockquote().run()} icon={<Quotes size={16} />} />}
       <LinkTool editor={editor} active={s.link} />
-      {article && <PhotoTool editor={editor} onUpload={onUpload} />}
+
       <Tool label="Hapus format" onClick={() => chain().unsetAllMarks().clearNodes().run()} icon={<TextTSlash size={16} />} />
       <span className="flex-1" />
       <Tool label="Urungkan" disabled={!s.undo} onClick={() => chain().undo().run()} icon={<ArrowUUpLeft size={16} />} />
       <Tool label="Ulangi" disabled={!s.redo} onClick={() => chain().redo().run()} icon={<ArrowUUpRight size={16} />} />
+    </div>
+  )
+}
+
+/** The insertion control only appears beside an empty paragraph. */
+function ArticleInsert({ editor, onUpload }: { editor: Editor; onUpload: (f: File[]) => void }) {
+  const [open, setOpen] = useState(false)
+  const insert = (kind: ArticleCard['kind']) => {
+    editor.chain().focus().insertContent([{ type: 'articleCard', attrs: { data: newArticleCard(kind) } }, { type: 'paragraph' }]).run()
+    setOpen(false)
+  }
+  return (
+    <div className="article-insert-menu" role="toolbar" aria-label="Sisipkan">
+      <button type="button" aria-label={open ? 'Tutup menu sisipkan' : 'Sisipkan'} aria-expanded={open} onMouseDown={(e) => e.preventDefault()} onClick={() => setOpen(!open)} className="article-insert-toggle">
+        <Plus size={20} className={open ? 'rotate-45' : ''} />
+      </button>
+      {open && <>
+        <PhotoTool editor={editor} onUpload={onUpload} />
+        <Tool label="Sisipkan video atau embed" onClick={() => insert('embed')} icon={<Video size={17} />} />
+        <Tool label="Sisipkan blok kode" onClick={() => { editor.chain().focus().toggleCodeBlock().run(); setOpen(false) }} icon={<Code size={17} />} />
+        <Tool label="Sisipkan pemisah" onClick={() => { editor.chain().focus().setHorizontalRule().run(); setOpen(false) }} icon={<Minus size={17} />} />
+        <Tool label="Sisipkan tabel" onClick={() => insert('table')} icon={<Table size={17} />} />
+        <Tool label="Sisipkan sorotan" onClick={() => insert('callout')} icon={<ChatText size={17} />} />
+        <Tool label="Sisipkan tombol ajakan" onClick={() => insert('cta')} icon={<CursorClick size={17} />} />
+      </>}
     </div>
   )
 }
@@ -232,7 +273,7 @@ function PhotoTool({ editor, onUpload }: { editor: Editor; onUpload: (f: File[])
         <DropdownMenu.Trigger
           render={
             <button type="button" title="Sisipkan foto" aria-label="Sisipkan foto" onMouseDown={(e) => e.preventDefault()} className="flex h-8 items-center gap-1.5 rounded-md px-2 text-sm text-kumo-subtle transition hover:bg-kumo-tint hover:text-kumo-default">
-              <ImageSquare size={16} /> Foto
+              <ImageSquare size={19} />
             </button>
           }
         />

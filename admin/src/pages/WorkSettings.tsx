@@ -74,7 +74,7 @@ export default function WorkSettings() {
 
   const set = (cat: Category, patch: Partial<PageSettings['categories'][Category]>) =>
     setDraft({ categories: { ...draft.categories, [cat]: { ...draft.categories[cat], ...patch } } })
-  const live = (cat: Category) => projects.data!.items.filter((p) => p.category === cat && p.state === 'published')
+  const live = (cat: Category) => projects.data!.items.filter((p) => p.category === cat && p.state === 'published').map((p) => ({ ...p, slug: p.published_slug || p.slug }))
   const pickable = (cat: Category) => live(cat).filter((p) => !p.archive_only)
 
   const saveBar = (

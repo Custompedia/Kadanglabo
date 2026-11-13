@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router'
 import { Banner, Empty, LinkButton, Loader, Select, Switch } from '@cloudflare/kumo'
 import { ArrowLeft } from '@phosphor-icons/react'
@@ -18,8 +18,8 @@ import { LeaveDialog } from '../components/LeaveDialog'
 import { TopicSelect } from '../components/TopicSelect'
 
 /*
- * An article, written like on Medium: one flat page that reads like the published article (banner, title, short
- * intro, an optional "In short" box, then the text with its subheadings, lists, quotes and photos). Everything that
+ * An article, written like on Medium: one flat page that reads like the published article (title, short
+ * intro, banner, then the text with its subheadings, lists, quotes and photos). Everything that
  * is a setting rather than writing (topic, address, related project; the date is set when it goes live) sits in the right-hand panel.
  */
 
@@ -52,13 +52,13 @@ export default function ArticleEditor() {
     )
 
   const set = <K extends keyof ArticleContent>(k: K, v: ArticleContent[K]) => e.update((x) => ({ ...x, [k]: v }))
-  const setTx = (k: 'title' | 'excerpt' | 'summary' | 'coverCaption' | 'tag', v: string) =>
+  const setTx = (k: 'title' | 'excerpt' | 'coverCaption' | 'tag', v: string) =>
     e.update((x) => {
       const next = { ...(x[k] ?? tx()), [lang]: v }
       return { ...x, [k]: next, ...(k === 'title' && !slugTouched ? { slug: slugify(next.id || next.en) } : {}) }
     })
   const related = relatedSet ?? !!d.project
-  const pageProjects = (projects.data?.items ?? []).filter((p) => !p.archive_only && p.state !== 'trashed')
+  const pageProjects = (projects.data?.items ?? []).filter((p) => !p.archive_only && p.state === 'published').map((p) => ({ ...p, slug: p.published_slug || p.slug }))
   const other: Lang = lang === 'id' ? 'en' : 'id'
 
   const settings = (
@@ -96,6 +96,7 @@ export default function ArticleEditor() {
       <SuggestContext.Provider value={{ owner: d.title.en || d.title.id, group: 'Artikel' }}>
         <Page
           wide
+        responsiveAside
           title={d.title[lang] || d.title[other] || 'Artikel baru'}
           pill={e.meta && <StateBadge state={e.meta.state} dirty={!!e.meta.dirty} />}
           back={{ label: 'Artikel', href: '/articles' }}
@@ -107,6 +108,7 @@ export default function ArticleEditor() {
               id={e.meta?.id ?? null}
               title={d.title.en || d.title.id || 'Tanpa judul'}
               slug={d.slug}
+              liveSlug={e.meta?.published?.slug}
               state={e.meta?.state ?? 'draft'}
               dirty={!!e.meta?.dirty}
               isNew={e.isNew}
@@ -117,83 +119,65 @@ export default function ArticleEditor() {
               issues={e.issues}
               publishedAt={e.meta?.published_at ?? null}
               onSave={() => e.save()}
-              onStateChange={(s, at) => (e.setState(s, at ? { published_at: at, dirty: 0 } : {}), mutate('/articles'))}
+              onStateChange={(s, at) => (e.setState(s, at ? { published_at: at, dirty: 0, published: d } : {}), mutate('/articles'))}
               extra={settings}
             />
           }
         >
           {e.meta?.state === 'trashed' && <Banner variant="alert" className="mb-6 max-w-[760px]" title="Artikel ini ada di Trash" description="Pulihkan dulu agar bisa diedit dan ditayangkan lagi." />}
 
-          <div className="max-w-[760px] pb-24">
-            {/* the banner */}
-            <ImageSlot value={d.cover} onChange={(v) => set('cover', v)} aspect="aspect-[21/10]" />
-            <input
-              value={d.coverCaption?.[lang] ?? ''}
-              onChange={(ev) => setTx('coverCaption', ev.target.value)}
-              placeholder="Keterangan foto banner (opsional)"
-              className="mt-2 w-full bg-transparent text-[13px] text-kumo-subtle outline-none placeholder:text-kumo-placeholder"
-            />
-
-            {/* title and the short intro, as large as on the site */}
-            <Flat label="Judul">
+          <div className="article-canvas">
+            {/* Title and opening share the borderless reading column. */}
+            <div>
               <textarea
                 rows={1}
                 value={d.title[lang]}
                 onChange={(ev) => setTx('title', ev.target.value)}
-                placeholder={lang === 'id' ? 'Judul artikel' : 'Article title'}
-                className="w-full resize-none bg-transparent text-[34px] font-semibold leading-[1.15] tracking-tight text-kumo-strong outline-none placeholder:text-kumo-placeholder [field-sizing:content]"
+                aria-label="Judul artikel"
+                placeholder={lang === 'id' ? 'Judul' : 'Title'}
+                className="article-canvas-title"
               />
-            </Flat>
-            <Flat label="Deskripsi singkat" hint="di bawah judul dan di kartu artikel">
+            </div>
+            <div className="mt-[18px]">
               <textarea
-                rows={2}
+                rows={1}
+                aria-label="Deskripsi singkat"
                 value={d.excerpt[lang]}
                 onChange={(ev) => setTx('excerpt', ev.target.value)}
                 placeholder={lang === 'id' ? 'Satu atau dua kalimat tentang isi artikel' : 'One or two sentences about the article'}
-                className="w-full resize-none bg-transparent text-lg leading-relaxed text-kumo-default outline-none placeholder:text-kumo-placeholder [field-sizing:content]"
-              />
-            </Flat>
-
-            {/* the grey "In short" box */}
-            <div className="mt-6 rounded-xl bg-kumo-recessed px-5 py-4 ring-1 ring-kumo-hairline">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-kumo-brand">Ringkasnya (opsional)</p>
-              <textarea
-                rows={2}
-                value={d.summary?.[lang] ?? ''}
-                onChange={(ev) => setTx('summary', ev.target.value)}
-                placeholder={lang === 'id' ? 'Inti artikel singkat' : 'The gist, briefly'}
-                className="mt-1.5 w-full resize-none bg-transparent text-[16px] leading-relaxed outline-none placeholder:text-kumo-placeholder [field-sizing:content]"
+                className="article-canvas-lead"
               />
             </div>
 
+            <figure className="article-canvas-cover">
+              <ImageSlot value={d.cover} onChange={(v) => set('cover', v)} aspect="aspect-video" />
+              <input
+                aria-label="Keterangan foto banner"
+                value={d.coverCaption?.[lang] ?? ''}
+                onChange={(ev) => setTx('coverCaption', ev.target.value)}
+                placeholder="Keterangan foto banner (opsional)"
+                className="mt-2.5 w-full bg-transparent text-center font-sans text-sm text-kumo-subtle outline-none placeholder:text-kumo-placeholder"
+              />
+            </figure>
+
             {/* the article */}
             <div className="mt-8">
-              <RichEditor
-                key={lang}
-                article
-                lang={lang}
-                value={d.body[lang]}
-                onChange={(doc) => set('body', { ...d.body, [lang]: doc })}
-                placeholder={lang === 'id' ? 'Mulai menulis…' : 'Start writing…'}
-              />
+              {(['id', 'en'] as const).map((bodyLang) => (
+                <div key={bodyLang} hidden={lang !== bodyLang}>
+                  <RichEditor
+                    article
+                    lang={bodyLang}
+                    value={d.body[bodyLang]}
+                    onChange={(doc) => e.update((x) => ({ ...x, body: { ...x.body, [bodyLang]: doc } }))}
+                    placeholder={bodyLang === 'id' ? 'Mulai menulis…' : 'Start writing…'}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </Page>
         <LeaveDialog editor={e} />
       </SuggestContext.Provider>
     </EditLangProvider>
-  )
-}
-
-/** A borderless field with a small label above it. */
-function Flat({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
-  return (
-    <div className="mt-6 border-b border-kumo-hairline pb-3 focus-within:border-kumo-line">
-      <p className="mb-1 text-xs text-kumo-subtle">
-        <span className="font-medium">{label}</span>
-        {hint && <span className="text-kumo-inactive"> · {hint}</span>}
-      </p>
-      {children}
-    </div>
   )
 }

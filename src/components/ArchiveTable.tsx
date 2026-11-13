@@ -37,6 +37,15 @@ export function ArchiveTable({ id, limit }: { id?: string; limit?: number }) {
   const preview = useRef<HTMLDivElement>(null)
   const [params, setParams] = useSearchParams()
   const [hovered, setHovered] = useState<string | null>(null)
+  // photos that have finished downloading and decoding: the preview only shows once its photo is really there
+  const [ready, setReady] = useState<ReadonlySet<string>>(() => new Set())
+  const lastShown = useRef<string | null>(null)
+  if (hovered && ready.has(hovered)) lastShown.current = hovered
+  const previewId = lastShown.current
+  const markReady = (id: string, img: HTMLImageElement) =>
+    void (img.decode?.() ?? Promise.resolve())
+      .catch(() => {})
+      .then(() => setReady((s) => (s.has(id) ? s : new Set(s).add(id))))
 
   const f: Filters = {
     category: params.get('category') ?? 'all',
@@ -203,8 +212,20 @@ export function ArchiveTable({ id, limit }: { id?: string; limit?: number }) {
         </TLink>
       )}
 
-      <div ref={preview} className="index-preview" data-on={hovered ? '' : undefined} aria-hidden="true">
-        {hovered && <Img id={hovered} sizes="300px" />}
+      <div ref={preview} className="index-preview" data-on={hovered && ready.has(hovered) ? '' : undefined} aria-hidden="true">
+        {/* the photo on show is always one that is there; while the next one loads (unseen, underneath) the last one
+            stays put, also through the fade-out, so the preview never shows an empty frame */}
+        {previewId && <Img key={previewId} id={previewId} sizes="300px" loading="eager" />}
+        {hovered && hovered !== previewId && (
+          <Img
+            key={`next-${hovered}`}
+            id={hovered}
+            sizes="300px"
+            loading="eager"
+            style={{ position: 'absolute', inset: 0, opacity: 0 }}
+            onLoad={(e) => markReady(hovered, e.currentTarget)}
+          />
+        )}
       </div>
     </section>
   )

@@ -6,6 +6,9 @@ import type { AppEnv, Env } from './env'
 export const storageApi = new Hono<AppEnv>()
 
 const D1_LIMIT = 10 * 1024 ** 3 // per database on Workers Paid
+/** The storage the dashboard measures against: R2's free allowance (10 GB a month), where the photos live -
+    the databases are tiny next to them. Beyond it Cloudflare bills per GB; nothing stops working. */
+const QUOTA = 10 * 1024 ** 3
 
 /** A database's size in bytes (D1 reports it with every query). */
 async function dbSize(db: D1Database) {
@@ -41,5 +44,6 @@ storageApi.get('/', async (c) => {
     ],
     projects,
     articles,
+    quota: QUOTA,
   })
 })

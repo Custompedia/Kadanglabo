@@ -4,7 +4,7 @@ import { docText, normalizeArticle, type ArticleContent, type ProjectContent, ty
 import { now, type AppEnv, type Env } from './env'
 import { articleSchema, firstError, projectSchema } from './validate'
 import { newToken } from './crypto'
-import { renameInPages } from './pages'
+import { projectReferenceUpdates } from './pages'
 
 /** Today in Yogyakarta (WIB), as YYYY-MM-DD. */
 const today = () => new Date(Date.now() + 7 * 3600_000).toISOString().slice(0, 10)
@@ -56,14 +56,16 @@ function oneLanguageOnly(content: unknown, kind: Kind): string[] {
         const name =
           path[0] === 'gallery'
             ? `Galeri blok ${Number(path[1]) + 1} (${LABEL[key] ?? key})`
-            : kind === 'article' && key === 'summary'
-              ? 'Ringkasnya'
-              : (LABEL[key] ?? key)
+            : (LABEL[key] ?? key)
         out.push(`${name}: bahasa ${en ? 'Indonesia' : 'Inggris'} belum diisi`)
       }
       return
     }
-    for (const [k, x] of Object.entries(o)) if (!(kind === 'project' && (k === 'scope' || k === 'story'))) walk(x, [...path, k])
+    for (const [k, x] of Object.entries(o)) {
+      // Legacy article summaries are no longer editable or displayed; never block publication on them.
+      if (kind === 'article' && path.length === 0 && k === 'summary') continue
+      if (!(kind === 'project' && (k === 'scope' || k === 'story'))) walk(x, [...path, k])
+    }
   }
   walk(content, [])
   return out
@@ -108,8 +110,8 @@ function contentRoutes(kind: Kind) {
 
   const listCols =
     kind === 'project'
-      ? `id, slug, state, title, category, archive_only, position, dirty, updated_by, updated_at, published_at, json_extract(draft, '$.cover') AS cover, json_extract(draft, '$.region') AS region`
-      : `id, slug, state, title, type, date, dirty, updated_by, updated_at, published_at, json_extract(draft, '$.cover') AS cover, json_extract(draft, '$.tag.en') AS tag`
+      ? `id, slug, state, title, category, archive_only, position, dirty, updated_by, updated_at, published_at, json_extract(draft, '$.cover') AS cover, json_extract(draft, '$.region') AS region, json_extract(published, '$.slug') AS published_slug`
+      : `id, slug, state, title, type, date, dirty, updated_by, updated_at, published_at, json_extract(draft, '$.cover') AS cover, json_extract(draft, '$.tag.en') AS tag, json_extract(published, '$.slug') AS published_slug`
 
   const get = (env: Env, id: number) =>
     env.CONTENT_DB.prepare(`SELECT * FROM ${table} WHERE id = ?`).bind(id).first<{ id: number; slug: string; state: string; draft: string; published: string | null; title: string }>()
@@ -124,7 +126,7 @@ function contentRoutes(kind: Kind) {
   const reserved = kind === 'project' ? ['archive', 'commercial', 'hospitality', 'residential'] : []
   const slugTaken = async (env: Env, slug: string, except = 0) =>
     reserved.includes(slug) ||
-    !!(await env.CONTENT_DB.prepare(`SELECT 1 FROM ${table} WHERE slug = ? AND id != ?`).bind(slug, except).first())
+    !!(await env.CONTENT_DB.prepare(`SELECT 1 FROM ${table} WHERE id != ? AND (slug = ? OR json_extract(published, '$.slug') = ?)`).bind(except, slug, slug).first())
 
   r.get('/', async (c) => {
     const order = kind === 'project' ? 'position, id' : 'date DESC, id DESC'
@@ -174,7 +176,6 @@ function contentRoutes(kind: Kind) {
     await c.env.CONTENT_DB.prepare(
       `UPDATE ${table} SET slug = ?, draft = ?, dirty = ?, updated_by = ?, updated_at = ?, ${Object.keys(cols).map((k) => `${k} = ?`).join(', ')} WHERE id = ?`,
     ).bind(d.slug, json, row.published === json ? 0 : 1, c.get('user').username, at, ...Object.values(cols), id).run()
-    if (kind === 'project' && row.slug !== d.slug) await renameInPages(c.env, row.slug, d.slug)
     return c.json({ ok: true, updated_at: at, dirty: row.published !== json, issues: publishIssues(kind, d) })
   })
 
@@ -192,8 +193,14 @@ function contentRoutes(kind: Kind) {
       kind === 'article'
         ? [c.env.CONTENT_DB.prepare(`UPDATE articles SET draft = json_set(draft, '$.date', ?), date = ? WHERE id = ?`).bind(today(), today(), id)]
         : []
+    // Publish the new identity and its references atomically. Draft slug edits leave the live site alone.
+    const previousSlug = row.published ? (JSON.parse(row.published) as { slug: string }).slug : null
+    const references = kind === 'project' && previousSlug && previousSlug !== raw.slug
+      ? await projectReferenceUpdates(c.env, previousSlug, raw.slug)
+      : []
     await c.env.CONTENT_DB.batch([
       ...stamp,
+      ...references,
       c.env.CONTENT_DB.prepare(`UPDATE ${table} SET state = 'published', published = draft, dirty = 0, published_at = ?, updated_by = ?, updated_at = ? WHERE id = ?`)
         .bind(at, c.get('user').username, at, id),
       bumpVersion(c.env),

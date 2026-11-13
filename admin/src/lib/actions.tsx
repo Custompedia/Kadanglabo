@@ -57,7 +57,7 @@ export function useContentActions(kind: Kind) {
         danger: live,
       })) && run(`${base}/${id}/trash`, 'POST', { title: 'Dipindahkan ke Trash', description: `“${title}”` }),
 
-    restore: (id: number, title: string) => run(`${base}/${id}/restore`, 'POST', { title: 'Dipulihkan', description: `“${title}” kembali sebagai draft.` }),
+    restore: (id: number, title: string) => run(`${base}/${id}/restore`, 'POST', { title: 'Dipulihkan', description: `“${title}” kembali ke daftar konten dan belum ditayangkan.` }),
 
     remove: async (id: number, title: string) =>
       (await confirm({ title: `Hapus permanen “${title}”?`, body: 'Ini tidak bisa dibatalkan. Foto-fotonya tetap ada di Media.', action: 'Hapus permanen', danger: true })) &&

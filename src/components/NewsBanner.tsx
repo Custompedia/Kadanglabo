@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Img } from './Img'
+import { Img, imgMeta } from './Img'
 import { ArrowRight } from './Icons'
 import { TLink } from '../lib/transition'
 import { formatDate, type NewsItem } from '../data/news'
@@ -12,6 +12,13 @@ import { t, tr } from '../lib/i18n'
  */
 
 const DWELL = 6000
+
+/** Phones show the slide as a 4:5 card 88% wide, so a landscape photo is drawn wider than the card (the first slide
+    is fetched before layout, so this is worked out here; the others are sized from their box, see Img) */
+const bannerSizes = (id: string) => {
+  const { w, h } = imgMeta(id)
+  return `(min-width: 1024px) 80vw, (max-width: 767px) ${(88 * 1.25 * Math.max(w / h, 0.8)).toFixed(1)}vw, 100vw`
+}
 
 export function NewsBanner({ items }: { items: NewsItem[] }) {
   const [at, setAt] = useState(0)
@@ -44,7 +51,7 @@ export function NewsBanner({ items }: { items: NewsItem[] }) {
               aria-label={`${i + 1} / ${n}: ${t(x.title)}`}
               data-cursor={tr('Read', 'Baca')}
             >
-              <Img id={x.cover} alt="" sizes="(min-width: 1024px) 80vw, 100vw" priority={i === 0} className="nb__img" />
+              <Img id={x.cover} alt="" sizes={bannerSizes(x.cover)} priority={i === 0} className="nb__img" />
               <span className="nb__shade" />
               <span className="nb__content">
                 <span className="pill pill--solid nb__tag">{t(x.tag)}</span>

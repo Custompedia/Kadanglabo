@@ -15,12 +15,13 @@ export function WaFloat({ text }: { text: string }) {
   useEffect(() => {
     const update = () => setPast(window.scrollY > window.innerHeight * 0.6)
     update()
-    window.addEventListener('scroll', update, { passive: true })
+    // captured on the window: runs before ScrollTrigger's listener moves anything, so reading scrollY stays free
+    window.addEventListener('scroll', update, { capture: true, passive: true })
     const form = document.getElementById('start')
     const io = form ? new IntersectionObserver(([e]) => setAtForm(e.isIntersecting), { threshold: 0.05 }) : null
     if (form) io!.observe(form)
     return () => {
-      window.removeEventListener('scroll', update)
+      window.removeEventListener('scroll', update, { capture: true })
       io?.disconnect()
     }
   }, [])

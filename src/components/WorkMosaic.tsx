@@ -210,26 +210,48 @@ function Mosaic() {
       // Whenever the photos move: cut the photo rectangles out of the ink title and show the orange copy through
       // them, so the colour follows the photos exactly as they drift under the word. Run from the tweens that move
       // the photos (not every frame), so a still page does no work at all.
+      // Where every photo sits relative to the word is measured once per refresh; while scrolling it only moves by the
+      // pattern's drift (and a tile's own rise as it first appears), so each frame is plain arithmetic instead of
+      // reading every tile's box (which made the browser lay the page out again on every frame of the scroll).
       let lastHit = ''
-      const paintHits = () => {
+      let geo: { t: HTMLElement; x: number; y: number; w: number; h: number }[] = []
+      let boxW = 0
+      let boxH = 0
+      let drift0 = 0
+      const ownY = (t: HTMLElement, h: number) =>
+        (gsap.getProperty(t, 'y') as number) + ((gsap.getProperty(t, 'yPercent') as number) * h) / 100
+      const measureHits = () => {
         const box = hitLayer.getBoundingClientRect()
-        const pad = box.height // glyphs reach a little past the 1em box
-        let rects = ''
-        for (const t of tiles) {
+        boxW = box.width
+        boxH = box.height
+        drift0 = gsap.getProperty(pattern, 'y') as number
+        geo = tiles.map((t) => {
           const r = t.getBoundingClientRect()
-          if (r.bottom < box.top - pad || r.top > box.bottom + pad || r.right < box.left || r.left > box.right) continue
-          if (Number(gsap.getProperty(t, 'opacity')) < 0.5) continue
-          const x = (r.left - box.left).toFixed(1)
-          const y = (r.top - box.top).toFixed(1)
-          rects += `M${x} ${y}h${r.width.toFixed(1)}v${r.height.toFixed(1)}h${(-r.width).toFixed(1)}Z`
+          return { t, x: r.left - box.left, y: r.top - box.top - ownY(t, r.height), w: r.width, h: r.height }
+        })
+      }
+      const paintHits = () => {
+        const drift = (gsap.getProperty(pattern, 'y') as number) - drift0
+        const pad = boxH // glyphs reach a little past the 1em box
+        let rects = ''
+        for (const g of geo) {
+          const top = g.y + drift + ownY(g.t, g.h)
+          if (top + g.h < -pad || top > boxH + pad || g.x + g.w < 0 || g.x > boxW) continue
+          if (parseFloat(g.t.style.opacity || '1') < 0.5) continue // (only GSAP sets a tile's opacity, inline)
+          rects += `M${g.x.toFixed(1)} ${top.toFixed(1)}h${g.w.toFixed(1)}v${g.h.toFixed(1)}h${(-g.w).toFixed(1)}Z`
         }
         if (rects === lastHit) return
         lastHit = rects
-        const outer = `M${-box.width} ${-pad * 2}h${box.width * 3}v${pad * 5}h${-box.width * 3}Z`
+        const outer = `M${-boxW} ${-pad * 2}h${boxW * 3}v${pad * 5}h${-boxW * 3}Z`
         hitLayer.style.clipPath = rects ? `path('${rects}')` : 'inset(50%)'
         baseLayer.style.clipPath = rects ? `path(evenodd, '${outer}${rects}')` : ''
       }
-      const repaintHits = () => ((lastHit = ''), paintHits())
+      const repaintHits = () => {
+        measureHits()
+        lastHit = ''
+        paintHits()
+      }
+      measureHits()
       ScrollTrigger.addEventListener('refresh', repaintHits)
       const stopHits = () => ScrollTrigger.removeEventListener('refresh', repaintHits)
       gsap.set(links.slice(1), { autoAlpha: 0 })

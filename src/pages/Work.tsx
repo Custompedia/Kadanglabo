@@ -8,7 +8,7 @@ import { ProjectReach, animateProjectReach } from '../components/ProjectReach'
 import { ArchiveTable, filterQuery, type Filters } from '../components/ArchiveTable'
 import { Plus } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
-import { gsap } from '../lib/gsap'
+import { gsap, ScrollTrigger } from '../lib/gsap'
 import { scrollToElement } from '../lib/smooth'
 import { TLink } from '../lib/transition'
 import { sectors } from '../data/site'
@@ -114,7 +114,11 @@ export default function Work() {
 
     // Archive intro: every photo moves at its own speed, so the field reads in depth while the title holds
     const field = page.querySelector<HTMLElement>('.arch-intro')!
-    const travel = () => field.offsetHeight + window.innerHeight
+    // measured once per refresh, not once per photo and end (each read after a write forced a fresh layout)
+    let travelled = 0
+    const travel = () => travelled || (travelled = field.offsetHeight + window.innerHeight)
+    const forgetTravel = () => void (travelled = 0)
+    ScrollTrigger.addEventListener('refreshInit', forgetTravel)
     gsap.utils.toArray<HTMLElement>('.arch-intro__photo', field).forEach((el) => {
       const s = Number(el.dataset.speed)
       gsap.fromTo(
@@ -127,7 +131,7 @@ export default function Work() {
         },
       )
     })
-
+    return () => ScrollTrigger.removeEventListener('refreshInit', forgetTravel)
   })
 
   return (

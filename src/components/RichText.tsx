@@ -1,4 +1,6 @@
+import { ArticleCard } from './ArticleCard'
 import type { ReactNode } from 'react'
+import { docText } from '../../shared/content'
 import type { Block, Doc, Inline, List, Paragraph, RichTx } from '../../shared/content'
 import { Img } from './Img'
 import { getLang, t, type Tx } from '../lib/i18n'
@@ -15,9 +17,7 @@ export const isRich = (v: Tx | RichTx): v is RichTx => typeof (v as RichTx).en =
 /** The words alone (search, meta tags). */
 export function plainText(v: Tx | RichTx): string {
   if (!isRich(v)) return t(v)
-  const walk = (n: { type: string; text?: string; content?: unknown[] }): string =>
-    n.type === 'text' ? (n.text ?? '') : (n.content ?? []).map((c) => walk(c as never)).join(' ')
-  return walk(v[getLang()] as never).trim()
+  return docText(v[getLang()])
 }
 
 function inline(nodes: Inline[] | undefined): ReactNode[] {
@@ -51,9 +51,9 @@ function blocks(doc: Doc, className: string | undefined, attrs: Attrs): ReactNod
   const list = (l: List, key: number): ReactNode => {
     const Tag = l.type === 'orderedList' ? 'ol' : 'ul'
     return (
-      <Tag key={key} className={`rich-list rich-list--${Tag}${className ? ` ${className}` : ''}`} {...listAttrs}>
+      <Tag key={key} className={`rich-list rich-list--${Tag}${className ? ` ${className}` : ''}`} start={l.type === 'orderedList' ? l.attrs?.start : undefined} {...listAttrs}>
         {l.content.map((li, i) => (
-          <li key={i}>{li.content.map((c, j) => (c.type === 'paragraph' ? <span key={j} className="rich-list__p">{inline(c.content)}</span> : list(c, j)))}</li>
+          <li key={i}>{li.content.map((c, j) => (c.type === 'paragraph' ? <p key={j} className="rich-list__p">{inline(c.content)}</p> : block(c, j)))}</li>
         ))}
       </Tag>
     )
@@ -77,18 +77,19 @@ function blocks(doc: Doc, className: string | undefined, attrs: Attrs): ReactNod
       case 'blockquote':
         return (
           <blockquote key={i} className="rich-quote">
-            {b.content.map((p, j) => (
-              <p key={j}>{inline(p.content)}</p>
-            ))}
+            {b.content.map(block)}
           </blockquote>
         )
       case 'image':
         return (
-          <figure key={i} className="rich-figure">
-            <Img id={b.attrs.id} alt={b.attrs.caption} sizes="(min-width: 1024px) 760px, 100vw" />
+          <figure key={i} className={`rich-figure rich-figure--${b.attrs.layout ?? 'normal'}`}>
+            <Img id={b.attrs.id} alt={b.attrs.alt || b.attrs.caption} sizes="(min-width: 1024px) 760px, 100vw" />
             {b.attrs.caption && <figcaption>{b.attrs.caption}</figcaption>}
           </figure>
         )
+      case 'horizontalRule': return <hr key={i} className="article-divider" />
+      case 'codeBlock': return <pre key={i} className="article-code"><code>{(b.content ?? []).map(n => n.type === 'text' ? n.text : '\n').join('')}</code></pre>
+      case 'articleCard': return <ArticleCard key={i} data={b.attrs.data} />
       default:
         return list(b, i)
     }

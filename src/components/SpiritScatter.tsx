@@ -64,8 +64,12 @@ export function animateSpirit(page: HTMLElement) {
   if (!section) return
   section.dataset.motion = '' // the tall held field (SpiritScatter.css); set before later triggers are measured
 
-  // depth: every photo moves at its own speed through the whole section
-  const travel = () => section.offsetHeight + window.innerHeight
+  // depth: every photo moves at its own speed through the whole section. The distance is measured once per refresh
+  // (not once per photo and end: each read after a photo was moved forced the browser to lay the page out again)
+  let travelled = 0
+  const travel = () => travelled || (travelled = section.offsetHeight + window.innerHeight)
+  const forgetTravel = () => void (travelled = 0)
+  ScrollTrigger.addEventListener('refreshInit', forgetTravel)
   gsap.utils.toArray<HTMLElement>('.sp__photo', section).forEach((el) => {
     const s = Number(el.dataset.speed)
     gsap.fromTo(
@@ -118,13 +122,16 @@ export function animateSpirit(page: HTMLElement) {
     .filter((p) => p.offsetParent !== null)
     .map((p) => ({ p, frame: p.firstElementChild as HTMLElement, mid: 0, fade: -1 }))
   let sectionTop = 0
+  let vh = window.innerHeight
   const measureLens = () => {
+    vh = window.innerHeight
     sectionTop = section.getBoundingClientRect().top + window.scrollY
     lens.forEach((l) => (l.mid = l.p.offsetTop + l.p.offsetHeight / 2))
   }
-  const focus = () => {
-    const vh = window.innerHeight
-    const top = sectionTop - window.scrollY
+  // the scroll position comes from the trigger, which has just read it: reading window.scrollY here, after the
+  // photos were moved, made the browser lay out the page again on every frame
+  const focus = (self: ScrollTrigger) => {
+    const top = sectionTop - self.scroll()
     for (const l of lens) {
       const y = top + l.mid + (gsap.getProperty(l.p, 'y') as number) // the photo's centre on screen
       const d = Math.abs(y / vh - 0.5) * 2 // 0 in the middle, 1 at the top or bottom edge
@@ -140,7 +147,7 @@ export function animateSpirit(page: HTMLElement) {
     trigger: section,
     start: 'top bottom',
     end: 'bottom top',
-    onRefresh: () => (measureLens(), focus()),
+    onRefresh: (self) => (measureLens(), focus(self)),
     onUpdate: focus,
   })
 
@@ -237,6 +244,7 @@ export function animateSpirit(page: HTMLElement) {
   })
 
   return () => {
+    ScrollTrigger.removeEventListener('refreshInit', forgetTravel)
     io.disconnect()
     st.kill()
     lensSt.kill()

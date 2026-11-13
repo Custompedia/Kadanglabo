@@ -52,7 +52,7 @@ export function Overview() {
             <span className="flex items-center gap-2 text-sm text-kumo-subtle">
               <t.icon size={16} /> {t.label}
             </span>
-            <span className="mt-2 block text-[28px] font-semibold tabular-nums text-kumo-strong">{t.value ?? '–'}</span>
+            <span className="mt-2 block text-[28px] font-semibold tabular-nums text-kumo-strong">{t.value ?? '-'}</span>
             <span className="text-xs text-kumo-subtle">{t.sub}</span>
           </button>
         ))}

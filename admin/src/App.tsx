@@ -17,6 +17,7 @@ const pages = {
   profile: () => import('./pages/Profile'),
   pages: () => import('./pages/WorkSettings'),
   locations: () => import('./pages/Locations'),
+  monitoring: () => import('./pages/Monitoring'),
 }
 const ProjectEditor = lazyPage(pages.project)
 const ArticleEditor = lazyPage(pages.article)
@@ -25,6 +26,7 @@ const Users = lazyPage(pages.users)
 const Profile = lazyPage(pages.profile)
 const WorkSettings = lazyPage(pages.pages)
 const Locations = lazyPage(pages.locations)
+const Monitoring = lazyPage(pages.monitoring)
 
 /** Once signed in, fetch the other pages while the browser has nothing else to do, so opening them is instant. */
 function usePrefetchPages(on: boolean) {
@@ -55,6 +57,7 @@ export function App() {
           <Route path="/pages" element={<Navigate to="/pages/work" replace />} />
           <Route path="/pages/:view" element={<WorkSettings />} />
           <Route path="/locations" element={<Locations />} />
+          <Route path="/monitoring" element={user.role === 'admin' ? <Monitoring /> : <Navigate to="/" replace />} />
           <Route path="/users" element={user.role === 'admin' ? <Users /> : <Navigate to="/" replace />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<Navigate to="/" replace />} />

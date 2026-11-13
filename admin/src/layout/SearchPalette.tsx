@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { Dialog } from '@cloudflare/kumo'
-import { ArrowDown, ArrowRight, ArrowUp, ArrowElbowDownLeft, Buildings, House, ImagesSquare, MagnifyingGlass, MapPinArea, SquaresFour, Newspaper, Plus, UserCircle, UsersThree, type Icon } from '@phosphor-icons/react'
+import { Pulse, ArrowDown, ArrowRight, ArrowUp, ArrowElbowDownLeft, Buildings, House, ImagesSquare, MagnifyingGlass, MapPinArea, SquaresFour, Newspaper, Plus, UserCircle, UsersThree, type Icon } from '@phosphor-icons/react'
 import { useFetch } from '../lib/useFetch'
 import { useSession } from '../lib/session'
 import { matches } from '../lib/format'
@@ -9,7 +9,7 @@ import type { ListItem } from '../lib/types'
 
 /*
  * Ctrl/⌘ K, after Cloudflare's quick search: recently opened items first, then everything grouped (projects,
- * articles, pages) as "Name — kind", the current row marked with an arrow, keyboard hints at the bottom.
+ * articles, pages) as "Name - kind", the current row marked with an arrow, keyboard hints at the bottom.
  */
 
 type Hit = { key: string; label: string; kind: string; to: string; icon: Icon }
@@ -64,7 +64,12 @@ export function SearchPalette({ open, onOpenChange }: { open: boolean; onOpenCha
       { key: 'p:/pages/hospitality', label: 'Hospitality', kind: 'Halaman website', to: '/pages/hospitality', icon: SquaresFour },
       { key: 'p:/pages/residential', label: 'Residential', kind: 'Halaman website', to: '/pages/residential', icon: SquaresFour },
       { key: 'p:/locations', label: 'Lokasi', kind: 'Halaman website', to: '/locations', icon: MapPinArea },
-      ...(user?.role === 'admin' ? [{ key: 'p:/users', label: 'Pengguna', kind: 'Akun', to: '/users', icon: UsersThree }] : []),
+      ...(user?.role === 'admin'
+        ? [
+            { key: 'p:/monitoring', label: 'Monitoring (status website & storage)', kind: 'Admin', to: '/monitoring', icon: Pulse },
+            { key: 'p:/users', label: 'Pengguna', kind: 'Admin', to: '/users', icon: UsersThree },
+          ]
+        : []),
       { key: 'p:/profile', label: 'Profil & password', kind: 'Akun', to: '/profile', icon: UserCircle },
     ]
     const live = (i: ListItem) => i.state !== 'trashed'
@@ -144,7 +149,7 @@ export function SearchPalette({ open, onOpenChange }: { open: boolean; onOpenCha
                   >
                     <h.icon size={18} className="shrink-0 text-kumo-subtle" />
                     <span className="min-w-0 truncate text-kumo-strong">{h.label}</span>
-                    <span className="shrink-0 text-kumo-subtle">— {h.kind}</span>
+                    <span className="shrink-0 text-kumo-subtle">- {h.kind}</span>
                     <span className="flex-1" />
                     {on && <ArrowRight size={16} className="shrink-0 text-kumo-subtle" />}
                   </button>

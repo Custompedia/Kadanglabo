@@ -10,7 +10,7 @@ import {
 } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { gsap, ScrollTrigger, reducedMotion } from './gsap'
-import { closeGate, onPageMounted, openGate } from './gate'
+import { closeGate, nextFrame, onPageMounted, openGate, preparePage } from './gate'
 import { getLenis, lockScroll, scrollToElement, scrollToTop } from './smooth'
 import { BrandMark } from '../components/BrandMark'
 import { nav } from '../data/site'
@@ -67,22 +67,29 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       off()
       window.clearTimeout(fallback)
       scrollToTop()
-      ScrollTrigger.refresh()
-      requestAnimationFrame(() => {
-        lockScroll(false)
-        gsap
-          .timeline({
-            onComplete: () => {
-              gsap.set(el, { visibility: 'hidden' })
-              busy.current = false
-            },
-          })
-          .to(inner, { yPercent: -80, autoAlpha: 0, duration: 0.45, stagger: 0.04, ease: 'power3.in' }, 0)
-          .to(el, { yPercent: -100, duration: 1, ease: 'power4.inOut' }, 0.1)
-          .to(fill, { yPercent: 100, duration: 1, ease: 'power4.inOut' }, 0.1)
-          // start the page intro while the curtain uncovers it, so the reveal is actually seen
-          .add(openGate, 0.42)
-      })
+      // the page builds its animations while the curtain still covers it (after this commit's effects have run),
+      // then the browser lays that out behind the curtain before it starts to lift
+      void nextFrame()
+        .then(() => {
+          preparePage()
+          ScrollTrigger.refresh()
+          return nextFrame()
+        })
+        .then(() => {
+          lockScroll(false)
+          gsap
+            .timeline({
+              onComplete: () => {
+                gsap.set(el, { visibility: 'hidden' })
+                busy.current = false
+              },
+            })
+            .to(inner, { yPercent: -80, autoAlpha: 0, duration: 0.45, stagger: 0.04, ease: 'power3.in' }, 0)
+            .to(el, { yPercent: -100, duration: 1, ease: 'power4.inOut' }, 0.1)
+            .to(fill, { yPercent: 100, duration: 1, ease: 'power4.inOut' }, 0.1)
+            // start the page intro while the curtain uncovers it, so the reveal is actually seen
+            .add(openGate, 0.42)
+        })
     }
     const off = onPageMounted(reveal)
     const fallback = window.setTimeout(reveal, 4000)
