@@ -11,5 +11,5 @@
     "verbatimModuleSyntax": true,
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["worker", "shared/public-api.ts"]
+  "include": ["worker", "shared/public-api.ts", "shared/content.ts"]
 }

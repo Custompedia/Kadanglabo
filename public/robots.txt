@@ -1,2 +1,6 @@
 User-agent: *
 Allow: /
+# the CMS's data for the site itself (JSON), not pages
+Disallow: /api/
+
+Sitemap: https://kadanglabo.com/sitemap.xml

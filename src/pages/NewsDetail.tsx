@@ -33,7 +33,7 @@ function Article({ n }: { n: NewsItem }) {
   const project = n.project ? getProject(n.project) : undefined
 
   return (
-    <Page title={t(n.title)}>
+    <Page title={t(n.title)} description={t(n.excerpt)}>
       <article ref={root} className="art" data-theme="light">
         <header className="art-head wrap">
           <nav className="art-crumbs t-label" aria-label={tr('Breadcrumb', 'Navigasi')} data-fade="now">

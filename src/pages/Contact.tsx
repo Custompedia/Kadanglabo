@@ -36,7 +36,13 @@ export default function Contact() {
   }, [open])
 
   return (
-    <Page title={tr('Contact', 'Kontak')}>
+    <Page
+      title={tr('Contact', 'Kontak')}
+      description={tr(
+        'Contact Kadanglabo in Yogyakarta: studio address, WhatsApp, email and a form to start your project consultation.',
+        'Hubungi Kadanglabo di Yogyakarta: alamat studio, WhatsApp, email, dan formulir untuk memulai konsultasi proyek Anda.',
+      )}
+    >
       <div ref={root}>
         <PageHero
           title={tr('Contact', 'Kontak')}

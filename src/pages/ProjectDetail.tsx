@@ -1,7 +1,7 @@
 import { useRef, type CSSProperties } from 'react'
 import { useParams } from 'react-router'
 import { Page } from '../components/Page'
-import { RichText } from '../components/RichText'
+import { RichText, plainText } from '../components/RichText'
 import { Img, coverSizes, imgMeta } from '../components/Img'
 import { ProjectCard, SectionLabel } from '../components/Bits'
 import { usePageAnimations } from '../lib/anim'
@@ -138,7 +138,7 @@ function ProjectView({ p }: { p: Project }) {
   const heroTheme = p.color.toUpperCase() === '#D34614' ? 'accent' : 'dark' // deep orange (white text) or navy
 
   return (
-    <Page title={p.title}>
+    <Page title={p.title} description={plainText(p.summary) || t(p.tagline)}>
       <div ref={root} style={vars}>
         <section className="p-hero" data-theme={heroTheme}>
           <div className="p-hero__inner wrap">

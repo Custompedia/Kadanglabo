@@ -63,7 +63,13 @@ export default function About() {
   })
 
   return (
-    <Page title={tr('About', 'Tentang')}>
+    <Page
+      title={tr('About', 'Tentang')}
+      description={tr(
+        'About Kadanglabo, a community-based architecture consultancy in Yogyakarta: how we work with client and builder, our ethos, vision, mission and in-house team.',
+        'Tentang Kadanglabo, konsultan arsitektur berbasis komunitas di Yogyakarta: cara kerja bersama klien dan pelaksana, etos, visi, misi, dan tim in-house.',
+      )}
+    >
       <div ref={root}>
         <PageHero
           title={

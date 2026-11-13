@@ -16,7 +16,13 @@ export default function Archive() {
   usePageAnimations(root, () => {})
 
   return (
-    <Page title={tr('Project archive', 'Arsip proyek')}>
+    <Page
+      title={tr('Project archive', 'Arsip proyek')}
+      description={tr(
+        'Every Kadanglabo project since 2020, from family homes to healthcare facilities. Filter by sector, location, year and status.',
+        'Semua proyek Kadanglabo sejak 2020, dari rumah tinggal sampai fasilitas kesehatan. Saring menurut sektor, lokasi, tahun, dan status.',
+      )}
+    >
       <div ref={root}>
         <PageHero
           title={tr('Archive', 'Arsip')}

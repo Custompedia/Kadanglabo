@@ -135,7 +135,13 @@ export default function Work() {
   })
 
   return (
-    <Page title={tr('Our Work', 'Proyek')}>
+    <Page
+      title={tr('Our Work', 'Proyek')}
+      description={tr(
+        'Selected projects by Kadanglabo across three sectors: commercial, hospitality and residential design in Yogyakarta and beyond, plus the full project archive.',
+        'Proyek pilihan Kadanglabo dari tiga sektor: desain komersial, hospitality, dan hunian di Yogyakarta dan kota lain, lengkap dengan arsip proyek.',
+      )}
+    >
       <div ref={root}>
         <PageHero
           title={tr('Our work', 'Proyek')}

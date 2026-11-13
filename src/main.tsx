@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import '@fontsource-variable/mona-sans/wdth.css'
 import '@fontsource-variable/inter'
 import '@fontsource-variable/newsreader'
+import '@fontsource/tenor-sans/latin-400.css' // the logo's letterforms: the home hero name
 import 'lenis/dist/lenis.css'
 import './styles.css'
 import { loadContent } from './lib/content'

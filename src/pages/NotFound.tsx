@@ -9,7 +9,7 @@ export default function NotFound() {
   const root = useRef<HTMLDivElement>(null)
   usePageAnimations(root)
   return (
-    <Page title={tr('Page not found', 'Halaman tidak ditemukan')}>
+    <Page title={tr('Page not found', 'Halaman tidak ditemukan')} noindex>
       <div ref={root}>
         <PageHero
           className="page-hero--full nf-hero"

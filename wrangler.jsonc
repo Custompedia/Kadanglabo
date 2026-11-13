@@ -7,8 +7,8 @@
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application",
-    // only the CMS routes reach the Worker; every page and file is served straight from the assets
-    "run_worker_first": ["/api/*", "/media/*"]
+    // only the CMS routes and the sitemap reach the Worker; every page and file is served straight from the assets
+    "run_worker_first": ["/api/*", "/media/*", "/sitemap.xml"]
   },
   // The CMS's databases and image bucket, read-only from here. The ids must be the same as in admin/wrangler.jsonc
   // (preview_database_id: the local copies used in development).

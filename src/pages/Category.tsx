@@ -243,7 +243,7 @@ export default function CategoryPage({ cat }: { cat: Category }) {
   const name = categoryLabel[cat]
 
   return (
-    <Page title={categoryTitle[cat]}>
+    <Page title={categoryTitle[cat]} description={t(sector.desc)}>
       <div ref={root}>
         {/* ---------- hero: the promise on the category's photo, two ways to act, the numbers ---------- */}
         <section className="lp-h" data-theme="dark" aria-labelledby="lp-h-title">

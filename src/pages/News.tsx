@@ -82,7 +82,13 @@ export default function News() {
   }, [resultKey])
 
   return (
-    <Page title={tr('Articles', 'Artikel')}>
+    <Page
+      title={tr('Articles', 'Artikel')}
+      description={tr(
+        'News and events from the Kadanglabo studio in Yogyakarta: talks, open studio, publications and project stories.',
+        'Berita dan acara dari studio Kadanglabo di Yogyakarta: talk, open studio, publikasi, dan cerita proyek.',
+      )}
+    >
       <div ref={root}>
         <PageHero
           title={tr('Articles', 'Artikel')}

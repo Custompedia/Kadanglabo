@@ -6,7 +6,7 @@
     <title>Kadanglabo - A Collaborative Architectural Solution</title>
     <meta
       name="description"
-      content="Kadanglabo is a community-based architecture consultancy in Yogyakarta, delivering collaborative architectural solutions for commercial, hospitality and residential projects."
+      content="Community-based architecture consultancy in Yogyakarta: collaborative architectural solutions for commercial, hospitality and residential projects."
     />
     <meta name="theme-color" content="#F3F0EA" />
     <!-- the CMS content, fetched alongside the scripts instead of after them (src/lib/content.ts) -->
@@ -24,6 +24,43 @@
     />
     <meta property="og:image" content="/og-image.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- who Kadanglabo is, for search engines (site name, logo, studio address and contacts) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://kadanglabo.com/#website",
+            "url": "https://kadanglabo.com/",
+            "name": "Kadanglabo",
+            "alternateName": "Kadanglabo - A Collaborative Architectural Solution",
+            "inLanguage": ["en", "id"],
+            "publisher": { "@id": "https://kadanglabo.com/#studio" }
+          },
+          {
+            "@type": "ProfessionalService",
+            "@id": "https://kadanglabo.com/#studio",
+            "name": "Kadanglabo",
+            "description": "Firma arsitektur berbasis komunitas di Yogyakarta yang mengutamakan solusi arsitektur secara kolaboratif. A Collaborative Architectural Solution.",
+            "url": "https://kadanglabo.com/",
+            "logo": "https://kadanglabo.com/apple-touch-icon.png",
+            "image": "https://kadanglabo.com/og-image.jpg",
+            "telephone": "+62 821-3106-9311",
+            "email": "kadanglabo@gmail.com",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Jl. Kaliurang KM.9 No.11 (Ruko 3), Dayu, Sinduharjo, Ngaglik",
+              "addressLocality": "Sleman",
+              "addressRegion": "Daerah Istimewa Yogyakarta",
+              "addressCountry": "ID"
+            },
+            "sameAs": ["https://www.instagram.com/kadanglabo/"]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -153,7 +153,13 @@ export default function Services() {
   }, [])
 
   return (
-    <Page title={tr('Services', 'Layanan')}>
+    <Page
+      title={tr('Services', 'Layanan')}
+      description={tr(
+        'Kadanglabo services: master planning, building design, landscape, interior, lighting design, 3D visualisation, project management, rehabilitation and restoration.',
+        'Layanan Kadanglabo: perencanaan induk, perencanaan bangunan, lanskap, interior, pencahayaan, visualisasi 3D, manajemen proyek, rehabilitasi, dan restorasi.',
+      )}
+    >
       <div ref={root}>
         <PageHero
           title={
