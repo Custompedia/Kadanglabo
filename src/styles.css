@@ -2387,20 +2387,6 @@
   }
 }
 
-/* 404: the exploded house drawing above the number, its white paper melted into the page */
-.nf-art {
-  order: -1;
-  width: clamp(130px, 16vw, 220px);
-  margin-bottom: clamp(20px, 3vw, 36px);
-  overflow: hidden;
-  mix-blend-mode: multiply;
-}
-
-.nf-art img {
-  width: 100%;
-  height: auto;
-}
-
 /* side by side only where "BERKOLABORASI." fits next to the text (from ~910px); narrower, the line masks would cut it */
 @media (max-width: 1023px) {
   .cta-block {
