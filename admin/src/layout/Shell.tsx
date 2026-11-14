@@ -5,6 +5,7 @@ import { DropdownMenu, Sidebar, useSidebar } from '@cloudflare/kumo'
 import { ArrowSquareOut, Buildings, CaretDown, GearSix, House, Pulse, SquaresFour, ImagesSquare, MagnifyingGlass, Newspaper, List, SignOut, User, UserCircle, UsersThree } from '@phosphor-icons/react'
 import { useSession } from '../lib/session'
 import { SearchPalette } from './SearchPalette'
+import { integrations } from '../integrations'
 
 export const PUBLIC_SITE = import.meta.env.VITE_PUBLIC_SITE_URL ?? 'https://kadanglabo.com'
 
@@ -46,6 +47,7 @@ export function Shell({ children }: { children: ReactNode }) {
               <NavItem icon={House} to="/" active={at('/')} label="Ringkasan" />
             </Sidebar.Menu>
           </Sidebar.Group>
+          {integrations.map((i, n) => <i.Nav key={n} at={at} />)}
           <Sidebar.Group>
             <Sidebar.GroupLabel>Konten</Sidebar.GroupLabel>
             <Sidebar.Menu>

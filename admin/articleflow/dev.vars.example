@@ -1,0 +1,8 @@
+# ArticleFlow: copy these lines into admin/.dev.vars for local development (never commit real values).
+# Production: TECH_API_URL and TECH_SITE_ID as "vars" in admin/wrangler.jsonc, the key with
+#   npx wrangler secret put TECH_PARTNER_KEY
+TECH_API_URL=
+TECH_SITE_ID=
+TECH_PARTNER_KEY=
+# optional: where the "Hubungi tim Custompedia" button leads (https://... or mailto:...)
+ARTICLEFLOW_CONTACT_URL=

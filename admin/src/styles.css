@@ -127,14 +127,19 @@ button[role='combobox'] {
   display: none;
 }
 
-/* Contextual writing tools: individual round controls, like the reference canvas. */
+/* Contextual writing tools: individual round controls, like the reference canvas (Artikel Flow). */
 /* Anchor only the plus button; expanding tools must not move it away from the paragraph. */
 .article-insert-anchor { width: 41px !important; height: 41px; z-index: 10; }
-.article-insert-menu { width: max-content; display: flex; flex-wrap: wrap; align-items: center; gap: 9px; max-width: calc(100vw - 32px); padding: 3px; background: transparent; font-family: var(--font-sans); }
-/* just the icons in orange: no circle, no fill of their own (the page shows through) */
-.article-insert-menu button { display: grid; place-items: center; width: 35px; height: 35px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--color-kumo-brand); box-shadow: none; transition: color 0.15s; }
-.article-insert-menu button:hover { background: transparent; color: var(--color-kumo-brand-hover); }
-.article-insert-menu .article-insert-toggle { color: var(--color-kumo-brand); }
+.article-insert-menu { width: max-content; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 3px; background: transparent; font-family: var(--font-sans); }
+/* Each tool is its own filled circle, so an open menu sits on top of the text (and the placeholder) instead of running through it. */
+.article-insert-menu button { display: grid; place-items: center; width: 35px; height: 35px; padding: 0; border: 1px solid var(--color-kumo-brand); border-radius: 50%; background: var(--color-kumo-base); color: var(--color-kumo-brand); box-shadow: 0 1px 2px #0000000d; transition: color 0.15s, background-color 0.15s, border-color 0.15s; }
+.article-insert-menu button:hover { background: #fdeee7; color: var(--color-kumo-brand-hover); border-color: var(--color-kumo-brand-hover); }
+.article-insert-menu .article-insert-toggle { border-color: var(--text-color-kumo-subtle); color: var(--text-color-kumo-default); }
+.article-insert-menu .article-insert-toggle:hover { background: var(--color-kumo-tint); border-color: var(--text-color-kumo-default); color: var(--text-color-kumo-strong); }
+/* The tools only appear on an empty line, so the one text they can cover is the placeholder: it steps aside while they are open. */
+body:has(.article-insert-toggle[aria-expanded='true']) .rt--article p.is-editor-empty::before { visibility: hidden; }
+/* The writing area shows where you are with the caret: no focus box around the whole article. */
+.rt--article:focus, .rt--article:focus-visible { outline: none; }
 .article-card { position: relative; margin: 32px 0; font: 16px/1.6 var(--font-sans); }
 .article-card.is-selected { outline: 2px solid var(--color-kumo-brand); outline-offset: 6px; }
 .article-card input, .article-card textarea { width: 100%; min-width: 0; border: 0; outline: none; padding: 6px 0; background: transparent; font: inherit; color: inherit; }
@@ -217,14 +222,14 @@ button:not(:disabled), [role='button']:not([aria-disabled='true']) { cursor: poi
   input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
   button[role='combobox'] { min-height: 44px; }
   .article-block-controls span { width: 44px; height: 44px; }
-  .article-insert-menu { gap: 4px; }
+  .article-insert-menu { gap: 6px; }
   .article-insert-menu button { width: 44px; height: 44px; }
   .article-insert-anchor { width: 44px !important; height: 44px; }
 }
 @media (max-width: 767px) {
   [data-sidebar='sidebar'][data-mobile='true'] { max-width: calc(100vw - 32px); padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
   .admin-page-actions { width: 100%; }
-  .admin-page-actions > button { flex: 1 1 auto; }
+  .admin-page-actions > button { flex: 1 1 auto; justify-content: center; }
   .admin-content-row { display: grid; grid-template-columns: 48px minmax(0, 1fr) 44px; gap: 8px 12px; padding: 12px; }
   .admin-content-row > :first-child { grid-row: 1 / 3; width: 48px; height: 40px; }
   .admin-content-row > :nth-child(2) { grid-column: 2; }

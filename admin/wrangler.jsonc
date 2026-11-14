@@ -25,6 +25,10 @@
   // Monday 03:00 UTC: remove images unused for a week (worker/media.ts, cleanupMedia)
   "triggers": { "crons": ["0 3 * * 1"] },
   "vars": {
-    "PUBLIC_SITE_URL": "https://kadanglabo.com"
+    "PUBLIC_SITE_URL": "https://kadanglabo.com",
+    // ArticleFlow (admin/articleflow): where Custompedia Tech's Partner API lives. TECH_SITE_ID is added once Tech has
+    // registered this website; the key is a secret (wrangler secret put TECH_PARTNER_KEY). Until both exist the page
+    // says "belum terhubung" and nothing is called.
+    "TECH_API_URL": "https://content-api.custompedia.id"
   }
 }

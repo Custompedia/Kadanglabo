@@ -2,6 +2,7 @@
 import { tmpdir } from 'node:os'
 import { DatabaseSync } from 'node:sqlite'
 import { build } from 'esbuild'
+import { existsSync } from 'node:fs'
 import { readFile, writeFile, readdir, mkdtemp } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { pathToFileURL, fileURLToPath } from 'node:url'
@@ -95,6 +96,9 @@ export async function makeEnv() {
       env[binding].db.exec(await readFile(resolve(path, file), 'utf8'))
     }
   }
+  // an optional add-on keeps its tables next to its code (admin/articleflow); absent once the add-on is removed
+  const addon = resolve(root, 'admin/articleflow/migrations/0001_articleflow.sql')
+  if (existsSync(addon)) env.CONTENT_DB.db.exec(await readFile(addon, 'utf8'))
   return env
 }
 

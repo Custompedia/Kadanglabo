@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { Dialog } from '@cloudflare/kumo'
 import { Pulse, ArrowDown, ArrowRight, ArrowUp, ArrowElbowDownLeft, Buildings, House, ImagesSquare, MagnifyingGlass, MapPinArea, SquaresFour, Newspaper, Plus, UserCircle, UsersThree, type Icon } from '@phosphor-icons/react'
 import { useFetch } from '../lib/useFetch'
+import { integrations } from '../integrations'
 import { useSession } from '../lib/session'
 import { matches } from '../lib/format'
 import type { ListItem } from '../lib/types'
@@ -59,6 +60,7 @@ export function SearchPalette({ open, onOpenChange }: { open: boolean; onOpenCha
       { key: 'p:/articles', label: 'Artikel', kind: 'Konten', to: '/articles', icon: Newspaper },
       { key: 'p:/articles/new', label: 'Artikel baru', kind: 'Buat', to: '/articles/new', icon: Plus },
       { key: 'p:/media', label: 'Media', kind: 'Konten', to: '/media', icon: ImagesSquare },
+      ...integrations.flatMap((i) => i.search),
       { key: 'p:/pages/work', label: 'Our Work', kind: 'Halaman website', to: '/pages/work', icon: SquaresFour },
       { key: 'p:/pages/commercial', label: 'Commercial', kind: 'Halaman website', to: '/pages/commercial', icon: SquaresFour },
       { key: 'p:/pages/hospitality', label: 'Hospitality', kind: 'Halaman website', to: '/pages/hospitality', icon: SquaresFour },

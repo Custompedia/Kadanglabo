@@ -9,6 +9,7 @@ import { storageApi } from './storage'
 import { locationsApi, pagesApi, topicsApi } from './pages'
 import { cleanupMedia } from './media'
 import { monitorApi, recordCleanup } from './monitor'
+import { integrations } from './integrations'
 
 /*
  * kadanglabo-admin: the CMS API under /api, images under /media; everything else is the dashboard (static assets,
@@ -31,6 +32,7 @@ api.use('/users/*', requireUser)
 api.use('/pages/*', requireUser)
 api.use('/locations/*', requireUser)
 api.use('/topics/*', requireUser)
+for (const integration of integrations) integration.mount(api, requireUser) // optional add-ons (worker/integrations.ts)
 api.route('/projects', projectsApi)
 api.route('/articles', articlesApi)
 api.route('/media', mediaApi)
@@ -63,5 +65,6 @@ export default {
         await recordCleanup(env, n) // shown on the Monitoring page
       }),
     )
+    for (const integration of integrations) if (integration.scheduled) ctx.waitUntil(integration.scheduled(env).catch((e) => console.error(e)))
   },
 } satisfies ExportedHandler<AppEnv['Bindings']>

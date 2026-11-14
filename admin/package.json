@@ -11,7 +11,9 @@
     "types": "wrangler types worker/env.d.ts",
     "seed": "node scripts/seed.mjs",
     "db:migrate:local": "wrangler d1 migrations apply kadanglabo-auth --local && wrangler d1 migrations apply kadanglabo-content --local && wrangler d1 migrations apply kadanglabo-media --local",
-    "db:migrate:remote": "wrangler d1 migrations apply kadanglabo-auth --remote && wrangler d1 migrations apply kadanglabo-content --remote && wrangler d1 migrations apply kadanglabo-media --remote"
+    "db:migrate:remote": "wrangler d1 migrations apply kadanglabo-auth --remote && wrangler d1 migrations apply kadanglabo-content --remote && wrangler d1 migrations apply kadanglabo-media --remote",
+    "articleflow:migrate:local": "wrangler d1 execute kadanglabo-content --local --file articleflow/migrations/0001_articleflow.sql",
+    "articleflow:migrate:remote": "wrangler d1 execute kadanglabo-content --remote --file articleflow/migrations/0001_articleflow.sql"
   },
   "dependencies": {
     "@cloudflare/kumo": "^2.18.0",
