@@ -285,7 +285,7 @@ function RowMenu({
               </DropdownMenu.LinkItem>
             )}
             <DropdownMenu.Separator />
-            {(!live || row.dirty) && (
+            {(!live || !!row.dirty) && (
               <DropdownMenu.Item icon={RocketLaunch} onClick={() => void actions.publish(row.id, row.title)}>
                 {live ? 'Tayangkan perubahan' : 'Tayangkan'}
               </DropdownMenu.Item>
