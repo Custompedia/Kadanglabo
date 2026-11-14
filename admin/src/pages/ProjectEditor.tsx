@@ -114,7 +114,7 @@ export default function ProjectEditor() {
           />
         }
       >
-        <div className="grid max-w-[960px] gap-6 pb-24">
+        <div className="grid max-w-[960px] gap-6 min-[1600px]:max-w-none pb-24">
           {e.meta?.state === 'trashed' && <Banner variant="alert" title="Projek ini ada di Trash" description="Pulihkan dulu agar bisa diedit dan ditayangkan lagi." />}
 
           <GroupDivider>Data projek</GroupDivider>

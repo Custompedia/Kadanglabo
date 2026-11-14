@@ -9,7 +9,7 @@ import type { ReactNode } from 'react'
 export function SaveBar({ dirty, saving, onSave, onUndo, saved, action = 'Simpan & tayangkan' }: { dirty: boolean; saving: boolean; onSave: () => void; onUndo: () => void; saved?: ReactNode; action?: string }) {
   return (
     <div className="admin-savebar sticky bottom-0 z-10 -mx-4 mt-8 border-t border-kumo-line bg-kumo-base/95 px-4 py-3 backdrop-blur sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10">
-      <div className="flex max-w-[960px] flex-wrap items-center justify-between gap-3">
+      <div className="flex max-w-[960px] flex-wrap min-[1600px]:max-w-none items-center justify-between gap-3">
         <p className="flex items-center gap-2 text-sm" aria-live="polite">
           {dirty ? (
             <>
