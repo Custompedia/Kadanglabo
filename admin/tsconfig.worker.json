@@ -13,7 +13,7 @@
     "noUnusedParameters": true,
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["worker", "../shared"],
+  "include": ["worker", "../shared", "articleflow/worker", "articleflow/index.worker.ts", "articleflow/types.ts"],
   // the build-info Vite plugin runs in Node at build time (vite.config.ts), never in the Worker
   "exclude": ["../shared/build-info-plugin.ts"]
 }

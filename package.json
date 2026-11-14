@@ -13,6 +13,7 @@
     "img": "node scripts/optimize-image.mjs",
     "test:cms": "node scripts/test-cms-integration.mjs && node scripts/test-cms-lifecycle.mjs && node scripts/test-article-canvas.mjs",
     "test:cms:browser": "node scripts/test-cms-browser.mjs",
+    "test:articleflow": "node admin/articleflow/tests/test-articleflow.mjs",
     "test:admin:responsive": "node scripts/test-admin-responsive.mjs"
   },
   "dependencies": {

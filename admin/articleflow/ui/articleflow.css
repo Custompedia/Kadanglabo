@@ -1,0 +1,14 @@
+/*
+ * ArticleFlow's own look, on top of Kumo. The sidebar item is the one place the dashboard uses the brand orange as
+ * a fill: it marks the menu that Custompedia Tech writes into.
+ */
+.af-nav--on { background: #fdeee7 !important; color: #a9370f !important; font-weight: 600; }
+.af-nav--on:hover { background: #fbe2d6 !important; }
+.af-nav--on svg { color: #d34614; }
+.af-nav--off { color: #737373 !important; }
+.af-nav--off svg { color: currentColor; }
+.af-badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #d34614; color: #fff; font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+
+/* the chart: plain SVG, sized by its container */
+.af-chart { display: block; width: 100%; height: auto; overflow: visible; }
+.af-chart text { font-family: inherit; font-size: 11px; fill: var(--text-color-kumo-subtle, #737373); }

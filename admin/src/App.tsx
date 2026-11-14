@@ -7,6 +7,7 @@ import { Login } from './pages/Login'
 import { Shell } from './layout/Shell'
 import { Overview } from './pages/Overview'
 import { ContentList } from './pages/ContentList'
+import { integrations } from './integrations'
 
 // the editors carry Tiptap and drag-and-drop: loaded when first opened
 const pages = {
@@ -32,7 +33,7 @@ const Monitoring = lazyPage(pages.monitoring)
 function usePrefetchPages(on: boolean) {
   useEffect(() => {
     if (!on) return
-    const run = () => Object.values(pages).forEach((load) => void load().catch(() => {}))
+    const run = () => [...Object.values(pages), ...integrations.flatMap((i) => (i.preload ? [i.preload] : []))].forEach((load) => void load().catch(() => {}))
     const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1))
     const id = setTimeout(() => idle(run, { timeout: 4000 }), 800)
     return () => clearTimeout(id)
@@ -60,6 +61,7 @@ export function App() {
           <Route path="/monitoring" element={user.role === 'admin' ? <Monitoring /> : <Navigate to="/" replace />} />
           <Route path="/users" element={user.role === 'admin' ? <Users /> : <Navigate to="/" replace />} />
           <Route path="/profile" element={<Profile />} />
+          {integrations.flatMap((i) => i.routes).map((r) => <Route key={r.path} path={r.path} element={r.element} />)}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

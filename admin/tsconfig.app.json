@@ -15,5 +15,5 @@
     "noUnusedParameters": true,
     "types": ["vite/client"]
   },
-  "include": ["src", "../shared/content.ts"]
+  "include": ["src", "../shared/content.ts", "articleflow/ui", "articleflow/index.ui.tsx", "articleflow/types.ts"]
 }
