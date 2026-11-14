@@ -50,7 +50,8 @@ export function Page({
   return (
     <div className="admin-page flex min-h-full">
       <main className="min-w-0 flex-1 px-4 py-5 sm:py-8 sm:px-8 lg:px-10">
-        <div className={`mx-auto ${wide ? 'max-w-[1240px]' : 'max-w-[1060px]'}`}>
+        {/* the page grows with the screen: laptops keep the reading width, large desktops use the room instead of leaving both sides empty */}
+        <div className={`mx-auto ${wide ? 'max-w-[1240px] min-[1600px]:max-w-[1440px] min-[1900px]:max-w-[1640px] min-[2300px]:max-w-[1880px]' : 'max-w-[1060px] min-[1600px]:max-w-[1280px] min-[1900px]:max-w-[1480px] min-[2300px]:max-w-[1720px]'}`}>
         {back && (
           <a href={back.href} onClick={(ev) => (ev.preventDefault(), history.length > 1 ? history.back() : location.assign(back.href))} className="mb-2 inline-flex items-center gap-1 text-sm text-kumo-subtle transition hover:text-kumo-default">
             <ArrowLeft size={14} /> {back.label}

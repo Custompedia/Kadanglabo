@@ -97,7 +97,7 @@ export default function WorkSettings() {
         description="Halaman Our Work punya satu bagian untuk setiap kategori. Pilih projek yang tampil di tiap bagian; fotonya memakai cover projek."
         aside={<PageMap page="work" />}
       >
-        <div className="grid max-w-[960px] gap-6">
+        <div className="grid max-w-[960px] gap-6 min-[1600px]:max-w-none">
           {categories.map((cat, i) => (
             <Section
               key={cat}
@@ -129,7 +129,7 @@ export default function WorkSettings() {
       description={`Halaman khusus ${title[cat]}. Atur foto paling atas dan projek yang diceritakan di halaman ini.`}
       aside={<PageMap page={cat} />}
     >
-      <div className="grid max-w-[960px] gap-6">
+      <div className="grid max-w-[960px] gap-6 min-[1600px]:max-w-none">
         <Section n={1} title="Foto hero" description="Foto besar di belakang judul halaman." where={`Halaman ${categoryLabel[cat]} › paling atas`} href={`${PUBLIC_SITE}/work/${cat}`}>
           <SuggestContext.Provider value={{ group: categoryLabel[cat] }}>
             <ImageSlot value={s.hero} onChange={(hero) => set(cat, { hero })} aspect="aspect-[21/9]" />
