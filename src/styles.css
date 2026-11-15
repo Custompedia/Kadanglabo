@@ -1415,11 +1415,7 @@
   letter-spacing: -0.02em;
   color: var(--color-ink);
   text-align: center;
-}
-
-.wm__titles--hit {
-  color: var(--color-orange);
-  clip-path: inset(50%); /* nothing until paintHits finds a photo under the word */
+  will-change: transform; /* own layer: the letters' scaleY switch repaints only the word, not the stage */
 }
 
 .wm__title {

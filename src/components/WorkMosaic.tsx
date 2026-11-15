@@ -180,13 +180,8 @@ function Mosaic() {
       const pattern = el.querySelector<HTMLElement>('.wm__pattern')!
       const block = el.querySelector<HTMLElement>('.wm__block')!
       const stage = el.querySelector<HTMLElement>('.wm__stage')!
-      const titles = gsap.utils.toArray<HTMLElement>('.wm__titles--base .wm__title', el)
-      // the same words in orange, shown only where they cross a photo (clip-path set by paintHits below)
-      const hitLayer = el.querySelector<HTMLElement>('.wm__titles--hit')!
-      const baseLayer = el.querySelector<HTMLElement>('.wm__titles--base')!
-      const hitTitles = gsap.utils.toArray<HTMLElement>('.wm__title', hitLayer)
-      const tiles = gsap.utils.toArray<HTMLElement>('.wm__tile', el)
-      const charsOf = (i: number) => [titles[i], hitTitles[i]].map((t) => t.querySelectorAll('.wm__char'))
+      const titles = gsap.utils.toArray<HTMLElement>('.wm__title', el)
+      const charsOf = (i: number) => titles[i].querySelectorAll('.wm__char')
       const links = gsap.utils.toArray<HTMLElement>('.wm__explore', el)
       const count = el.querySelector<HTMLElement>('.wm__count-n')!
       let current = 0
@@ -205,68 +200,34 @@ function Mosaic() {
       const indexFromY = (y: number) =>
         Math.max(0, Math.min(N - 1, Math.floor((stage.clientHeight / 2 - y) / block.offsetHeight)))
 
-      gsap.set([...titles.slice(1), ...hitTitles.slice(1)], { autoAlpha: 0 })
-
-      // Whenever the photos move: cut the photo rectangles out of the ink title and show the orange copy through
-      // them, so the colour follows the photos exactly as they drift under the word. Run from the tweens that move
-      // the photos (not every frame), so a still page does no work at all.
-      // Where every photo sits relative to the word is measured once per refresh; while scrolling it only moves by the
-      // pattern's drift (and a tile's own rise as it first appears), so each frame is plain arithmetic instead of
-      // reading every tile's box (which made the browser lay the page out again on every frame of the scroll).
-      let lastHit = ''
-      let geo: { t: HTMLElement; x: number; y: number; w: number; h: number }[] = []
-      let boxW = 0
-      let boxH = 0
-      let drift0 = 0
-      const ownY = (t: HTMLElement, h: number) =>
-        (gsap.getProperty(t, 'y') as number) + ((gsap.getProperty(t, 'yPercent') as number) * h) / 100
-      const measureHits = () => {
-        const box = hitLayer.getBoundingClientRect()
-        boxW = box.width
-        boxH = box.height
-        drift0 = gsap.getProperty(pattern, 'y') as number
-        geo = tiles.map((t) => {
-          const r = t.getBoundingClientRect()
-          return { t, x: r.left - box.left, y: r.top - box.top - ownY(t, r.height), w: r.width, h: r.height }
-        })
-      }
-      const paintHits = () => {
-        const drift = (gsap.getProperty(pattern, 'y') as number) - drift0
-        const pad = boxH // glyphs reach a little past the 1em box
-        let rects = ''
-        for (const g of geo) {
-          const top = g.y + drift + ownY(g.t, g.h)
-          if (top + g.h < -pad || top > boxH + pad || g.x + g.w < 0 || g.x > boxW) continue
-          if (parseFloat(g.t.style.opacity || '1') < 0.5) continue // (only GSAP sets a tile's opacity, inline)
-          rects += `M${g.x.toFixed(1)} ${top.toFixed(1)}h${g.w.toFixed(1)}v${g.h.toFixed(1)}h${(-g.w).toFixed(1)}Z`
-        }
-        if (rects === lastHit) return
-        lastHit = rects
-        const outer = `M${-boxW} ${-pad * 2}h${boxW * 3}v${pad * 5}h${-boxW * 3}Z`
-        hitLayer.style.clipPath = rects ? `path('${rects}')` : 'inset(50%)'
-        baseLayer.style.clipPath = rects ? `path(evenodd, '${outer}${rects}')` : ''
-      }
-      const repaintHits = () => {
-        measureHits()
-        lastHit = ''
-        paintHits()
-      }
-      measureHits()
-      ScrollTrigger.addEventListener('refresh', repaintHits)
-      const stopHits = () => ScrollTrigger.removeEventListener('refresh', repaintHits)
+      gsap.set(titles.slice(1), { autoAlpha: 0 })
       gsap.set(links.slice(1), { autoAlpha: 0 })
+
+      // Lazy photos only load (and decode) as they drift into view, which stalled the scroll mid-section. A screen
+      // before the section arrives, every photo of the mosaic is fetched and decoded up front instead.
+      // (onToggle, not onEnter: also fires when the page opens below the section and is scrolled back up into it)
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top bottom+=100%',
+        onToggle: (self) => {
+          if (!self.isActive) return
+          self.kill()
+          el.querySelectorAll<HTMLImageElement>('.wm__tile img').forEach((img) => {
+            img.loading = 'eager'
+            img.decode().catch(() => {})
+          })
+        },
+      })
 
       const show = (next: number) => {
         if (next === current) return
         const out = charsOf(current)
         const inn = charsOf(next)
-        gsap.killTweensOf([...out.flatMap((c) => [...c]), ...inn.flatMap((c) => [...c]), ...links])
+        gsap.killTweensOf([...out, ...inn, ...links])
         // outgoing letters flatten into a line, left to right; the new word grows back out of it
-        out.forEach((c) => gsap.to(c, { scaleY: 0, duration: 0.45, stagger: 0.025, ease: 'power2.in', overwrite: true }))
-        gsap.set([titles[next], hitTitles[next]], { autoAlpha: 1 })
-        inn.forEach((c) =>
-          gsap.fromTo(c, { scaleY: 0 }, { scaleY: 1, duration: 0.7, stagger: 0.035, ease: 'power3.out', delay: 0.3, overwrite: true }),
-        )
+        gsap.to(out, { scaleY: 0, duration: 0.45, stagger: 0.025, ease: 'power2.in', overwrite: true })
+        gsap.set(titles[next], { autoAlpha: 1 })
+        gsap.fromTo(inn, { scaleY: 0 }, { scaleY: 1, duration: 0.7, stagger: 0.035, ease: 'power3.out', delay: 0.3, overwrite: true })
         gsap.to(links[current], { autoAlpha: 0, y: -8, duration: 0.3 })
         gsap.fromTo(links[next], { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.5, delay: 0.45 })
         count.textContent = String(next + 1)
@@ -275,9 +236,8 @@ function Mosaic() {
 
       if (reducedMotion()) {
         gsap.set(pattern, { y: yStart })
-        paintHits()
         ScrollTrigger.create({ trigger: el, start: 'top top', end: 'bottom bottom', onUpdate: (s) => show(indexAt(s.progress)) })
-        return stopHits
+        return
       }
 
       gsap.fromTo(
@@ -287,10 +247,7 @@ function Mosaic() {
           y: yEnd,
           ease: 'none',
           // follows the rendered (smoothed) position, so title and photos always agree
-          onUpdate: () => {
-            show(indexFromY(gsap.getProperty(pattern, 'y') as number))
-            paintHits()
-          },
+          onUpdate: () => show(indexFromY(gsap.getProperty(pattern, 'y') as number)),
           scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true },
         },
       )
@@ -304,7 +261,7 @@ function Mosaic() {
 
       // first appearance: tiles of the first group rise in, the first word grows
       gsap
-        .timeline({ scrollTrigger: { trigger: el, start: 'top 70%', once: true }, onUpdate: paintHits })
+        .timeline({ scrollTrigger: { trigger: el, start: 'top 70%', once: true } })
         .from(el.querySelectorAll('.wm__block:first-child .wm__tile'), {
           yPercent: 30,
           autoAlpha: 0,
@@ -312,11 +269,8 @@ function Mosaic() {
           stagger: 0.07,
           ease: 'power3.out',
         })
-        .from(charsOf(0)[0], { scaleY: 0, duration: 0.8, stagger: 0.04, ease: 'power3.out' }, 0.2)
-        .from(charsOf(0)[1], { scaleY: 0, duration: 0.8, stagger: 0.04, ease: 'power3.out' }, 0.2)
+        .from(charsOf(0), { scaleY: 0, duration: 0.8, stagger: 0.04, ease: 'power3.out' }, 0.2)
         .from(el.querySelectorAll('.wm__count'), { autoAlpha: 0, y: 10, duration: 0.7 }, 0.5)
-
-      return stopHits
     },
     { scope: root },
   )
@@ -350,7 +304,7 @@ function Mosaic() {
                       } as CSSProperties
                     }
                   >
-                    <Img id={t.img} alt={p?.title ?? ''} sizes="(min-width: 768px) 26vw, 50vw" />
+                    <Img id={t.img} alt={p?.title ?? ''} sizes="(min-width: 768px) 26vw, 50vw" maxW={1280} />
                   </TLink>
                 )
               })}
@@ -363,7 +317,7 @@ function Mosaic() {
           <p className="wm__count wm__fade" aria-hidden="true">
             <span className="wm__count-n">1</span> / {N}
           </p>
-          <h2 className="wm__titles wm__titles--base">
+          <h2 className="wm__titles">
             {groups.map((g) => (
               <span key={g.key} className="wm__title">
                 <span className="sr-only">{g.title}</span>
@@ -375,17 +329,6 @@ function Mosaic() {
               </span>
             ))}
           </h2>
-          <div className="wm__titles wm__titles--hit" aria-hidden="true">
-            {groups.map((g) => (
-              <span key={g.key} className="wm__title">
-                {g.title.split('').map((c, i) => (
-                  <span key={i} className="wm__char">
-                    {c}
-                  </span>
-                ))}
-              </span>
-            ))}
-          </div>
           <div className="wm__links">
             {groups.map((g) => (
               <ExploreButton key={g.key} cat={g.key} className="wm__explore" />

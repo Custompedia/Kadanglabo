@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap, reducedMotion } from '../lib/gsap'
 import { useMediaQuery } from '../lib/media'
 
 /** Small follower dot; grows into a labelled disc over elements with data-cursor="Label". */
 export function Cursor() {
   const dot = useRef<HTMLDivElement>(null)
+  const labelEl = useRef<HTMLSpanElement>(null)
   // follows the live pointer type: a browser switched to touch / device mode drops the dot at once
   const enabled = useMediaQuery('(hover: hover) and (pointer: fine)') && !reducedMotion()
-  const [label, setLabel] = useState('')
 
   useEffect(() => {
     const el = dot.current
@@ -24,7 +24,9 @@ export function Cursor() {
       const target = e.target instanceof Element ? e.target : null
       const labelled = target?.closest<HTMLElement>('[data-cursor]')
       const text = labelled?.dataset.cursor ?? ''
-      setLabel(text)
+      // written straight to the DOM: a React state update here re-rendered on every photo drifting under a still pointer
+      const span = labelEl.current
+      if (span && span.textContent !== text) span.textContent = text
       el.toggleAttribute('data-label', !!text)
       el.toggleAttribute('data-link', !text && !!target?.closest('a, button, [role="button"], input, select, textarea'))
     }
@@ -49,7 +51,7 @@ export function Cursor() {
   if (!enabled) return null
   return (
     <div ref={dot} className="cursor" aria-hidden="true">
-      <span className="cursor__label">{label}</span>
+      <span ref={labelEl} className="cursor__label" />
     </div>
   )
 }

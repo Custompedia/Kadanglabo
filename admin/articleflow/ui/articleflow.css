@@ -7,7 +7,12 @@
 .af-nav--on svg { color: #d34614; }
 .af-nav--off { color: #737373 !important; }
 .af-nav--off svg { color: currentColor; }
-.af-badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #d34614; color: #fff; font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+/* the count of waiting articles: a small solid circle (a pill from two digits), no ring */
+.af-badge { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; min-width: 18px; height: 18px; padding: 0 5px; border: 0; border-radius: 999px; outline: none; box-shadow: none; background: #d34614; color: #fff; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; user-select: none; }
+.af-lock { flex-shrink: 0; }
+/* like Kumo's own menu badge, hidden while the sidebar is folded to icons */
+[data-sidebar="sidebar"][data-state="collapsed"] .af-badge,
+[data-sidebar="sidebar"][data-state="collapsed"] .af-lock { display: none; }
 
 /* the chart: plain SVG, sized by its container */
 .af-chart { display: block; width: 100%; height: auto; overflow: visible; }

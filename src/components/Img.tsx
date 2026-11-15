@@ -29,6 +29,8 @@ type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'srcSet' | 'width
   id: ImgKey
   /** above-the-fold image: eager + high fetch priority (the preloader waits for it) */
   priority?: boolean
+  /** widest file the srcset may offer (e.g. 1280): caps decode cost for photos drawn small; default: every size */
+  maxW?: number
 }
 
 /**
@@ -79,15 +81,17 @@ function fitWhenLazy(img: HTMLImageElement | null) {
  * Responsive WebP image ({id}-{width}.webp in /img or /media).
  * The dominant colour is painted as background while the file loads.
  */
-export function Img({ id, alt = '', sizes = '100vw', priority, style, ...rest }: Props) {
+export function Img({ id, alt = '', sizes = '100vw', priority, maxW, style, ...rest }: Props) {
   if (!id) return null
   const m = imgMeta(id)
   const dir = base(id)
+  const capped = maxW ? m.s.filter((w) => w <= maxW) : m.s
+  const widths = capped.length ? capped : m.s.slice(0, 1)
   return (
     <img
       ref={fitWhenLazy}
-      src={imgSrc(id, 1280)}
-      srcSet={m.s.map((w) => `${dir}/${id}-${w}.webp ${w}w`).join(', ')}
+      src={maxW ? `${dir}/${id}-${widths[widths.length - 1]}.webp` : imgSrc(id, 1280)}
+      srcSet={widths.map((w) => `${dir}/${id}-${w}.webp ${w}w`).join(', ')}
       sizes={sizes}
       width={m.w}
       height={m.h}

@@ -1,5 +1,5 @@
 import { Sidebar } from '@cloudflare/kumo'
-import { LockSimple, Sparkle } from '@phosphor-icons/react'
+import { Article, LockSimple } from '@phosphor-icons/react'
 import { useFetch } from '../../src/lib/useFetch'
 import type { FlowStatus } from '../types'
 import { STATUS } from './flow'
@@ -18,18 +18,12 @@ export function SidebarItem({ at }: { at: (path: string) => boolean }) {
     <Sidebar.Group>
       <Sidebar.GroupLabel>Artikel otomatis</Sidebar.GroupLabel>
       <Sidebar.Menu>
-        <Sidebar.MenuButton icon={Sparkle} href="/articleflow" active={at('/articleflow')} tooltip={label} aria-label={label} className={data ? (open ? 'af-nav--on' : 'af-nav--off') : ''}>
+        <Sidebar.MenuButton icon={Article} href="/articleflow" active={at('/articleflow')} tooltip={label} aria-label={label} className={data ? (open ? 'af-nav--on' : 'af-nav--off') : ''}>
           ArticleFlow
           {open && waiting > 0 && (
-            <Sidebar.MenuBadge>
-              <span className="af-badge">{waiting > 99 ? '99+' : waiting}</span>
-            </Sidebar.MenuBadge>
+            <span className="af-badge" aria-label={`${waiting} artikel menunggu`}>{waiting > 99 ? '99+' : waiting}</span>
           )}
-          {data && !open && (
-            <Sidebar.MenuBadge>
-              <LockSimple size={14} aria-hidden="true" />
-            </Sidebar.MenuBadge>
-          )}
+          {data && !open && <LockSimple className="af-lock" size={14} aria-hidden="true" />}
         </Sidebar.MenuButton>
       </Sidebar.Menu>
     </Sidebar.Group>
