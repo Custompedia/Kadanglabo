@@ -84,8 +84,8 @@ Tables (content database, no column added to any core table): `articleflow_items
   "Ditarik tim Tech" in the Tayang tab without Publish. Not reported back. Put live again from the Artikel menu it is
   taken down again on the next read while Tech says withdrawn. A newer version from Tech comes back in Menunggu and
   publishes into the same article.
-- Both run on every read of the page and on the Worker's cron (which reads Tech's list itself; the cron is the weekly
-  one in `admin/wrangler.jsonc`). Neither reports to Tech: the article routes are called without the hook.
+- Both run on every read of the page and on the Worker's cron (which reads Tech's list itself; the hourly cron in
+  `admin/wrangler.jsonc`, so a delete or withdrawal in Tech reaches the website within the hour). Neither reports to Tech: the article routes are called without the hook.
 - **One article per Tech article**: every path (preview, publish, the follow-up, a newer version, Trash, restore,
   taken down, deleted in the Artikel menu) reuses the article linked to the item; two finishing runs at the same
   moment link one article and delete the other draft.
