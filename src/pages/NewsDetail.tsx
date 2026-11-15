@@ -41,13 +41,20 @@ function Article({ n }: { n: NewsItem }) {
             <span aria-hidden="true">/</span>
             <TLink to="/articles">{tr('Articles', 'Artikel')}</TLink>
             <span aria-hidden="true">/</span>
-            <TLink to={`/articles?tag=${encodeURIComponent(n.tag.en)}`}>{t(n.tag)}</TLink>
-            <span aria-hidden="true">/</span>
+            {/* an ArticleFlow draft previewed before its topic is chosen has none yet: no empty crumb or pill */}
+            {n.tag.en && (
+              <>
+                <TLink to={`/articles?tag=${encodeURIComponent(n.tag.en)}`}>{t(n.tag)}</TLink>
+                <span aria-hidden="true">/</span>
+              </>
+            )}
             <span className="art-crumbs__here">{t(n.title)}</span>
           </nav>
-          <p className="art-head__tags" data-fade="now" data-delay="0.1">
-            <span className="pill">{t(n.tag)}</span>
-          </p>
+          {n.tag.en && (
+            <p className="art-head__tags" data-fade="now" data-delay="0.1">
+              <span className="pill">{t(n.tag)}</span>
+            </p>
+          )}
           <h1 className="art-head__title" data-split="now">
             {t(n.title)}
           </h1>
