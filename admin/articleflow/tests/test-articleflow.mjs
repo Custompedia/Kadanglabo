@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import sharp from 'sharp'
-import { makeEnv, setupCache, client, handlePublic, root, article } from '../../../scripts/test-support/cms-harness.mjs'
+import { makeEnv, setupCache, client, handlePublic, root, article, worker } from '../../../scripts/test-support/cms-harness.mjs'
 import { createFakeTech } from '../dev/fake-tech.mjs'
 
 let passed = 0
@@ -29,8 +29,21 @@ async function setup({ connect = true } = {}) {
     assert.equal(r.status, status, `${method} ${path}: ${JSON.stringify(r.data)}`)
     return r.data
   }
+  // the website's own topics (Pengaturan topik): the only ones an ArticleFlow article may be filed under
+  await api('POST', '/api/topics', TOPIC, 201)
+  await api('POST', '/api/topics', OTHER_TOPIC, 201)
   return { env, c, api }
 }
+
+const TOPIC = { en: 'Insight', id: 'Wawasan' }
+const OTHER_TOPIC = { en: 'Project', id: 'Proyek' }
+/** Publish from the preview, with the topic picked there (`body` null: the row's Publish, which sends no topic). */
+const pub = (api, groupId, status = 200, body = { tag: TOPIC }) => api('POST', `/api/articleflow/items/${groupId}/publish`, body ?? undefined, status)
+/** Every ArticleFlow row and article here, straight from the database. */
+const rowOf = (env, groupId) => env.CONTENT_DB.db.prepare(`SELECT * FROM articleflow_items WHERE group_id = ?`).get(groupId) ?? null
+const articleRows = (env) => env.CONTENT_DB.db.prepare(`SELECT id, slug, state, json_extract(draft, '$.tag') AS tag FROM articles ORDER BY id`).all()
+const openJobs = (env) => env.CONTENT_DB.db.prepare(`SELECT kind, group_id FROM articleflow_outbox WHERE done_at IS NULL`).all()
+const itemOf = async (api, groupId) => (await api('GET', '/api/articleflow/overview')).items.find((i) => i.groupId === groupId)
 
 const png = await sharp({ create: { width: 64, height: 40, channels: 3, background: '#b9a48c' } }).png().toBuffer()
 const webp = await sharp(png).webp().toBuffer()
@@ -146,6 +159,15 @@ await test('preview: images are asked for, the article arrives as a draft, and t
   assert.deepEqual(cards, ['table', 'callout', 'cta'])
   const link = preview.content.body.en.content.flatMap((b) => b.content ?? []).find((n) => n.marks?.some((m) => m.type === 'link'))
   assert.equal(link.marks.find((m) => m.type === 'link').attrs.href, '/work/hospitality')
+  // AEO fields: the direct answer opens the text in both languages (once), the excerpt is Tech's excerpt
+  assert.equal(preview.content.body.en.content[0].content[0].text, 'Short answer: cost depends on floor area, materials and complexity.')
+  assert.equal(preview.content.body.id.content[0].content[0].text, 'Jawaban singkat: biaya bergantung pada luas, material, dan tingkat kerumitan.')
+  assert.equal(preview.content.body.en.content.filter((b) => b.content?.[0]?.text?.startsWith('Short answer')).length, 1)
+  assert.equal(preview.content.excerpt.en, 'A breakdown you can use to plan a budget and a schedule.')
+  assert.equal(preview.content.coverCaption.id, 'Contoh ruang yang sudah selesai.')
+  // Tech's SEO cluster is not a topic here: the draft has none until the client picks one, and the preview still opens
+  assert.deepEqual([preview.content.tag, result.local.tag], [{ en: '', id: '' }, null])
+  assert.ok(!(await api('GET', '/api/topics')).topics.some((t) => /cluster|klaster/i.test(`${t.en} ${t.id}`)))
 
   assert.deepEqual((await api('GET', '/api/articles')).items, [])
   assert.deepEqual((await publicContent(env)).articles, [])
@@ -157,9 +179,9 @@ await test('preview: images are asked for, the article arrives as a draft, and t
 
 await test('publish: Tech first, then the website, the sitemap, and the live address back to Tech', async () => {
   const { api, env } = await setup()
-  assert.equal((await api('POST', '/api/articleflow/items/grp_1/publish', undefined, 409)).error, 'not_imported')
+  assert.equal((await pub(api, 'grp_1', 409)).error, 'not_imported')
   await importGroup(api, 'grp_1')
-  const done = await api('POST', '/api/articleflow/items/grp_1/publish')
+  const done = await pub(api, 'grp_1')
   assert.equal(done.state, 'published')
   assert.equal(done.slug, 'cafe-interior-design-cost')
   assert.match(done.url, /\/articles\/cafe-interior-design-cost$/)
@@ -183,7 +205,7 @@ await test('publish: Tech first, then the website, the sitemap, and the live add
   assert.equal(o.pendingJobs, 0)
 
   // a second click changes nothing anywhere
-  const twice = await api('POST', '/api/articleflow/items/grp_1/publish')
+  const twice = await pub(api, 'grp_1')
   assert.deepEqual([twice.state, twice.articleId], ['published', done.articleId])
   assert.equal(fake.state.groups[0].publishCount, 1)
   assert.equal((await api('GET', '/api/articles')).items.length, 1)
@@ -194,7 +216,7 @@ await test('two publishes at the same moment make one article and one publicatio
   const { api, c, env } = await setup()
   await importGroup(api, 'grp_2')
   control({ slow: 60 })
-  const results = await Promise.all([c.request('POST', '/api/articleflow/items/grp_2/publish'), c.request('POST', '/api/articleflow/items/grp_2/publish')])
+  const results = await Promise.all([c.request('POST', '/api/articleflow/items/grp_2/publish', { tag: TOPIC }), c.request('POST', '/api/articleflow/items/grp_2/publish', { tag: TOPIC })])
   control({ slow: 0 })
   const codes = results.map((r) => r.status).sort()
   assert.ok(codes[0] === 200 && [200, 202, 409].includes(codes[1]), `statuses ${codes}`)
@@ -210,7 +232,7 @@ await test('an address already taken gets a suffix; one language fills both and 
   const { result } = await importGroup(api, 'grp_3')
   assert.equal(result.singleLang, 'id')
   assert.match(result.previewUrl, /\/articles\/villa-contractor-bali-2\?preview=/)
-  const done = await api('POST', '/api/articleflow/items/grp_3/publish')
+  const done = await pub(api, 'grp_3')
   assert.equal(done.slug, 'villa-contractor-bali-2')
   const live = (await publicContent(env)).articles.find((a) => a.slug === 'villa-contractor-bali-2')
   assert.equal(live.title.en, 'Panduan Memilih Kontraktor Villa di Bali')
@@ -224,12 +246,12 @@ await test('Tech refuses or the version changed: nothing goes live, the reason i
   const { api, env } = await setup()
   await importGroup(api, 'grp_4')
   control({ refuse: ['HERO_REQUIRED'] })
-  const refused = await api('POST', '/api/articleflow/items/grp_4/publish', undefined, 409)
+  const refused = await pub(api, 'grp_4', 409)
   assert.equal(refused.error, 'publish_refused')
   assert.deepEqual(refused.reasons, ['HERO_REQUIRED'])
   assert.match(refused.message, /foto banner belum ada/)
   control({ changed: true })
-  const changed = await api('POST', '/api/articleflow/items/grp_4/publish', undefined, 409)
+  const changed = await pub(api, 'grp_4', 409)
   assert.equal(changed.error, 'changed')
   assert.deepEqual((await publicContent(env)).articles, [])
   assert.deepEqual((await api('GET', '/api/articles')).items, [])
@@ -237,9 +259,9 @@ await test('Tech refuses or the version changed: nothing goes live, the reason i
 
   // Tech staff saved a newer version after the preview: the stale draft is refused, a fresh preview publishes
   fake.newVersion('grp_4')
-  assert.equal((await api('POST', '/api/articleflow/items/grp_4/publish', undefined, 409)).error, 'changed')
+  assert.equal((await pub(api, 'grp_4', 409)).error, 'changed')
   await importGroup(api, 'grp_4')
-  assert.equal((await api('POST', '/api/articleflow/items/grp_4/publish')).state, 'published')
+  assert.equal((await pub(api, 'grp_4')).state, 'published')
   assert.equal((await publicContent(env)).articles[0].title.en, 'Flooring Materials for Commercial Spaces (diperbarui)')
   await reset()
 })
@@ -248,7 +270,7 @@ await test('the live report fails once: the article is live anyway and the repor
   const { api, env } = await setup()
   await importGroup(api, 'grp_1')
   control({ failLive: 1 })
-  assert.equal((await api('POST', '/api/articleflow/items/grp_1/publish')).state, 'published')
+  assert.equal((await pub(api, 'grp_1')).state, 'published')
   assert.equal((await publicContent(env)).articles.length, 1)
   assert.equal(fake.state.live.length, 0)
   assert.equal((await api('GET', '/api/articleflow/status?fresh=1')).pendingJobs, 1)
@@ -261,7 +283,7 @@ await test('Tech published but the website step failed: "sedang diselesaikan", t
   const { api, env } = await setup()
   await importGroup(api, 'grp_2')
   env.CONTENT_DB.failOnSql = `published = draft` // the normal publish statement fails once
-  const half = await api('POST', '/api/articleflow/items/grp_2/publish', undefined, 202)
+  const half = await pub(api, 'grp_2', 202)
   assert.equal(half.state, 'finishing')
   assert.equal(fake.state.groups[1].status, 'PUBLISHED')
   assert.deepEqual((await publicContent(env)).articles, [])
@@ -270,7 +292,7 @@ await test('Tech published but the website step failed: "sedang diselesaikan", t
   assert.ok(o.pendingJobs >= 1)
   // while it is being finished nothing else may start on it
   assert.equal((await api('POST', '/api/articleflow/items/grp_2/import', {}, 409)).error, 'busy')
-  assert.equal((await api('POST', '/api/articleflow/items/grp_2/publish', undefined, 202)).state, 'finishing')
+  assert.equal((await pub(api, 'grp_2', 202)).state, 'finishing')
 
   env.CONTENT_DB.failOnSql = null
   assert.equal((await api('POST', '/api/articleflow/retry')).pendingJobs, 0)
@@ -285,14 +307,14 @@ await test('Tech published but the website step failed: "sedang diselesaikan", t
 await test('a newer version of a live article: "Versi baru tersedia", and publishing updates the same article', async () => {
   const { api, env } = await setup()
   await importGroup(api, 'grp_1')
-  const first = await api('POST', '/api/articleflow/items/grp_1/publish')
+  const first = await pub(api, 'grp_1')
   fake.newVersion('grp_1')
   const before = (await api('GET', '/api/articleflow/overview')).items.find((i) => i.groupId === 'grp_1')
   assert.deepEqual([before.view, before.local.newVersion, before.local.state], ['waiting', true, 'published'])
   assert.equal((await publicContent(env)).articles[0].title.en, 'Cafe Interior Design Cost: A Breakdown per Square Metre') // still the old one
   const { result } = await importGroup(api, 'grp_1')
   assert.match(result.previewUrl, /\/articles\/cafe-interior-design-cost\?preview=/)
-  const second = await api('POST', '/api/articleflow/items/grp_1/publish')
+  const second = await pub(api, 'grp_1')
   assert.deepEqual([second.articleId, second.slug], [first.articleId, first.slug])
   const site = await publicContent(env)
   assert.equal(site.articles.length, 1)
@@ -322,7 +344,7 @@ await test('Minta revisi: a reason is required and reaches Tech once', async () 
 await test('taking an ArticleFlow article down in the Artikel menu is reported to Tech; putting it back too', async () => {
   const { api, env } = await setup()
   await importGroup(api, 'grp_1')
-  const { articleId } = await api('POST', '/api/articleflow/items/grp_1/publish')
+  const { articleId } = await pub(api, 'grp_1')
   // an ordinary article is none of Tech's business
   const { id: own } = await api('POST', '/api/articles', { content: { ...article('own-article'), cover: await upload(api, 'own') } }, 201)
   await api('POST', `/api/articles/${own}/publish`)
@@ -347,7 +369,7 @@ await test('taking an ArticleFlow article down in the Artikel menu is reported t
 await test('subscription over: everything locks, also in the middle of a session; live articles stay', async () => {
   const { api, env } = await setup()
   await importGroup(api, 'grp_1')
-  await api('POST', '/api/articleflow/items/grp_1/publish')
+  await pub(api, 'grp_1')
   await importGroup(api, 'grp_2')
   assert.equal((await api('GET', '/api/articleflow/status?fresh=1')).locked, false)
   control({ mode: 'expired' })
@@ -356,7 +378,7 @@ await test('subscription over: everything locks, also in the middle of a session
   assert.equal((await api('GET', '/api/articleflow/items/grp_2', undefined, 402)).error, 'subscription_expired')
   const s = await api('GET', '/api/articleflow/status')
   assert.deepEqual([s.locked, s.status.subscription.state], [true, 'EXPIRED'])
-  assert.equal((await api('POST', '/api/articleflow/items/grp_2/publish', undefined, 402)).error, 'subscription_expired')
+  assert.equal((await pub(api, 'grp_2', 402)).error, 'subscription_expired')
   assert.equal((await api('POST', '/api/articleflow/items/grp_2/import', {}, 402)).error, 'subscription_expired')
   const o = await api('GET', '/api/articleflow/overview')
   assert.deepEqual([o.locked, o.items, o.analytics, o.status.subscription.state], [true, [], null, 'EXPIRED'])
@@ -365,7 +387,7 @@ await test('subscription over: everything locks, also in the middle of a session
   // renewed in Tech: open again
   control({ mode: 'active' })
   assert.equal((await api('GET', '/api/articleflow/overview')).items.length, 5)
-  assert.equal((await api('POST', '/api/articleflow/items/grp_2/publish')).state, 'published')
+  assert.equal((await pub(api, 'grp_2')).state, 'published')
   await reset()
 })
 
@@ -379,12 +401,12 @@ await test('Tech cannot be reached: the last good answer with a notice, publish 
   assert.equal(o.items.length, good.items.length)
   assert.equal(o.analytics.totals.clicks, 1284)
   assert.ok(o.fetchedAt)
-  assert.equal((await api('POST', '/api/articleflow/items/grp_1/publish', undefined, 503)).error, 'unavailable')
+  assert.equal((await pub(api, 'grp_1', 503)).error, 'unavailable')
   assert.deepEqual((await publicContent(env)).articles, [])
   assert.equal((await api('GET', '/api/articleflow/items/grp_1', undefined, 503)).error, 'unavailable')
   control({ down: false })
   // no answer at all keeps the idempotency key, so the retry cannot publish twice
-  assert.equal((await api('POST', '/api/articleflow/items/grp_1/publish')).state, 'published')
+  assert.equal((await pub(api, 'grp_1')).state, 'published')
   assert.equal(fake.state.groups[0].publishCount, 1)
 
   // a server nobody answers on, and a key Tech refuses
@@ -395,6 +417,272 @@ await test('Tech cannot be reached: the last good answer with a notice, publish 
   env.TECH_PARTNER_KEY = 'wrong-key'
   const denied = await api('GET', '/api/articleflow/overview')
   assert.deepEqual([denied.trouble, denied.locked, denied.items, denied.status], ['unauthorized', true, [], null])
+  await reset()
+})
+
+await test('topic: the website picks it, required before Publish, checked against its topics, kept across versions', async () => {
+  const { api, env } = await setup()
+  await importGroup(api, 'grp_1')
+  assert.equal((await itemOf(api, 'grp_1')).local.tag, null) // the row's Publish opens the preview for this
+  // no topic yet: refused here in plain words, Tech is never asked
+  const none = await pub(api, 'grp_1', 400, null)
+  assert.deepEqual([none.error, none.issues], ['incomplete', ['Topik belum dipilih']])
+  assert.match(none.message, /Topik belum dipilih/)
+  // Tech's cluster name, or anything else that is not one of the website's topics, is refused
+  assert.equal((await pub(api, 'grp_1', 400, { tag: { en: 'Interior cost cluster', id: 'Klaster biaya interior' } })).error, 'topic')
+  assert.equal(fake.state.groups[0].publishCount, undefined)
+  assert.deepEqual(articleRows(env), [])
+  // picked in the preview (the list spells it): stored, and live with the article
+  const first = await pub(api, 'grp_1', 200, { tag: { en: 'insight', id: 'wawasan' } })
+  assert.deepEqual((await publicContent(env)).articles[0].tag, TOPIC)
+  assert.deepEqual((await itemOf(api, 'grp_1')).local.tag, TOPIC)
+  // a newer version keeps it without asking again (the row's Publish sends no topic)
+  fake.newVersion('grp_1')
+  assert.deepEqual((await importGroup(api, 'grp_1')).result.local.tag, TOPIC)
+  assert.equal((await pub(api, 'grp_1', 200, null)).articleId, first.articleId)
+  assert.deepEqual((await publicContent(env)).articles[0].tag, TOPIC)
+  // changed in the Artikel menu: the article's own topic wins over the one picked earlier
+  const live = await api('GET', `/api/articles/${first.articleId}`)
+  await api('PUT', `/api/articles/${first.articleId}`, { content: { ...live.draft, tag: OTHER_TOPIC } })
+  await api('POST', `/api/articles/${first.articleId}/publish`)
+  fake.newVersion('grp_1')
+  assert.deepEqual((await importGroup(api, 'grp_1')).result.local.tag, OTHER_TOPIC)
+  await pub(api, 'grp_1', 200, null)
+  assert.deepEqual((await publicContent(env)).articles[0].tag, OTHER_TOPIC)
+  // a topic picked, then Tech refuses: the pick stays for the next try
+  await importGroup(api, 'grp_4')
+  control({ refuse: ['CHECKS_FAILED'] })
+  await pub(api, 'grp_4', 409, { tag: OTHER_TOPIC })
+  assert.deepEqual((await itemOf(api, 'grp_4')).local.tag, OTHER_TOPIC)
+  assert.equal((await pub(api, 'grp_4', 200, null)).state, 'published')
+  assert.equal(articleRows(env).length, 2)
+  await reset()
+})
+
+await test('deleted in Tech (every language): the article leaves the website for good, the row goes, repeating does nothing', async () => {
+  const { api, env } = await setup()
+  await importGroup(api, 'grp_1')
+  const { articleId } = await pub(api, 'grp_1')
+  await importGroup(api, 'grp_2') // previewed only, never published
+  // missing from the list is not deleted: only what Tech names under `removed`
+  const kept = fake.state.groups.splice(1, 1)
+  await api('GET', '/api/articleflow/overview')
+  assert.ok(rowOf(env, 'grp_2'))
+  fake.state.groups.splice(1, 0, ...kept)
+
+  const reports = [fake.state.live.length, fake.state.takenDown.length]
+  fake.deleteGroup('grp_1')
+  fake.deleteGroup('grp_2')
+  fake.state.removed.push({ groupId: 'grp_never_here', at: new Date().toISOString() }, { groupId: '../bad id', at: '' })
+  const o = await api('GET', '/api/articleflow/overview')
+  assert.deepEqual(o.items.map((i) => i.groupId), ['grp_3', 'grp_4', 'grp_5'])
+  assert.deepEqual([rowOf(env, 'grp_1'), rowOf(env, 'grp_2'), rowOf(env, 'grp_never_here')], [null, null, null])
+  assert.deepEqual(articleRows(env), [])
+  assert.equal((await api('GET', `/api/articles/${articleId}`, undefined, 404)).error, 'not_found')
+  assert.deepEqual((await publicContent(env)).articles, [])
+  assert.ok(!(await sitemap(env)).includes('cafe-interior-design-cost'))
+  assert.deepEqual([fake.state.live.length, fake.state.takenDown.length], reports) // Tech's own news: nothing reported back
+  assert.deepEqual([o.pendingJobs, openJobs(env)], [0, []])
+  // the same `removed` again on every read: nothing left to do, nothing queued
+  await api('GET', '/api/articleflow/overview')
+  await api('GET', '/api/articleflow/overview')
+  assert.equal(env.CONTENT_DB.db.prepare(`SELECT COUNT(*) AS n FROM articleflow_outbox WHERE kind = 'remove'`).get().n, 2)
+  await reset()
+})
+
+await test('deleted in Tech: a removal cut short finishes later; an article already in Trash or deleted here is handled too', async () => {
+  const { api, env } = await setup()
+  for (const g of ['grp_1', 'grp_2', 'grp_4']) await importGroup(api, g), await pub(api, g)
+  const [a1, a2] = articleRows(env).map((a) => a.id)
+  await api('POST', `/api/articles/${a1}/trash`) // in Trash here
+  await api('POST', `/api/articles/${a2}/trash`)
+  await api('DELETE', `/api/articles/${a2}`) // deleted here already: only the row is left
+  env.CONTENT_DB.failOnSql = 'DELETE FROM articleflow_items' // the last step fails once
+  for (const g of ['grp_1', 'grp_2', 'grp_4']) fake.deleteGroup(g)
+  await api('GET', '/api/articleflow/overview')
+  assert.ok(rowOf(env, 'grp_1') && rowOf(env, 'grp_4'))
+  assert.equal(openJobs(env).filter((j) => j.kind === 'remove').length, 3)
+  env.CONTENT_DB.failOnSql = null
+  assert.equal((await api('POST', '/api/articleflow/retry')).pendingJobs, 0)
+  assert.deepEqual([rowOf(env, 'grp_1'), rowOf(env, 'grp_2'), rowOf(env, 'grp_4')], [null, null, null])
+  assert.deepEqual(articleRows(env), [])
+  assert.deepEqual((await publicContent(env)).articles, [])
+  await reset()
+})
+
+await test('one language deleted in Tech: flagged for a new preview, published again as one language into the same article', async () => {
+  const { api, env } = await setup()
+  await importGroup(api, 'grp_1')
+  const first = await pub(api, 'grp_1')
+  fake.deleteLocale('grp_1', 'en')
+  const item = await itemOf(api, 'grp_1')
+  assert.deepEqual([item.locales.length, item.local.newVersion, item.view], [1, true, 'approved'])
+  assert.ok(rowOf(env, 'grp_1').article_id) // nothing was deleted: the group is still in the list
+  const { result } = await importGroup(api, 'grp_1')
+  assert.equal(result.singleLang, 'id')
+  assert.equal((await pub(api, 'grp_1', 200, null)).articleId, first.articleId)
+  const site = (await publicContent(env)).articles
+  assert.equal(site.length, 1)
+  assert.deepEqual([site[0].title.en, site[0].title.id], ['Biaya Desain Interior Kafe: Rincian per Meter', 'Biaya Desain Interior Kafe: Rincian per Meter'])
+  const after = await itemOf(api, 'grp_1')
+  assert.deepEqual([after.view, after.local.newVersion, after.local.singleLang], ['published', false, 'id'])
+  await reset()
+})
+
+await test('withdrawn by Tech: taken down here (kept in the Artikel menu), not reported; a newer version goes live in the same article', async () => {
+  const { api, env } = await setup()
+  await importGroup(api, 'grp_1')
+  const first = await pub(api, 'grp_1')
+  const [live, calls] = [fake.state.live.length, fake.state.calls.length]
+  fake.withdraw('grp_1')
+  const item = await itemOf(api, 'grp_1')
+  assert.deepEqual([item.view, item.local.state, item.local.articleId], ['withdrawn', 'taken_down', first.articleId])
+  assert.match(item.local.withdrawnAt, /^\d{4}-\d{2}-\d{2}T/)
+  assert.deepEqual(articleRows(env).map((a) => [a.id, a.state]), [[first.articleId, 'taken_down']])
+  assert.deepEqual((await publicContent(env)).articles, [])
+  assert.deepEqual(fake.state.takenDown, [])
+  assert.ok(!fake.state.calls.slice(calls).some((c) => c.endsWith('/taken-down')))
+  // again: nothing more happens; Tech refuses revision and publish on it
+  await api('GET', '/api/articleflow/overview')
+  assert.deepEqual([fake.state.takenDown, openJobs(env)], [[], []])
+  const versions = Object.fromEntries(item.locales.map((l) => [l.articleId, l.versionId]))
+  assert.equal((await api('POST', '/api/articleflow/items/grp_1/decision', { comment: 'Revisi', versions, idempotencyKey: 'key-withdrawn1' }, 409)).error, 'changed')
+  assert.equal((await pub(api, 'grp_1', 409)).error, 'changed')
+  // put live again from the Artikel menu: Tech refuses the report (dropped, not retried) and the next read takes it down again
+  await api('POST', `/api/articles/${first.articleId}/publish`)
+  assert.equal(fake.state.live.length, live)
+  assert.equal((await itemOf(api, 'grp_1')).view, 'withdrawn')
+  assert.deepEqual([articleRows(env)[0].state, openJobs(env)], ['taken_down', []])
+
+  // Tech sends a newer version: back in Menunggu as a new version, published into the same article
+  fake.newVersion('grp_1')
+  const back = await itemOf(api, 'grp_1')
+  assert.deepEqual([back.view, back.local.newVersion, back.local.withdrawnAt === null], ['waiting', true, false])
+  await importGroup(api, 'grp_1')
+  assert.equal((await pub(api, 'grp_1', 200, null)).articleId, first.articleId)
+  assert.equal(articleRows(env).length, 1)
+  assert.equal((await publicContent(env)).articles[0].title.en, 'Cafe Interior Design Cost: A Breakdown per Square Metre (diperbarui)')
+  const done = await itemOf(api, 'grp_1')
+  assert.deepEqual([done.view, done.local.withdrawnAt, done.local.newVersion], ['published', null, false])
+  await reset()
+})
+
+await test('Minta revisi: the article moves to the revision tab, and comes back in Menunggu flagged as a new version', async () => {
+  const { api } = await setup()
+  for (const [g, preview] of [['grp_2', true], ['grp_4', false]]) {
+    if (preview) await importGroup(api, g)
+    const item = await itemOf(api, g)
+    const versions = Object.fromEntries(item.locales.map((l) => [l.articleId, l.versionId]))
+    const r = await api('POST', `/api/articleflow/items/${g}/decision`, { comment: 'Pakai contoh projek Kadanglabo.', versions, idempotencyKey: `key-rev-${g}-1` })
+    assert.equal(r.item.view, 'changes')
+    assert.equal((await itemOf(api, g)).view, 'changes')
+    fake.newVersion(g)
+    const back = await itemOf(api, g)
+    assert.deepEqual([back.view, back.local.newVersion], ['waiting', true], g)
+  }
+  // a published article takes no revision (Tech refuses; the page does not offer it)
+  await importGroup(api, 'grp_1')
+  const published = await pub(api, 'grp_1')
+  assert.equal(published.state, 'published')
+  const item = await itemOf(api, 'grp_1')
+  const versions = Object.fromEntries(item.locales.map((l) => [l.articleId, l.versionId]))
+  assert.equal((await api('POST', '/api/articleflow/items/grp_1/decision', { comment: 'Revisi', versions, idempotencyKey: 'key-rev-pub-1' }, 409)).error, 'changed')
+  await reset()
+})
+
+await test('never a second article for one Tech article: Trash, restore, delete here, take down, re-import, a finish run twice', async () => {
+  const { api, env } = await setup()
+  const count = () => articleRows(env).length
+  await importGroup(api, 'grp_1')
+  await importGroup(api, 'grp_1') // looking twice makes nothing
+  assert.equal(count(), 0)
+  const { articleId } = await pub(api, 'grp_1')
+  // taken down in the Artikel menu, then a newer version
+  await api('POST', `/api/articles/${articleId}/takedown`)
+  fake.newVersion('grp_1')
+  await importGroup(api, 'grp_1')
+  assert.equal((await pub(api, 'grp_1', 200, null)).articleId, articleId)
+  // in Trash, then a newer version: brought back from Trash, the same article
+  await api('POST', `/api/articles/${articleId}/trash`)
+  fake.newVersion('grp_1')
+  await importGroup(api, 'grp_1')
+  assert.equal((await pub(api, 'grp_1', 200, null)).articleId, articleId)
+  // Trash and restore by hand, then a newer version
+  await api('POST', `/api/articles/${articleId}/trash`)
+  await api('POST', `/api/articles/${articleId}/restore`)
+  fake.newVersion('grp_1')
+  await importGroup(api, 'grp_1')
+  assert.equal((await pub(api, 'grp_1', 200, null)).articleId, articleId)
+  assert.equal(count(), 1)
+  // deleted for good in the Artikel menu: the next publish makes the one article again, and links it
+  await api('POST', `/api/articles/${articleId}/trash`)
+  await api('DELETE', `/api/articles/${articleId}`)
+  fake.newVersion('grp_1')
+  await importGroup(api, 'grp_1')
+  const again = await pub(api, 'grp_1', 200, null)
+  assert.notEqual(again.articleId, articleId)
+  assert.deepEqual([count(), rowOf(env, 'grp_1').article_id], [1, again.articleId])
+
+  // two finishing runs side by side (the publish request and a drain of its follow-up): the second one's article is
+  // linked first here, so the publish request's own new draft must be removed again instead of becoming a double
+  await importGroup(api, 'grp_2')
+  const { id: rival } = await api('POST', '/api/articles', { content: { ...article('rival-draft'), cover: await upload(api, 'rival') } }, 201)
+  const prepare = env.CONTENT_DB.prepare.bind(env.CONTENT_DB)
+  let raced = false
+  env.CONTENT_DB.prepare = (sql) => {
+    if (!raced && sql.startsWith('UPDATE articleflow_items SET article_id = ?')) {
+      raced = true
+      env.CONTENT_DB.db.prepare(`UPDATE articleflow_items SET article_id = ? WHERE group_id = 'grp_2'`).run(rival)
+    }
+    return prepare(sql)
+  }
+  const done = await pub(api, 'grp_2')
+  env.CONTENT_DB.prepare = prepare
+  assert.ok(raced)
+  assert.equal(done.articleId, rival)
+  assert.deepEqual(articleRows(env).map((a) => a.id), [again.articleId, rival])
+  assert.equal(articleRows(env)[1].state, 'published')
+  assert.equal((await publicContent(env)).articles.length, 2)
+  await reset()
+})
+
+await test('the cron reads the list from Tech itself: deletes and withdrawals land without anyone opening the page', async () => {
+  const { api, env } = await setup()
+  for (const g of ['grp_1', 'grp_2']) await importGroup(api, g), await pub(api, g)
+  const [a1, a2] = articleRows(env).map((a) => a.id)
+  fake.deleteGroup('grp_1')
+  fake.withdraw('grp_2')
+  const calls = fake.state.calls.length
+  const work = []
+  await worker.scheduled({}, env, { waitUntil: (p) => work.push(p) })
+  await Promise.all(work)
+  assert.ok(fake.state.calls.slice(calls).includes('GET /v2/sites/kadanglabo/partner/articles'))
+  assert.equal(rowOf(env, 'grp_1'), null)
+  assert.deepEqual(articleRows(env).map((a) => [a.id, a.state]), [[a2, 'taken_down']])
+  assert.notEqual(a1, a2)
+  assert.ok(env.CONTENT_DB.db.prepare(`SELECT 1 FROM articleflow_withdrawn WHERE group_id = 'grp_2'`).get())
+  assert.deepEqual([fake.state.takenDown, (await publicContent(env)).articles], [[], []])
+  // not connected: the cron calls nobody
+  const quiet = fake.state.calls.length
+  delete env.TECH_PARTNER_KEY
+  await worker.scheduled({}, env, { waitUntil: (p) => work.push(p) })
+  await Promise.all(work)
+  assert.equal(fake.state.calls.length, quiet)
+  await reset()
+})
+
+await test('migration 0002 runs again safely: rows and follow-ups are kept', async () => {
+  const { api, env } = await setup()
+  await importGroup(api, 'grp_1')
+  control({ failLive: 1 })
+  await pub(api, 'grp_1')
+  const before = env.CONTENT_DB.db.prepare(`SELECT * FROM articleflow_outbox ORDER BY id`).all()
+  const sql = await readFile(resolve(root, 'admin/articleflow/migrations/0002_articleflow_sync.sql'), 'utf8')
+  env.CONTENT_DB.db.exec(sql)
+  env.CONTENT_DB.db.exec(sql)
+  assert.deepEqual(env.CONTENT_DB.db.prepare(`SELECT * FROM articleflow_outbox ORDER BY id`).all(), before)
+  assert.equal((await itemOf(api, 'grp_1')).view, 'published')
+  assert.equal((await api('POST', '/api/articleflow/retry')).pendingJobs, 0)
   await reset()
 })
 

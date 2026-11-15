@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Badge, Button, LayerCard, LinkButton } from '@cloudflare/kumo'
 import { Thumb } from '../../src/components/Thumb'
-import { ago } from '../../src/lib/format'
+import { ago, dateTime } from '../../src/lib/format'
 import type { FlowItem, ViewStatus } from '../types'
 import { TABS, canPublish, languages, tabOf, viewLabel, type Tab } from './flow'
 
@@ -15,12 +15,14 @@ const BADGE: Record<ViewStatus, 'neutral' | 'success' | 'warning' | 'outline'> =
   finishing: 'neutral',
   published: 'success',
   taken_down: 'warning',
+  withdrawn: 'warning',
+  other: 'outline',
 }
 const HEADING: Record<Tab, string> = {
   waiting: 'Menunggu persetujuan Anda',
   approved: 'Disetujui, belum tayang',
   changes: 'Sedang direvisi tim Tech',
-  published: 'Sudah tayang di website',
+  published: 'Sudah tayang atau pernah tayang di website',
 }
 const EMPTY: Record<Tab, string> = {
   waiting: 'Tidak ada artikel yang menunggu. Artikel baru dari tim Tech muncul di sini.',
@@ -82,7 +84,11 @@ export function ArticleQueue({ items, disabled, working, onOpen, onPublish }: {
                       Dikirim {ago(item.sentAt)} · {languages(item)}
                       {item.primaryQuery ? ` · kata kunci: ${item.primaryQuery}` : ''}
                     </p>
-                    {item.view === 'updating' && item.waitingFor ? (
+                    {item.view === 'withdrawn' ? (
+                      <p className="mt-1 text-[13px] text-kumo-default">
+                        Ditarik dari website oleh tim Tech{item.local.withdrawnAt ? ` ${dateTime(item.local.withdrawnAt)}` : ''}.{item.local.articleId ? ' Artikelnya tetap ada di menu Artikel.' : ''}
+                      </p>
+                    ) : item.view === 'updating' && item.waitingFor ? (
                       <p className="mt-1 text-[13px] text-kumo-default">Versi bahasa {item.waitingFor === 'en' ? 'Inggris' : 'Indonesia'} sedang disiapkan tim Tech. Artikel bisa ditayangkan setelah kedua bahasa siap.</p>
                     ) : item.view === 'changes' && item.decision?.comment ? (
                       <p className="mt-1 text-[13px] text-kumo-default">Alasan revisi: {item.decision.comment}</p>
@@ -95,7 +101,7 @@ export function ArticleQueue({ items, disabled, working, onOpen, onPublish }: {
                     <Badge variant={BADGE[item.view]} appearance="dot">{viewLabel(item)}</Badge>
                   </div>
                   <div className="flex shrink-0 items-center gap-2 max-sm:w-full">
-                    {item.view === 'published' && item.local.articleId ? (
+                    {(item.view === 'published' || item.view === 'taken_down' || item.view === 'withdrawn') && item.local.articleId ? (
                       <LinkButton href={`/articles/${item.local.articleId}`} variant="secondary" size="sm" className="justify-center max-md:min-h-11 max-sm:flex-1">Buka di Artikel</LinkButton>
                     ) : null}
                     {item.view !== 'finishing' && (

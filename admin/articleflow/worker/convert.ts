@@ -5,9 +5,11 @@ import type { TechBlock, TechDetail, TechLocale, TechRun, TechVersion } from '..
  * A Tech article (blocks per language) as a Kadanglabo article (one Tiptap document per language). The result
  * still goes through the dashboard's own validation (articleSchema), so nothing the editor could not have
  * written ever reaches the site. Block types this version does not know are skipped.
+ *
+ * The topic is left empty on purpose: Tech's `topic` is its own SEO cluster name, and the website's topics are the
+ * client's (picked in the preview before Publish, see api.ts). Everything else Tech sends that the article can hold
+ * is kept: titles, excerpt (or the meta description), direct answer, banner and its caption, every known block.
  */
-
-const DEFAULT_TOPIC: Record<Lang, string> = { en: 'Insight', id: 'Wawasan' }
 
 const text = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '')
 
@@ -84,11 +86,20 @@ function block(b: TechBlock, assets: Record<string, string>): Block[] {
   }
 }
 
+/** The words of a block, to compare paragraphs. */
+const words = (b: Block | undefined) => (b?.type === 'paragraph' ? (b.content ?? []).map((n) => (n.type === 'text' ? n.text : ' ')).join('').trim() : '')
+
+/**
+ * The direct answer opens the text, as the first paragraph, exactly where Tech's own page puts it (answer engines
+ * read the opening of the article). The website has no other place that shows it: an article's `summary` ("In
+ * short") is neither stored by the article routes nor rendered by the site any more. Tech blocks that already open
+ * with the same sentence are not doubled.
+ */
 function body(v: TechVersion, assets: Record<string, string>): Doc {
   const content: Block[] = []
-  const lead = text(v.directAnswer, 4000)
-  if (lead) content.push(para(plain(lead)))
   for (const b of Array.isArray(v.blocks) ? v.blocks : []) content.push(...block(b, assets))
+  const lead = text(v.directAnswer, 4000)
+  if (lead && words(content[0]) !== lead) content.unshift(para(plain(lead)))
   return { type: 'doc', content: content.length ? content : [{ type: 'paragraph' }] }
 }
 
@@ -126,7 +137,7 @@ export function toArticle(detail: TechDetail, assets: Record<string, string>): C
   const content: ArticleContent = {
     slug: slugify(of.en.slug || of.en.title || of.id.slug || of.id.title) || 'artikel',
     type: 'news',
-    tag: each((v, lang) => text(v.topic, 40) || DEFAULT_TOPIC[lang]),
+    tag: { en: '', id: '' }, // the client picks it here (Tech's cluster name is not a website topic)
     title: each((v) => text(v.title, 300)),
     date: '',
     excerpt: each((v) => text(v.excerpt || v.metaDescription, 600)),

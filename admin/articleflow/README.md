@@ -17,25 +17,31 @@ Everything lives in this folder. The rest of the CMS knows it through two connec
 | `worker/tech-client.ts` | The only code that calls Tech (8 s deadline, never throws); the key never leaves the Worker |
 | `worker/api.ts` | `/api/articleflow/*` and the hook after `/api/articles/*` (take down, trash, publish again, delete) |
 | `worker/convert.ts` | A Tech article (blocks per language) as a Kadanglabo article (Tiptap per language) |
-| `worker/outbox.ts` | Follow-ups that must finish: completing a publish, reporting the live address, reporting a take down |
+| `worker/outbox.ts` | Follow-ups that must finish: completing a publish, reporting the live address, reporting a take down, removing an article Tech deleted |
+| `worker/sync.ts` | What Tech did on its side, brought here: deleted groups (`removed`) and withdrawn articles (`WITHDRAWN`) |
 | `worker/store.ts` | The tables below |
 | `ui/` | The page, the sidebar entry, the preview dialog, the locked state |
-| `migrations/` | `0001_articleflow.sql` (three tables), `9999_remove_articleflow.sql` (drops them) |
+| `migrations/` | `0001_articleflow.sql` (three tables), `0002_articleflow_sync.sql` (the `remove` follow-up, the withdrawn table), `9999_remove_articleflow.sql` (drops them) |
 | `dev/fake-tech.mjs` | A stand-in for Tech with sample data, for tests and for looking at the page by hand |
 | `tests/test-articleflow.mjs` | The whole flow on the real Worker handlers against the stand-in |
 
 Tables (content database, no column added to any core table): `articleflow_items`, `articleflow_outbox`,
-`articleflow_cache`.
+`articleflow_cache`, `articleflow_withdrawn`.
 
 ## Install
 
-1. Tables (safe to run again):
+1. Tables (both files in order, safe to run again; an installation from before step two only needs the scripts
+   run once more):
 
    ```
    cd admin
    npm run articleflow:migrate:local     # local development
    npm run articleflow:migrate:remote    # production (kadanglabo-content)
    ```
+
+   Until `0002_articleflow_sync.sql` has run, the page says the tables are missing and nothing else happens (the
+   `remove` follow-up and the withdrawn table come from it). It rebuilds `articleflow_outbox` to widen its CHECK
+   (SQLite cannot alter one): same columns, same rows.
 
 2. Connection. Tech issues a partner key for this website (Pengaturan, tab Langganan).
 
@@ -59,7 +65,30 @@ Tables (content database, no column added to any core table): `articleflow_items
   Tech's answer is known), then creates and publishes the article through the normal article routes, then reports the
   live address. If the website step fails after Tech said yes, the page shows "Sedang diselesaikan" and the follow-up
   job finishes it (on the next visit of the dashboard, the "Coba lagi" button, or the Worker's cron).
-- **Minta revisi** needs a reason; it goes to Tech and into the article's history.
+- **Topic**: the website's own topics only (the list of the article editor). Tech's `topic` is its SEO cluster name
+  and is never used. The topic is picked in the preview and is required before Publish (the row's Publish opens the
+  preview while none is chosen); the Worker checks it against the website's topics. A newer version keeps it; an
+  article that is already here keeps its current topic (also one changed in the Artikel menu).
+- **Direct answer** opens the text as its first paragraph, where Tech's own page puts it. The excerpt is Tech's
+  excerpt, or its meta description. (An article's "In short" `summary` is not stored by the article routes nor shown
+  by the site any more, so it cannot carry the direct answer.)
+- **Minta revisi** needs a reason; it goes to Tech and into the article's history. The article moves to the Minta
+  revisi tab; the version Tech sends back appears in Menunggu as "Versi baru tersedia". Not offered for an article
+  that is live or withdrawn (Tech refuses it).
+- **Deleted in Tech**: when Tech lists a group under `removed` (every language deleted), its article here is deleted
+  for good (to Trash, then deleted permanently, through the normal routes) and the item forgotten, by a `remove`
+  follow-up, so it finishes even when cut short. An article that is only missing from Tech's list is never deleted.
+  One language deleted: the article stays, flagged "Versi baru tersedia"; previewing and publishing again makes it
+  one language (that text in both).
+- **Withdrawn by Tech** (Tech took a published article off): taken down here too, kept in the Artikel menu, shown as
+  "Ditarik tim Tech" in the Tayang tab without Publish. Not reported back. Put live again from the Artikel menu it is
+  taken down again on the next read while Tech says withdrawn. A newer version from Tech comes back in Menunggu and
+  publishes into the same article.
+- Both run on every read of the page and on the Worker's cron (which reads Tech's list itself; the cron is the weekly
+  one in `admin/wrangler.jsonc`). Neither reports to Tech: the article routes are called without the hook.
+- **One article per Tech article**: every path (preview, publish, the follow-up, a newer version, Trash, restore,
+  taken down, deleted in the Artikel menu) reuses the article linked to the item; two finishing runs at the same
+  moment link one article and delete the other draft.
 - **Subscription**: Tech decides. Without a running subscription only the status is readable: the sidebar entry turns
   grey with a lock and the page is locked. Articles that are already live are ordinary articles and stay.
 - **Artikel menu**: taking an ArticleFlow article down (or to Trash) is reported to Tech; publishing it again too.
@@ -77,6 +106,10 @@ then in `admin/.dev.vars`: `TECH_API_URL=http://127.0.0.1:8799`, `TECH_SITE_ID=k
 curl -X POST http://127.0.0.1:8799/__control -d '{"mode":"expired"}'    # active | expiring | expired | none
 curl -X POST http://127.0.0.1:8799/__control -d '{"down":true}'         # Tech unreachable
 curl -X POST http://127.0.0.1:8799/__control -d '{"reset":true}'
+curl -X POST http://127.0.0.1:8799/__control -d '{"delete":"grp_1"}'                 # every language deleted in Tech
+curl -X POST http://127.0.0.1:8799/__control -d '{"deleteLocale":["grp_1","en"]}'    # one language deleted
+curl -X POST http://127.0.0.1:8799/__control -d '{"withdraw":"grp_1"}'               # Tech takes a published article off
+curl -X POST http://127.0.0.1:8799/__control -d '{"resend":"grp_1"}'                 # Tech sends a newer version
 ```
 
 Against a local Tech (`pnpm dev` in tech-platform, port 3000; it moves to 3001 when 3000 is taken):
@@ -101,5 +134,5 @@ Published articles are untouched by all of this: they are ordinary rows in `arti
    `admin/tsconfig.worker.json`, the `articleflow:*` scripts in `admin/package.json`, `test:articleflow` in the root
    `package.json`. (The test harness and the responsive test already skip ArticleFlow when the folder is gone.)
 5. Drop the tables: run `migrations/9999_remove_articleflow.sql` on kadanglabo-content **before** deleting the folder, or
-   `npx wrangler d1 execute kadanglabo-content --remote --command "DROP TABLE IF EXISTS articleflow_outbox; DROP TABLE IF EXISTS articleflow_cache; DROP TABLE IF EXISTS articleflow_items;"`.
+   `npx wrangler d1 execute kadanglabo-content --remote --command "DROP TABLE IF EXISTS articleflow_outbox; DROP TABLE IF EXISTS articleflow_outbox_next; DROP TABLE IF EXISTS articleflow_withdrawn; DROP TABLE IF EXISTS articleflow_cache; DROP TABLE IF EXISTS articleflow_items;"`.
 6. `npx wrangler secret delete TECH_PARTNER_KEY`, remove the `TECH_*` vars, then build and deploy as usual.

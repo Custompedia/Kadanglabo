@@ -97,8 +97,11 @@ export async function makeEnv() {
     }
   }
   // an optional add-on keeps its tables next to its code (admin/articleflow); absent once the add-on is removed
-  const addon = resolve(root, 'admin/articleflow/migrations/0001_articleflow.sql')
-  if (existsSync(addon)) env.CONTENT_DB.db.exec(await readFile(addon, 'utf8'))
+  // (every step in order, never 9999_remove_*, which takes it out again)
+  const addon = resolve(root, 'admin/articleflow/migrations')
+  if (existsSync(addon))
+    for (const file of (await readdir(addon)).filter(name => name.endsWith('.sql') && !name.startsWith('9999')).sort())
+      env.CONTENT_DB.db.exec(await readFile(resolve(addon, file), 'utf8'))
   return env
 }
 

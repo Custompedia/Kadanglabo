@@ -10,16 +10,20 @@ import { tech, type FlowBindings } from './tech-client'
  *   finish      Tech accepted the publish; the article still has to go live here
  *   live        tell Tech the public address
  *   taken_down  tell Tech an article was taken off the website
+ *   remove      Tech deleted the article (every language): it leaves this website for good (sync.ts queues it)
  * Jobs are tried right away, again whenever the dashboard asks for the status, and by the Worker's cron.
  */
 
-export type JobKind = 'finish' | 'live' | 'taken_down'
+export type JobKind = 'finish' | 'live' | 'taken_down' | 'remove'
 interface JobRow { id: number; group_id: string; kind: JobKind; payload: string; attempts: number }
 
-const GIVE_UP = 12 // tries for the two reports to Tech; finishing a publish never gives up
+const GIVE_UP = 12 // tries for the two reports to Tech; finishing a publish and removing an article never give up
 
-/** The dashboard's own article routes, run as `user`: the exact code path of the Artikel menu. */
-async function core(env: FlowBindings, user: SessionUser, method: 'POST' | 'PUT', path: string, body?: unknown) {
+/**
+ * The dashboard's own article routes, run as `user`: the exact code path of the Artikel menu. Only the routes: the
+ * ArticleFlow hook (api.ts articleHook) is not part of this app, so nothing done through here is reported to Tech.
+ */
+export async function core(env: FlowBindings, user: SessionUser, method: 'POST' | 'PUT' | 'DELETE', path: string, body?: unknown) {
   const app = new Hono<AppEnv>()
   app.use('*', async (c, next) => {
     c.set('user', user)
@@ -31,7 +35,7 @@ async function core(env: FlowBindings, user: SessionUser, method: 'POST' | 'PUT'
   return { ok: res.ok, status: res.status, data }
 }
 
-const systemUser = (name: string | null): SessionUser => ({ id: 0, username: name || 'articleflow', name: name || 'ArticleFlow', role: 'editor' })
+export const systemUser = (name: string | null): SessionUser => ({ id: 0, username: name || 'articleflow', name: name || 'ArticleFlow', role: 'editor' })
 
 /** A free address: the wanted slug, or the wanted slug with -2, -3, ... when another article already has it. */
 export async function freeSlug(env: FlowBindings, wanted: string, exceptId = 0): Promise<string> {
@@ -64,8 +68,16 @@ export async function finishLocal(env: FlowBindings, groupId: string, by: string
     const slug = await freeSlug(env, draft.slug)
     const made = await core(env, user, 'POST', '/', { content: { ...draft, slug } })
     if (!made.ok) throw new FinishError(String(made.data.message ?? 'Artikel tidak bisa dibuat.'))
-    article = { id: Number(made.data.id), slug, state: 'draft' }
-    await env.CONTENT_DB.prepare(`UPDATE articleflow_items SET article_id = ?, updated_at = ? WHERE group_id = ?`).bind(article.id, now(), groupId).run()
+    const id = Number(made.data.id)
+    // One article per Tech article, ever. The publish request and a drain of its follow-up can both get here at the
+    // same moment: the first link wins, and the loser's draft (never live) is deleted again before going on with it.
+    const link = await env.CONTENT_DB.prepare(`UPDATE articleflow_items SET article_id = ?, updated_at = ? WHERE group_id = ? AND (article_id IS NULL OR article_id = ?)`)
+      .bind(id, now(), groupId, row.article_id ?? id).run()
+    if (!link.meta.changes) {
+      await discard(env, user, id)
+      return finishLocal(env, groupId, by)
+    }
+    article = { id, slug, state: 'draft' }
   } else {
     if (article.state === 'trashed') {
       const back = await core(env, user, 'POST', `/${article.id}/restore`)
@@ -80,11 +92,40 @@ export async function finishLocal(env: FlowBindings, groupId: string, by: string
 
   await env.CONTENT_DB.batch([
     env.CONTENT_DB.prepare(`UPDATE articleflow_items SET state = 'published', idem_key = NULL, lock_until = NULL, published_versions = versions, updated_at = ? WHERE group_id = ?`).bind(now(), groupId),
+    // live again with a newer version Tech sent after withdrawing it: no longer withdrawn
+    env.CONTENT_DB.prepare(`DELETE FROM articleflow_withdrawn WHERE group_id = ?`).bind(groupId),
     // one open report per article is enough: the newest address wins
     env.CONTENT_DB.prepare(`UPDATE articleflow_outbox SET done_at = ?, last_error = 'superseded' WHERE group_id = ? AND kind IN ('live', 'taken_down', 'finish') AND done_at IS NULL`).bind(now(), groupId),
     enqueueStatement(env, groupId, 'live'),
   ])
   return { articleId: article.id, slug: article.slug }
+}
+
+/** An article out of the website for good, the way the Artikel menu does it: to Trash, then deleted permanently. */
+async function discard(env: FlowBindings, user: SessionUser, id: number) {
+  const art = await env.CONTENT_DB.prepare(`SELECT state FROM articles WHERE id = ?`).bind(id).first<{ state: string }>()
+  if (!art) return
+  if (art.state !== 'trashed') {
+    const trashed = await core(env, user, 'POST', `/${id}/trash`)
+    if (!trashed.ok && trashed.status !== 404) throw new Error(String(trashed.data.message ?? 'Artikel tidak bisa dipindah ke Trash.'))
+  }
+  const gone = await core(env, user, 'DELETE', `/${id}`)
+  if (!gone.ok && gone.status !== 404) throw new Error(String(gone.data.message ?? 'Artikel tidak bisa dihapus.'))
+}
+
+/**
+ * Tech deleted the article: its article here (whatever state it is in, also in Trash) is deleted for good, then the
+ * item and its open follow-ups. Every step looks first, so a run cut short is simply run again.
+ */
+async function removeLocal(env: FlowBindings, groupId: string, jobId: number) {
+  const row = await getItem(env, groupId)
+  if (!row) return
+  if (row.article_id) await discard(env, systemUser(null), row.article_id)
+  await env.CONTENT_DB.batch([
+    env.CONTENT_DB.prepare(`DELETE FROM articleflow_items WHERE group_id = ?`).bind(groupId),
+    env.CONTENT_DB.prepare(`DELETE FROM articleflow_withdrawn WHERE group_id = ?`).bind(groupId),
+    env.CONTENT_DB.prepare(`UPDATE articleflow_outbox SET done_at = ?, last_error = 'removed in Tech' WHERE group_id = ? AND id != ? AND done_at IS NULL`).bind(now(), groupId, jobId),
+  ])
 }
 
 export const enqueueStatement = (env: FlowBindings, groupId: string, kind: JobKind, payload: Record<string, unknown> = {}) =>
@@ -104,6 +145,10 @@ function liveUrls(env: FlowBindings, row: ItemRow, slug: string) {
 }
 
 async function run(env: FlowBindings, job: JobRow): Promise<'done' | { retry: string } | { drop: string }> {
+  if (job.kind === 'remove') {
+    await removeLocal(env, job.group_id, job.id)
+    return 'done'
+  }
   const row = await getItem(env, job.group_id)
   if (!row) return { drop: 'item gone' }
   if (job.kind === 'finish') {
@@ -115,7 +160,8 @@ async function run(env: FlowBindings, job: JobRow): Promise<'done' | { retry: st
     }
   }
   // a report that Tech can never accept any more is dropped: the article itself is fine either way
-  const final = (code: string) => ['NOT_FOUND', 'INVALID_INPUT', 'SUBSCRIPTION_EXPIRED', 'NOT_CONFIGURED'].includes(code)
+  // (CHANGED: Tech's side moved on, e.g. it withdrew the article; the same report would be refused again)
+  const final = (code: string) => ['NOT_FOUND', 'INVALID_INPUT', 'SUBSCRIPTION_EXPIRED', 'NOT_CONFIGURED', 'CHANGED'].includes(code)
   const key = `${job.kind}:${job.group_id}:${job.id}`
   if (job.kind === 'live') {
     const slug = row.article_id ? (await env.CONTENT_DB.prepare(`SELECT slug FROM articles WHERE id = ? AND state = 'published'`).bind(row.article_id).first<{ slug: string }>())?.slug : null
@@ -127,12 +173,14 @@ async function run(env: FlowBindings, job: JobRow): Promise<'done' | { retry: st
   return res.ok ? 'done' : final(res.code) ? { drop: res.code } : { retry: res.code }
 }
 
-/** Run the jobs that are due. Never throws; returns how many are still open. */
-export async function drain(env: FlowBindings, limit = 6): Promise<number> {
+/** Run the jobs that are due (only these kinds, when given). Never throws; returns how many are still open. */
+export async function drain(env: FlowBindings, limit = 6, kinds?: JobKind[]): Promise<number> {
   try {
+    const only = kinds?.length ? ` AND kind IN (${kinds.map(() => '?').join(', ')})` : ''
     // a finished publish queues its own report: a second pass sends it in the same run
     for (let pass = 0; pass < 3; pass++) {
-      const { results } = await env.CONTENT_DB.prepare(`SELECT id, group_id, kind, payload, attempts FROM articleflow_outbox WHERE done_at IS NULL AND next_at <= ? ORDER BY id LIMIT ?`).bind(now(), limit).all<JobRow>()
+      const { results } = await env.CONTENT_DB.prepare(`SELECT id, group_id, kind, payload, attempts FROM articleflow_outbox WHERE done_at IS NULL AND next_at <= ?${only} ORDER BY id LIMIT ?`)
+        .bind(now(), ...(kinds ?? []), limit).all<JobRow>()
       for (const job of results) {
         // claim it first, so two drains running side by side never do the same job twice
         const claim = await env.CONTENT_DB.prepare(`UPDATE articleflow_outbox SET attempts = attempts + 1, next_at = ? WHERE id = ? AND done_at IS NULL AND attempts = ?`)
@@ -146,7 +194,7 @@ export async function drain(env: FlowBindings, limit = 6): Promise<number> {
         }
         const attempts = job.attempts + 1
         if (outcome === 'done') await env.CONTENT_DB.prepare(`UPDATE articleflow_outbox SET done_at = ?, last_error = NULL WHERE id = ?`).bind(now(), job.id).run()
-        else if ('drop' in outcome || (job.kind !== 'finish' && attempts >= GIVE_UP))
+        else if ('drop' in outcome || (job.kind !== 'finish' && job.kind !== 'remove' && attempts >= GIVE_UP))
           await env.CONTENT_DB.prepare(`UPDATE articleflow_outbox SET done_at = ?, last_error = ? WHERE id = ?`).bind(now(), ('drop' in outcome ? outcome.drop : outcome.retry).slice(0, 300), job.id).run()
         else {
           // 1, 2, 4 ... minutes, at most six hours apart

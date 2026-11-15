@@ -4,7 +4,11 @@
  */
 
 export type SubscriptionState = 'NONE' | 'ACTIVE' | 'EXPIRING' | 'EXPIRED'
-export type TechItemStatus = 'PENDING' | 'APPROVED' | 'CHANGES_REQUESTED' | 'UPDATING' | 'PUBLISHED'
+/**
+ * WITHDRAWN: Tech staff took the article off the website after it was published. Tech refuses publish and revision on
+ * it; a newer version comes back as PENDING. A status this dashboard does not know yet is shown, never acted on.
+ */
+export type TechItemStatus = 'PENDING' | 'APPROVED' | 'CHANGES_REQUESTED' | 'UPDATING' | 'PUBLISHED' | 'WITHDRAWN'
 export type TechLocale = 'id' | 'en'
 
 export interface TechStatus {
@@ -46,6 +50,12 @@ export interface TechItem {
   waitingFor?: TechLocale | null
 }
 
+/**
+ * GET /articles. `removed`: groups that were sent here and whose every language has since been deleted in Tech (they
+ * are no longer in `items`). Only these are deleted here: an article that is merely missing from `items` is not.
+ */
+export interface TechList { items: TechItem[]; removed?: { groupId: string; at: string }[] }
+
 export type TechRun = { text: string; bold?: true; italic?: true; href?: string }
 export type TechBlock =
   | { type: 'heading'; level: 2 | 3; text: string }
@@ -71,6 +81,7 @@ export interface TechVersion {
   metaDescription: string
   excerpt: string
   directAnswer: string
+  /** Tech's own SEO cluster name: a hint for Tech, never a topic of this website (the client picks the topic here) */
   topic: string | null
   hero: { assetId: string; alt: string; caption: string } | null
   blocks: TechBlock[]
@@ -88,6 +99,9 @@ export interface TechDetail extends TechItem {
 /** Where an item stands on the Kadanglabo side. */
 export type LocalState = 'none' | 'imported' | 'publishing' | 'finishing' | 'published' | 'taken_down'
 
+/** One of the website's own article topics (Pengaturan topik), in both languages. */
+export interface TopicTag { en: string; id: string }
+
 export interface LocalInfo {
   state: LocalState
   /** the article in the normal Artikel menu, once it exists */
@@ -101,10 +115,14 @@ export interface LocalInfo {
   assets: Record<string, string>
   /** the banner in Media, once the article was previewed */
   cover: string | null
+  /** the website topic the article is filed under, once chosen here (Tech never chooses it) */
+  tag: TopicTag | null
+  /** when Tech took this article off the website (it was taken down here too), else null */
+  withdrawnAt: string | null
 }
 
 /** What the page shows for an item: Tech's row plus the local state, folded into one simple status. */
-export type ViewStatus = 'waiting' | 'approved' | 'changes' | 'updating' | 'finishing' | 'published' | 'taken_down'
+export type ViewStatus = 'waiting' | 'approved' | 'changes' | 'updating' | 'finishing' | 'published' | 'taken_down' | 'withdrawn' | 'other'
 export interface FlowItem extends TechItem { local: LocalInfo; view: ViewStatus }
 export interface FlowDetail extends TechDetail { local: LocalInfo; view: ViewStatus }
 
@@ -133,6 +151,7 @@ export interface FlowOverview extends FlowStatus {
 
 export interface ImportResult {
   previewUrl: string
+  /** what still stops the draft and only Tech can fix; the topic is picked here and is not listed (see local.tag) */
   issues: string[]
   singleLang: TechLocale | null
   local: LocalInfo
