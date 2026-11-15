@@ -1,14 +1,18 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Banner, Button, Dialog, LinkButton, Loader } from '@cloudflare/kumo'
 import { ArrowSquareOut, CheckCircle, DesktopTower, DeviceMobile, WarningCircle, X } from '@phosphor-icons/react'
+import { TopicSelect } from '../../src/components/TopicSelect'
 import { dateTime } from '../../src/lib/format'
-import type { FlowItem } from '../types'
-import { canPublish, message, newKey, prepare, requestChanges, viewLabel, type Prepared } from './flow'
+import type { FlowItem, TopicTag } from '../types'
+import { canPublish, longDate, message, newKey, prepare, requestChanges, viewLabel, type Prepared } from './flow'
 
 /*
  * One article from Tech: the website's own page with this draft in it (the same preview the Artikel menu has) and,
- * on the right, why it was written, with Publish and Minta revisi. Opening it brings the article here as a draft.
+ * on the right, why it was written, with the topic, Publish and Minta revisi. Opening it brings the article here as a
+ * draft. The topic is the website's own (the same list as the article editor) and must be chosen before Publish:
+ * Tech does not choose it. An article that is already here keeps its topic unless another is picked.
  */
+const NO_TAG: TopicTag = { en: '', id: '' }
 export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, onChanged }: {
   item: FlowItem | null
   /** Tech cannot be reached: looking only */
@@ -16,7 +20,7 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
   publishing: boolean
   onClose: () => void
   /** resolves once the publish has ended, well or not */
-  onPublish: (item: FlowItem, prepared: Prepared) => void
+  onPublish: (item: FlowItem, prepared: Prepared, tag: TopicTag) => void
   onChanged: () => void
 }) {
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
@@ -24,6 +28,7 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
   const [ready, setReady] = useState<Prepared | null>(null)
   const [failed, setFailed] = useState<string | null>(null)
   const [asking, setAsking] = useState(false)
+  const [tag, setTag] = useState<TopicTag>(NO_TAG)
   const run = useRef(0)
 
   const load = (groupId: string) => {
@@ -35,6 +40,8 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
       .then((p) => n === run.current && setReady(p))
       .catch((e) => n === run.current && setFailed(message(e, 'Artikel tidak bisa disiapkan.')))
   }
+  // the topic the draft already has (kept from the article here, or picked before), until another is picked
+  useEffect(() => setTag(ready?.result.local.tag ?? NO_TAG), [ready])
   useEffect(() => {
     if (!item) return void (run.current++, setReady(null), setFailed(null), setAsking(false))
     if (item.view !== 'finishing') load(item.groupId)
@@ -56,13 +63,15 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
   const single = ready?.result.singleLang ?? null
   const actionable = !!item && canPublish(item.view)
   const url = ready?.result.previewUrl ?? null
+  const noTopic = !tag.en.trim()
+  const inArtikel = !!item?.local.articleId && (item.view === 'published' || item.view === 'taken_down' || item.view === 'withdrawn')
 
   return (
     <Dialog.Root open={!!item} onOpenChange={(o) => !o && !publishing && onClose()}>
       <Dialog size="xl" className="flex h-[92dvh] max-h-[92dvh] w-[96vw] max-w-none flex-col overflow-hidden p-0 sm:max-h-[92dvh] sm:w-[min(1480px,96vw)]">
         <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-kumo-line px-4 py-2.5">
           <Dialog.Title className="text-[15px] font-semibold text-kumo-strong">Preview</Dialog.Title>
-          <span className="hidden text-xs text-kumo-subtle sm:inline">{item?.view === 'published' ? 'Dari ArticleFlow, sudah tayang' : 'Dari ArticleFlow, belum tayang'}</span>
+          <span className="hidden text-xs text-kumo-subtle sm:inline">{item?.view === 'published' ? 'Dari ArticleFlow, sudah tayang' : item?.view === 'withdrawn' ? 'Dari ArticleFlow, ditarik tim Tech' : 'Dari ArticleFlow, belum tayang'}</span>
           <Dialog.Description className="sr-only">Pratinjau artikel dari ArticleFlow, alasan penulisannya, dan tombol untuk menayangkan atau meminta revisi.</Dialog.Description>
           <span className="flex-1" />
           <span className="flex gap-1 rounded-lg bg-kumo-recessed p-0.5 ring-1 ring-kumo-hairline max-lg:hidden">
@@ -112,7 +121,19 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
                 <Banner variant="alert" size="sm" className="mt-4" description={`Tech hanya mengirim versi bahasa ${single === 'id' ? 'Indonesia' : 'Inggris'}. Teks yang sama dipakai untuk kedua bahasa di website.`} />
               )}
               {issues.length > 0 && <Banner variant="error" size="sm" className="mt-4" title="Belum bisa tayang" description={`Belum lengkap: ${issues.join(', ')}. Minta tim Tech melengkapinya lewat Minta revisi.`} />}
-              {item?.local.newVersion && <Banner size="sm" className="mt-4" description="Ini versi baru dari artikel yang sudah tayang. Publish mengganti isi artikel di alamat yang sama." />}
+              {item?.local.newVersion && (
+                <Banner size="sm" className="mt-4" description={item.local.articleId ? 'Ini versi baru dari artikel yang sudah ada di website. Publish mengganti isi artikel di alamat yang sama.' : 'Ini versi baru yang dikirim tim Tech setelah Minta revisi.'} />
+              )}
+              {item?.view === 'withdrawn' && (
+                <Banner variant="alert" size="sm" className="mt-4" title="Ditarik tim Tech" description={`Tim Tech menarik artikel ini dari website${item.local.withdrawnAt ? ` pada ${longDate(item.local.withdrawnAt)}` : ''}. ${item.local.articleId ? 'Artikelnya tetap ada di menu Artikel sebagai diturunkan.' : ''}`.trim()} />
+              )}
+
+              {/* the topic sits with the article, not in the bar at the bottom: that bar stays one row high on short screens */}
+              {actionable && ready && (
+                <div className="mt-5 rounded-xl bg-kumo-recessed/60 p-3.5 ring-1 ring-kumo-hairline">
+                  <TopicSelect value={tag} onChange={setTag} />
+                </div>
+              )}
 
               <h3 className="mt-5 text-sm font-semibold text-kumo-strong">Kenapa artikel ini</h3>
               <p className="mt-0.5 text-[13px] text-kumo-subtle">Ringkasan riset dari tim Custompedia Tech.</p>
@@ -154,15 +175,24 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
               {actionable ? (
                 <>
                   <div className="flex flex-col gap-2.5 max-lg:flex-row-reverse">
-                  <Button variant="primary" className="w-full justify-center max-lg:flex-1" size="lg" disabled={disabled || !ready || issues.length > 0 || asking} loading={publishing} onClick={() => item && ready && onPublish(item, ready)}>
+                  <Button variant="primary" className="w-full justify-center max-lg:flex-1" size="lg" disabled={disabled || !ready || issues.length > 0 || noTopic || asking} loading={publishing} onClick={() => item && ready && !noTopic && onPublish(item, ready, tag)}>
                     {item?.local.newVersion ? 'Publish versi baru' : 'Publish ke website'}
                   </Button>
                   <Button className="w-full justify-center max-lg:flex-1" size="lg" disabled={disabled || publishing} onClick={() => setAsking(true)}>Minta revisi</Button>
                   </div>
-                  <p className={`mt-3 text-xs leading-relaxed text-kumo-subtle ${disabled ? '' : 'max-lg:hidden'}`}>{disabled ? 'Custompedia Tech sedang tidak bisa dihubungi. Publish dan Minta revisi dibuka lagi setelah tersambung.' : 'Minta revisi wajib menyertakan alasan. Alasan dikirim ke tim Tech dan tercatat di riwayat artikel.'}</p>
+                  <p className={`mt-3 text-xs leading-relaxed text-kumo-subtle ${disabled || (ready && noTopic) ? '' : 'max-lg:hidden'}`}>
+                    {disabled
+                      ? 'Custompedia Tech sedang tidak bisa dihubungi. Publish dan Minta revisi dibuka lagi setelah tersambung.'
+                      : ready && noTopic
+                        ? 'Pilih topik artikel di panel ini dulu, lalu Publish.'
+                        : 'Minta revisi wajib menyertakan alasan. Alasan dikirim ke tim Tech dan tercatat di riwayat artikel.'}
+                  </p>
                 </>
-              ) : item?.view === 'published' && item.local.articleId ? (
-                <LinkButton href={`/articles/${item.local.articleId}`} className="w-full justify-center max-md:min-h-11" size="lg" onClick={onClose}>Buka di menu Artikel</LinkButton>
+              ) : inArtikel && item ? (
+                <>
+                  {item.view !== 'published' && <p className="mb-3 text-sm leading-relaxed text-kumo-subtle">{item.view === 'withdrawn' ? 'Jika tim Tech mengirim versi baru, artikel ini muncul lagi di tab Menunggu.' : 'Artikel ini diturunkan dari website. Tayangkan lagi dari menu Artikel.'}</p>}
+                  <LinkButton href={`/articles/${item.local.articleId}`} className="w-full justify-center max-md:min-h-11" size="lg" onClick={onClose}>Buka di menu Artikel</LinkButton>
+                </>
               ) : (
                 <p className="text-sm leading-relaxed text-kumo-subtle">
                   {item?.view === 'updating' && item.waitingFor
@@ -173,7 +203,11 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
                       ? 'Penayangan sedang diselesaikan. Tidak ada yang perlu Anda lakukan.'
                       : item?.view === 'taken_down'
                         ? 'Artikel ini diturunkan dari website. Tayangkan lagi dari menu Artikel.'
-                        : ''}
+                        : item?.view === 'withdrawn'
+                          ? 'Tim Tech menarik artikel ini. Jika tim Tech mengirim versi baru, artikel ini muncul lagi di tab Menunggu.'
+                          : item?.view === 'other'
+                            ? 'Artikel ini sedang diproses tim Tech. Tidak ada yang perlu Anda lakukan sekarang.'
+                            : ''}
                 </p>
               )}
             </div>

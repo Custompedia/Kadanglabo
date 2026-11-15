@@ -7,7 +7,7 @@ import { Page } from '../../src/layout/Page'
 import { api, ApiError } from '../../src/lib/api'
 import { dateTime } from '../../src/lib/format'
 import { mutate, useFetch } from '../../src/lib/useFetch'
-import type { FlowItem, FlowOverview, PublishResult } from '../types'
+import type { FlowItem, FlowOverview, PublishResult, TopicTag } from '../types'
 import { AnalyticsCards } from './AnalyticsCards'
 import { ArticleQueue } from './ArticleQueue'
 import { ExpiredDialog } from './ExpiredDialog'
@@ -41,7 +41,7 @@ export default function ArticleFlowPage() {
     if (pulse) mutate(STATUS)
   }, [pulse])
 
-  const act = async (item: FlowItem, prepared?: Prepared) => {
+  const act = async (item: FlowItem, prepared?: Prepared, tag?: TopicTag) => {
     if (working) return
     setWorking(item.groupId)
     try {
@@ -50,7 +50,9 @@ export default function ArticleFlowPage() {
         toasts.add({ variant: 'error', title: 'Artikel belum bisa tayang', description: `Belum lengkap: ${ready.result.issues.slice(0, 3).join(', ')}.` })
         return
       }
-      const done = await publish(item.groupId)
+      // no website topic on the draft (any more): it is picked in the preview first
+      if (!tag && !ready.result.local.tag) return setOpen(item)
+      const done = await publish(item.groupId, tag)
       report(done, item)
       setOpen(null)
     } catch (e) {
@@ -66,7 +68,9 @@ export default function ArticleFlowPage() {
       ? toasts.add({ variant: 'success', title: 'Artikel sudah tayang', description: item.title })
       : toasts.add({ variant: 'info', title: 'Penayangan sedang diselesaikan', description: 'Tech sudah menerima. Artikel muncul di website sebentar lagi.' })
 
+  // the row's Publish skips the preview, except when the topic still has to be chosen there
   const publishFromRow = async (item: FlowItem) => {
+    if (!item.local.tag) return setOpen(item)
     if (await confirm({ title: item.local.newVersion ? 'Publish versi baru?' : 'Publish artikel ini?', body: `"${item.title}" langsung tayang di halaman Artikel website${item.local.newVersion ? ', menggantikan versi yang sekarang' : ''}.`, action: 'Publish' })) await act(item)
   }
 
@@ -154,7 +158,7 @@ export default function ArticleFlowPage() {
         </>
       )}
 
-      <ReviewDialog item={open} disabled={offline} publishing={!!open && working === open.groupId} onClose={() => setOpen(null)} onPublish={(item, prepared) => void act(item, prepared)} onChanged={() => (toasts.add({ variant: 'success', title: 'Alasan revisi terkirim', description: 'Tim Tech merevisi artikel ini.' }), refreshAll())} />
+      <ReviewDialog item={open} disabled={offline} publishing={!!open && working === open.groupId} onClose={() => setOpen(null)} onPublish={(item, prepared, tag) => void act(item, prepared, tag)} onChanged={() => (toasts.add({ variant: 'success', title: 'Alasan revisi terkirim', description: 'Tim Tech merevisi artikel ini.' }), refreshAll())} />
       {data && <ExpiredDialog open={popup} onClose={() => setPopup(false)} status={data} />}
     </Page>
   )

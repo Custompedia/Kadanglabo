@@ -13,6 +13,8 @@
  *   mode: active | expiring | expired | none      down: true (answers 503)      slow: ms
  *   refuse: ["HERO_REQUIRED"] (next publish is refused)      changed: true (next write answers 409 CHANGED)
  *   failLive: n (the next n "live" reports fail)      reset: true (sample data back to the start)
+ *   delete: "grp_1" (every language deleted in Tech: listed under `removed`)   deleteLocale: ["grp_1", "en"]
+ *   withdraw: "grp_1" (Tech takes a published article off: WITHDRAWN)          resend: "grp_1" (a newer version, PENDING)
  */
 import { createServer } from 'node:http'
 import { pathToFileURL } from 'node:url'
@@ -32,7 +34,7 @@ function version(locale, n, title, slug, extra = {}) {
     metaTitle: title, metaDescription: id ? 'Ringkasan singkat untuk hasil pencarian.' : 'A short summary for search results.',
     excerpt: id ? 'Rincian yang bisa langsung dipakai untuk menyusun anggaran dan jadwal.' : 'A breakdown you can use to plan a budget and a schedule.',
     directAnswer: id ? 'Jawaban singkat: biaya bergantung pada luas, material, dan tingkat kerumitan.' : 'Short answer: cost depends on floor area, materials and complexity.',
-    topic: id ? 'Wawasan' : 'Insight',
+    topic: id ? 'Klaster biaya interior' : 'Interior cost cluster', // Tech's SEO cluster: never a website topic
     hero: { assetId: `asset_${n}_hero`, alt: id ? 'Interior ruang dengan pencahayaan hangat' : 'Interior with warm lighting', caption: id ? 'Contoh ruang yang sudah selesai.' : 'A finished space.' },
     blocks: [
       { type: 'heading', level: 2, text: id ? 'Apa saja yang menentukan biaya' : 'What drives the cost' },
@@ -118,7 +120,7 @@ async function picture(width, height, tone) {
 }
 
 export async function createFakeTech({ port = 0, mode = 'active', key = FAKE_KEY, site = FAKE_SITE } = {}) {
-  const state = { mode, down: false, slow: 0, refuse: null, changed: false, failLive: 0, emptyAnalytics: false, groups: sample(), calls: [], idem: new Map(), live: [], takenDown: [] }
+  const state = { mode, down: false, slow: 0, refuse: null, changed: false, failLive: 0, emptyAnalytics: false, groups: sample(), removed: [], calls: [], idem: new Map(), live: [], takenDown: [] }
   const pictures = { hero: await picture(1600, 1000, ['#e7d9c4', '#b9a48c', '#8c7458', '#d9c8b4']), body: await picture(1280, 800, ['#d8dde6', '#9aa7bf', '#3c4c74', '#ec6434']) }
 
   const subscription = () => {
@@ -153,8 +155,12 @@ export async function createFakeTech({ port = 0, mode = 'active', key = FAKE_KEY
       res.end(data === null ? undefined : JSON.stringify(data))
     }
     if (url.pathname === '/__control' && req.method === 'POST') {
-      if (body?.reset) { state.groups = sample(); state.idem.clear(); state.live = []; state.takenDown = [] }
+      if (body?.reset) { state.groups = sample(); state.removed = []; state.idem.clear(); state.live = []; state.takenDown = [] }
       for (const k of ['mode', 'down', 'slow', 'refuse', 'changed', 'failLive', 'emptyAnalytics']) if (body && k in body) state[k] = body[k]
+      if (typeof body?.delete === 'string') deleteGroup(body.delete)
+      if (Array.isArray(body?.deleteLocale)) deleteLocale(...body.deleteLocale)
+      if (typeof body?.withdraw === 'string') withdraw(body.withdraw)
+      if (typeof body?.resend === 'string') newVersion(body.resend)
       return send(200, { ok: true, mode: state.mode })
     }
     state.calls.push(`${req.method} ${url.pathname}`)
@@ -169,7 +175,8 @@ export async function createFakeTech({ port = 0, mode = 'active', key = FAKE_KEY
       return send(200, { contractVersion: 'cms-partner/v1', siteId: site, hostname: 'kadanglabo.com', serverTime: new Date().toISOString(), subscription: subscription(), counts: locked() ? null : counts() })
     if (locked()) return send(402, { error: 'SUBSCRIPTION_EXPIRED' })
     if (path === '/analytics' && req.method === 'GET') return send(200, state.emptyAnalytics ? emptyAnalytics() : analytics())
-    if (path === '/articles' && req.method === 'GET') return send(200, { items: state.groups.map(item) })
+    // `removed`: groups sent here whose every language was deleted since; they are no longer in `items`
+    if (path === '/articles' && req.method === 'GET') return send(200, { items: state.groups.map(item), removed: state.removed })
 
     const a = /^\/articles\/([^/]+)(?:\/(media|decision|publish|live|taken-down)(?:\/([^/]+))?)?$/.exec(path)
     if (!a) return send(404, { error: 'NOT_FOUND' })
@@ -189,8 +196,11 @@ export async function createFakeTech({ port = 0, mode = 'active', key = FAKE_KEY
     if (state.idem.has(idemKey)) { const prev = state.idem.get(idemKey); return send(prev.status, prev.data) }
     const remember = (status, data) => { state.idem.set(idemKey, { status, data }); return send(status, data) }
 
+    // a withdrawn article takes nothing until Tech sends a newer version; a published one takes no revision either
+    if (g.status === 'WITHDRAWN' && action !== 'taken-down') return send(409, { error: 'CHANGED' })
     if (action === 'decision') {
       if (state.changed) { state.changed = false; return send(409, { error: 'CHANGED' }) }
+      if (g.status === 'PUBLISHED') return send(409, { error: 'CHANGED' })
       if (body.decision !== 'CHANGES_REQUESTED' || typeof body.comment !== 'string' || !body.comment.trim() || body.comment.length > 2000 || !body.actor?.name) return send(400, { error: 'INVALID_INPUT' })
       if (!sameVersions(g, body.versions)) return send(409, { error: 'CHANGED' })
       g.decision = { decision: 'CHANGES_REQUESTED', by: body.actor.name, at: new Date().toISOString(), comment: body.comment.trim() }
@@ -220,17 +230,38 @@ export async function createFakeTech({ port = 0, mode = 'active', key = FAKE_KEY
     state.idem.set(idemKey, { status: 204, data: null })
     return send(204, null)
   })
+  /** Tech staff save a newer version of a group and send it again (also after a withdrawal or a revision). */
+  function newVersion(groupId) {
+    const g = state.groups.find((x) => x.groupId === groupId)
+    g.versions = g.versions.map((v) => ({ ...v, versionId: v.versionId.replace(/_(\d+)$/, (_, n) => `_${Number(n) + 1}`), title: `${v.title} (diperbarui)` }))
+    g.title = g.versions[0].title
+    g.status = 'PENDING'
+    g.sentAt = new Date(Date.now() + 1000).toISOString() // after any decision recorded this same second
+  }
+  /** Every language of a group deleted in Tech: it leaves `items` and is listed under `removed`. */
+  function deleteGroup(groupId) {
+    if (!state.groups.some((x) => x.groupId === groupId)) return
+    state.groups = state.groups.filter((x) => x.groupId !== groupId)
+    state.removed.push({ groupId, at: new Date().toISOString() })
+  }
+  /** One language deleted in Tech: the group stays, with the other language only (and its status). */
+  function deleteLocale(groupId, locale) {
+    const g = state.groups.find((x) => x.groupId === groupId)
+    if (!g) return
+    g.versions = g.versions.filter((v) => v.locale !== locale)
+    if (!g.versions.length) deleteGroup(groupId)
+    else g.title = g.versions[0].title
+  }
+  /** Tech staff take a published article off the website. */
+  function withdraw(groupId) {
+    const g = state.groups.find((x) => x.groupId === groupId)
+    if (g?.status === 'PUBLISHED') g.status = 'WITHDRAWN'
+  }
+
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, '127.0.0.1', resolve) })
   return {
     url: `http://127.0.0.1:${server.address().port}`, key, site, state,
-    /** Tech staff save a newer version of a group and send it again. */
-    newVersion(groupId) {
-      const g = state.groups.find((x) => x.groupId === groupId)
-      g.versions = g.versions.map((v) => ({ ...v, versionId: v.versionId.replace(/_(\d+)$/, (_, n) => `_${Number(n) + 1}`), title: `${v.title} (diperbarui)` }))
-      g.title = g.versions[0].title
-      g.status = 'PENDING'
-      g.sentAt = new Date().toISOString()
-    },
+    newVersion, deleteGroup, deleteLocale, withdraw,
     close: () => new Promise((resolve) => { server.close(resolve); server.closeAllConnections() }),
   }
 }

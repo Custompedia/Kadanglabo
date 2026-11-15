@@ -10,7 +10,7 @@ import { categories } from '../shared/content'
 type Env = PublicEnv & { ASSETS: Fetcher }
 
 /** The pages every visitor can reach from the menu, most important first. */
-const PAGES = ['/', '/about', '/services', '/work', ...categories.map((c) => `/work/${c}`), '/work/archive', '/articles', '/contact']
+const PAGES = ['/', '/about', '/services', '/work', ...categories.map((c) => `/work/${c}`), '/work/archive', '/articles', '/contact', '/editorial-policy']
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 const day = (iso: string | null | undefined) => (iso ? iso.slice(0, 10) : null)

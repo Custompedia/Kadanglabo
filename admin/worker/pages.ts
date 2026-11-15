@@ -201,8 +201,8 @@ const writeTopics = (env: Env, list: Topic[], by: string) =>
      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_by = excluded.updated_by, updated_at = excluded.updated_at`,
   ).bind(JSON.stringify(list), by, now())
 
-/** Every topic with the articles (not in Trash) that use it. */
-async function allTopics(env: Env) {
+/** Every topic with the articles (not in Trash) that use it. Also what ArticleFlow checks a chosen topic against. */
+export async function allTopics(env: Env) {
   const [kept, { results }] = await Promise.all([
     readTopics(env),
     env.CONTENT_DB.prepare(`SELECT title, json_extract(draft, '$.tag') AS d, json_extract(published, '$.tag') AS p FROM articles WHERE state != 'trashed'`).all<{ title: string; d: string | null; p: string | null }>(),

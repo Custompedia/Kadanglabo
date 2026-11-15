@@ -1,7 +1,7 @@
 import { api, ApiError } from '../../src/lib/api'
 import { uploadImage } from '../../src/lib/image'
 import { mutate } from '../../src/lib/useFetch'
-import type { FlowDetail, FlowItem, ImportResult, PublishResult, ViewStatus } from '../types'
+import type { FlowDetail, FlowItem, ImportResult, PublishResult, TopicTag, ViewStatus } from '../types'
 
 /* What the ArticleFlow page does, in one place: prepare a preview, publish, ask for changes, and the words it uses. */
 
@@ -16,8 +16,9 @@ export function refreshAll() {
 }
 
 export const nf = new Intl.NumberFormat('id-ID')
-export const pct = (share: number | null, digits = 1) => (share === null ? '-' : `${(share * 100).toLocaleString('id-ID', { maximumFractionDigits: digits })}%`)
-export const dec = (n: number | null) => (n === null ? '-' : n.toLocaleString('id-ID', { maximumFractionDigits: 1 }))
+// no number yet reads as 0, like the tiles of the Overview page (the grey line under it says why)
+export const pct = (share: number | null, digits = 1) => `${((share ?? 0) * 100).toLocaleString('id-ID', { maximumFractionDigits: digits })}%`
+export const dec = (n: number | null) => (n ?? 0).toLocaleString('id-ID', { maximumFractionDigits: 1 })
 export const shortDate = (iso: string) => new Date(iso.length === 10 ? `${iso}T00:00:00` : iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
 export const longDate = (iso: string) => new Date(iso.length === 10 ? `${iso}T00:00:00` : iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 
@@ -37,6 +38,8 @@ export const VIEW_LABEL: Record<ViewStatus, string> = {
   finishing: 'Sedang diselesaikan',
   published: 'Tayang',
   taken_down: 'Diturunkan',
+  withdrawn: 'Ditarik tim Tech',
+  other: 'Diproses tim Tech',
 }
 /** The status in words; an article whose other language is still on its way at Tech says which one it waits for. */
 export const viewLabel = (item: { view: ViewStatus; waitingFor?: 'id' | 'en' | null }): string =>
@@ -50,7 +53,8 @@ export const TABS: [Tab, string][] = [
   ['changes', 'Minta revisi'],
   ['published', 'Tayang'],
 ]
-export const tabOf = (view: ViewStatus): Tab => (view === 'waiting' ? 'waiting' : view === 'approved' ? 'approved' : view === 'changes' || view === 'updating' ? 'changes' : 'published')
+export const tabOf = (view: ViewStatus): Tab =>
+  view === 'waiting' ? 'waiting' : view === 'approved' ? 'approved' : view === 'changes' || view === 'updating' || view === 'other' ? 'changes' : 'published'
 
 export const languages = (item: FlowItem) => {
   const has = item.locales.map((l) => l.locale)
@@ -90,7 +94,9 @@ export async function prepare(groupId: string, onStep: (text: string) => void = 
   return { detail: { ...detail, local: result.local }, result }
 }
 
-export const publish = (groupId: string) => api<PublishResult>(`/articleflow/items/${encodeURIComponent(groupId)}/publish`, { method: 'POST' })
+/** Publish; `tag` is the website topic picked in the preview (without it the one already on the draft is used). */
+export const publish = (groupId: string, tag?: TopicTag) =>
+  api<PublishResult>(`/articleflow/items/${encodeURIComponent(groupId)}/publish`, tag ? { body: { tag } } : { method: 'POST' })
 
 export const requestChanges = (item: FlowItem, comment: string, idempotencyKey: string) =>
   api<{ ok: true; item: FlowItem | null }>(`/articleflow/items/${encodeURIComponent(item.groupId)}/decision`, { body: { comment, versions: versionsOf(item), idempotencyKey } })

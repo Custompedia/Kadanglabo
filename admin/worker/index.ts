@@ -48,6 +48,9 @@ api.onError((err, c) => {
   return c.json({ error: 'server', message: 'Terjadi kesalahan di server. Coba lagi.' }, 500)
 })
 
+/** The weekly cron in wrangler.jsonc (Monday 03:00 UTC); any other cron is the hourly one. */
+const WEEKLY_CRON = '0 3 * * 1'
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url)
@@ -57,14 +60,16 @@ export default {
     if (url.pathname.startsWith('/api/')) return api.fetch(req, env, ctx)
     return env.ASSETS.fetch(req)
   },
-  // weekly: images nothing has used for a week leave R2 (see cleanupMedia)
-  async scheduled(_event, env, ctx) {
-    ctx.waitUntil(
-      cleanupMedia(env).then(async (n) => {
-        console.log(`media cleanup: ${n} removed`)
-        await recordCleanup(env, n) // shown on the Monitoring page
-      }),
-    )
+  // Two crons (wrangler.jsonc): weekly, images nothing has used for a week leave R2 (see cleanupMedia); hourly, the
+  // integrations' follow-ups (ArticleFlow follows Tech's deletes and withdrawals within the hour).
+  async scheduled(event, env, ctx) {
+    if (event.cron === WEEKLY_CRON)
+      ctx.waitUntil(
+        cleanupMedia(env).then(async (n) => {
+          console.log(`media cleanup: ${n} removed`)
+          await recordCleanup(env, n) // shown on the Monitoring page
+        }),
+      )
     for (const integration of integrations) if (integration.scheduled) ctx.waitUntil(integration.scheduled(env).catch((e) => console.error(e)))
   },
 } satisfies ExportedHandler<AppEnv['Bindings']>

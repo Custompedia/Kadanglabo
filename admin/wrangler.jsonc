@@ -23,7 +23,7 @@
     { "binding": "ORIGINALS", "bucket_name": "kadanglabo-originals" }
   ],
   // Monday 03:00 UTC: remove images unused for a week (worker/media.ts, cleanupMedia)
-  "triggers": { "crons": ["0 3 * * 1"] },
+  "triggers": { "crons": ["0 3 * * 1", "17 * * * *"] },
   "vars": {
     "PUBLIC_SITE_URL": "https://kadanglabo.com",
     // ArticleFlow (admin/articleflow): where Custompedia Tech's Partner API lives and this website's id there. The key is

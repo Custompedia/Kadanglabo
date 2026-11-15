@@ -4,11 +4,13 @@ import type { ArticleContent } from '../../../shared/content'
 import { publishIssues } from '../../worker/content'
 import { newToken } from '../../worker/crypto'
 import { now, type AppEnv } from '../../worker/env'
+import { allTopics } from '../../worker/pages'
 import { articleSchema, firstError } from '../../worker/validate'
-import type { FlowDetail, FlowItem, FlowOverview, FlowStatus, ImportResult, PublishResult, TechAnalytics, TechDetail, TechItem, TechStatus, Trouble } from '../types'
+import type { FlowDetail, FlowItem, FlowOverview, FlowStatus, ImportResult, PublishResult, TechAnalytics, TechDetail, TechItem, TechList, TechStatus, TopicTag, Trouble } from '../types'
 import { neededAssets, toArticle } from './convert'
 import { drain, enqueueStatement, finishLocal, freeSlug, pendingJobs, retryNow } from './outbox'
-import { GROUP_ID, allItems, busy, dropCache, getItem, localInfo, parse, readCache, ready, slugOf, viewOf, writeCache, type ItemRow } from './store'
+import { GROUP_ID, allItems, busy, dropCache, getItem, localInfo, parse, readCache, ready, slugOf, tagOf, viewOf, writeCache, type ItemRow } from './store'
+import { applyTechList } from './sync'
 import { configured, failureMessage, tech, techMedia, type FlowBindings, type TechFailure, type TechResult } from './tech-client'
 
 /*
@@ -71,8 +73,27 @@ async function markExpired(env: FlowBindings) {
 const fold = async (env: FlowBindings, items: TechItem[], rows: Map<string, ItemRow>): Promise<FlowItem[]> =>
   Promise.all(items.map(async (item) => {
     const row = rows.get(item.groupId)
-    return { ...item, local: localInfo(row, item, await slugOf(env, row?.article_id ?? null)), view: viewOf(item.status, row) }
+    return { ...item, local: localInfo(row, item, await slugOf(env, row?.article_id ?? null)), view: viewOf(item, row) }
   }))
+
+/* ---- topics: the website's own, never Tech's ---------------------------------------------------------------------- */
+
+const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase()
+
+/** The website topic this names (by its English name, the key the site filters on), as the list spells it; else null. */
+async function siteTopic(env: FlowBindings, wanted: unknown): Promise<TopicTag | null> {
+  const t = tagOf(wanted)
+  if (!t) return null
+  const hit = (await allTopics(env)).find((x) => sameName(x.en, t.en) || sameName(x.id, t.id))
+  return hit ? { en: hit.en, id: hit.id } : null
+}
+
+const NO_TOPIC = 'Topik belum dipilih'
+/** What still stops the draft from going live, with the topic in the words of this page (it is picked here). */
+const issuesOf = (draft: ArticleContent) => {
+  const noTopic = !tagOf(draft.tag)
+  return publishIssues('article', { ...draft, tag: draft.tag ?? { en: '', id: '' } }).map((i) => (noTopic && i.startsWith('Topik') ? NO_TOPIC : i))
+}
 
 const fail = (c: Context<FlowEnv>, f: TechFailure) =>
   c.json({ error: f.code.toLowerCase(), message: failureMessage(f), ...(f.reasons ? { reasons: f.reasons } : {}) }, f.status === 402 ? 402 : f.status === 404 ? 404 : f.status === 409 ? 409 : f.status === 400 ? 400 : 503)
@@ -107,7 +128,7 @@ flowApi.get('/overview', async (c) => {
   }
   if (status.trouble) return fromCache(status.trouble)
 
-  const [analytics, list] = await Promise.all([tech<TechAnalytics>(c.env, '/analytics'), tech<{ items: TechItem[] }>(c.env, '/articles')])
+  const [analytics, list] = await Promise.all([tech<TechAnalytics>(c.env, '/analytics'), tech<TechList>(c.env, '/articles')])
   for (const r of [analytics, list] as TechResult<unknown>[])
     if (!r.ok && r.status === 402) {
       await markExpired(c.env)
@@ -115,12 +136,14 @@ flowApi.get('/overview', async (c) => {
     }
   if (!list.ok || !Array.isArray(list.data?.items)) return fromCache(list.ok ? 'unreachable' : troubleOf(list))
   await writeCache(c.env, 'items', list.data.items)
+  // what Tech deleted or withdrew leaves the website before the page is answered
+  await applyTechList(c.env, list.data)
   let numbers: TechAnalytics | null = null
   if (analytics.ok && analytics.data && typeof analytics.data === 'object') {
     numbers = analytics.data
     await writeCache(c.env, 'analytics', numbers)
   } else numbers = (await readCache<TechAnalytics>(c.env, 'analytics'))?.value ?? null
-  return c.json({ ...status, analytics: numbers, items: await fold(c.env, list.data.items, rows) } satisfies FlowOverview)
+  return c.json({ ...status, pendingJobs: await pendingJobs(c.env), analytics: numbers, items: await fold(c.env, list.data.items, await allItems(c.env)) } satisfies FlowOverview)
 })
 
 const groupOf = (c: Context<FlowEnv>) => {
@@ -154,7 +177,7 @@ flowApi.get('/items/:group', async (c) => {
   // only the uploads that are still in Media count: the page uploads the rest again
   const alive = await liveMedia(c.env, Object.values(local.assets))
   local.assets = Object.fromEntries(Object.entries(local.assets).filter(([, id]) => alive.has(id)))
-  return c.json({ ...res.data, local, view: viewOf(res.data.status, row) } satisfies FlowDetail)
+  return c.json({ ...res.data, local, view: viewOf(res.data, row) } satisfies FlowDetail)
 })
 
 // a draft image, for the page to resize and store in Media like any other upload
@@ -188,8 +211,13 @@ flowApi.post('/items/:group/import', async (c) => {
 
   const converted = toArticle(detail, assets)
   if (!converted) return c.json({ error: 'empty', message: 'Artikel dari Tech belum punya isi.' }, 422)
-  const article = row?.article_id ? await c.env.CONTENT_DB.prepare(`SELECT id, slug FROM articles WHERE id = ?`).bind(row.article_id).first<{ id: number; slug: string }>() : null
+  const article = row?.article_id
+    ? await c.env.CONTENT_DB.prepare(`SELECT id, slug, json_extract(draft, '$.tag') AS tag FROM articles WHERE id = ?`).bind(row.article_id).first<{ id: number; slug: string; tag: string | null }>()
+    : null
   converted.content.slug = article?.slug ?? (await freeSlug(c.env, converted.content.slug))
+  // the topic is the client's: the article's current one when it is already here (also when changed in the Artikel
+  // menu), else the one picked earlier for this item while it is still a topic of the website, else none yet
+  converted.content.tag = tagOf(parse(article?.tag, null)) ?? (await siteTopic(c.env, parse<{ tag?: unknown } | null>(row?.draft, null)?.tag)) ?? { en: '', id: '' }
   const parsed = articleSchema.safeParse(converted.content)
   if (!parsed.success) return c.json({ error: 'invalid', message: `Artikel dari Tech tidak bisa dipakai: ${firstError(parsed.error)}` }, 422)
   const draft = parsed.data as ArticleContent
@@ -212,7 +240,7 @@ flowApi.post('/items/:group/import', async (c) => {
   row = (await getItem(c.env, groupId))!
   return c.json({
     previewUrl: `${c.env.PUBLIC_SITE_URL.replace(/\/+$/, '')}/articles/${draft.slug}?preview=${token}`,
-    issues: publishIssues('article', draft),
+    issues: issuesOf(draft).filter((i) => i !== NO_TOPIC),
     singleLang: converted.singleLang,
     local: localInfo(row, detail, article?.slug ?? null),
   } satisfies ImportResult)
@@ -223,6 +251,8 @@ flowApi.post('/items/:group/import', async (c) => {
 flowApi.post('/items/:group/publish', async (c) => {
   const groupId = groupOf(c)
   if (!groupId) return c.json({ error: 'not_found', message: 'Artikel tidak ditemukan.' }, 404)
+  const input = z.object({ tag: z.object({ en: z.string().max(80), id: z.string().max(80) }).optional() }).safeParse(await c.req.json().catch(() => ({})))
+  if (!input.success) return c.json({ error: 'invalid', message: firstError(input.error) }, 400)
   const me = c.get('user')
   const row = await getItem(c.env, groupId)
   const draft = parse<ArticleContent | null>(row?.draft, null)
@@ -237,8 +267,18 @@ flowApi.post('/items/:group/publish', async (c) => {
     return c.json({ state: 'published', articleId: row.article_id, slug, url: slug ? `${c.env.PUBLIC_SITE_URL.replace(/\/+$/, '')}/articles/${slug}` : null } satisfies PublishResult)
   }
 
+  // the topic picked in the preview: one of the website's own, kept on the draft (also when Tech refuses below)
+  if (input.data.tag) {
+    const topic = await siteTopic(c.env, input.data.tag)
+    if (!topic) return c.json({ error: 'topic', message: 'Topik ini tidak ada di daftar topik website. Pilih topik lain.' }, 400)
+    draft.tag = topic
+    const kept = await c.env.CONTENT_DB.prepare(`UPDATE articleflow_items SET draft = ?, updated_at = ? WHERE group_id = ? AND versions = ? AND state IN ('imported', 'taken_down', 'publishing')`)
+      .bind(JSON.stringify(draft), now(), groupId, row.versions).run()
+    if (!kept.meta.changes) return c.json({ error: 'busy', message: 'Artikel ini sedang ditayangkan. Tunggu sebentar.' }, 409)
+  }
+
   // everything that could still stop the article here is checked before Tech is asked
-  const issues = publishIssues('article', draft)
+  const issues = issuesOf(draft)
   if (issues.length) return c.json({ error: 'incomplete', message: `Artikel belum bisa tayang. Belum lengkap: ${issues.slice(0, 4).join(', ')}.`, issues }, 400)
   const used = [draft.cover, ...Object.values(parse<Record<string, string>>(row.assets, {}))].filter(Boolean)
   const alive = await liveMedia(c.env, used)
@@ -307,11 +347,16 @@ flowApi.post('/items/:group/decision', async (c) => {
     if (res.status === 402) await markExpired(c.env)
     return fail(c, res)
   }
-  if (row) await c.env.CONTENT_DB.prepare(`UPDATE articleflow_items SET reason = ?, decided_by = ?, decided_at = ?, updated_at = ? WHERE group_id = ?`).bind(input.data.comment, me.username, now(), now(), groupId).run()
+  // kept here as well, so the version Tech sends back afterwards is flagged as new (even before it was previewed)
+  const at = now()
+  await c.env.CONTENT_DB.prepare(
+    `INSERT INTO articleflow_items (group_id, versions, state, reason, decided_by, decided_at, updated_at) VALUES (?, ?, 'imported', ?, ?, ?, ?)
+     ON CONFLICT(group_id) DO UPDATE SET reason = excluded.reason, decided_by = excluded.decided_by, decided_at = excluded.decided_at, updated_at = excluded.updated_at`,
+  ).bind(groupId, JSON.stringify(input.data.versions), input.data.comment, me.username, at, at).run()
   await dropCache(c.env, 'items', 'status')
   const after = await getItem(c.env, groupId)
   const item = res.data && Array.isArray(res.data.locales) ? res.data : null
-  return c.json({ ok: true, item: item ? { ...item, local: localInfo(after, item, await slugOf(c.env, after?.article_id ?? null)), view: viewOf(item.status, after) } : null })
+  return c.json({ ok: true, item: item ? { ...item, local: localInfo(after, item, await slugOf(c.env, after?.article_id ?? null)), view: viewOf(item, after) } : null })
 })
 
 // "Coba lagi": every unfinished follow-up, now
