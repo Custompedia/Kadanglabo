@@ -107,6 +107,9 @@ export function ArticleQueue({ items, disabled, working, onOpen, onPublish, onTa
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     {item.local.newVersion && <Badge variant="neutral">Versi baru tersedia</Badge>}
+                    {canPublish(item.view) && item.alignment?.aligned === false && (
+                      <span title={item.alignment.reason}><Badge variant="warning">Bahasa tidak sejajar</Badge></span>
+                    )}
                     <Badge variant={BADGE[item.view]} appearance="dot">{viewLabel(item)}</Badge>
                   </div>
                   <div className="flex shrink-0 items-center gap-2 max-sm:w-full">

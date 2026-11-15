@@ -119,7 +119,15 @@ export interface LocalInfo {
   tag: TopicTag | null
   /** when Tech took this article off the website (it was taken down here too), else null */
   withdrawnAt: string | null
+  /** whether the EN and ID text of the previewed draft are the same article; null before a preview or with one language */
+  alignment: Alignment | null
 }
+
+/**
+ * EN and ID from Tech compared (headings, blocks in order, length). `reason`: in Indonesian, what differs
+ * ("EN 4 bagian, ID 5 bagian"), or that both match.
+ */
+export interface Alignment { aligned: boolean; reason: string }
 
 /** What the page shows for an item: Tech's row plus the local state, folded into one simple status. */
 export type ViewStatus = 'waiting' | 'approved' | 'changes' | 'updating' | 'finishing' | 'published' | 'taken_down' | 'withdrawn' | 'other'
@@ -128,6 +136,8 @@ export interface FlowItem extends TechItem {
   view: ViewStatus
   /** Tech's banner through this Worker (/api/articleflow/items/…/media/…), for the list before the article was previewed here */
   heroUrl?: string | null
+  /** EN and ID compared: from the previewed draft, else from Tech's current version when it was read for the list; absent = not known */
+  alignment?: Alignment | null
 }
 export interface FlowDetail extends TechDetail { local: LocalInfo; view: ViewStatus }
 

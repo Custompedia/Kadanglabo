@@ -734,6 +734,123 @@ await test('take out: with the two connector files emptied the Worker builds and
   await worker.scheduled({}, env, { waitUntil() {} })
 })
 
+/* ---- EN and ID side by side, and the topic suggestion (pure functions) ------------------------------------------ */
+
+const pure = await (async () => {
+  const out = await build({
+    stdin: { resolveDir: root, loader: 'ts', contents: `export { checkAlignment } from './admin/articleflow/worker/align.ts'\nexport { recommendTopic, articleWords } from './admin/articleflow/ui/recommend.ts'` },
+    bundle: true, platform: 'node', format: 'esm', write: false,
+  })
+  const file = join(await mkdtemp(join(tmpdir(), 'kadang-af-pure-')), 'pure.mjs')
+  await writeFile(file, out.outputFiles[0].contents)
+  return import(pathToFileURL(file).href)
+})()
+
+const t = (text) => [{ type: 'text', text }]
+const P = (text) => ({ type: 'paragraph', content: t(text) })
+const H = (text, level = 2) => ({ type: 'heading', attrs: { level }, content: t(text) })
+const L = (...items) => ({ type: 'bulletList', content: items.map((x) => ({ type: 'listItem', content: [P(x)] })) })
+const doc = (...content) => ({ type: 'doc', content })
+
+await test('alignment: a translation is aligned; other sections, other blocks, other order or much less text are not', () => {
+  const { checkAlignment } = pure
+  const en = doc(P('Short answer: cost depends on area.'), H('What drives the cost'), P('Area, materials and detailing.'), L('Layout', 'Lighting'), H('Order of work'), P('Survey, drawings, build.'))
+  const id = doc(P('Jawaban singkat: biaya bergantung pada luas.'), H('Apa yang menentukan biaya'), P('Luas, material, dan detail.'), L('Tata letak', 'Pencahayaan'), H('Urutan pengerjaan'), P('Survei, gambar, bangun.'), { type: 'paragraph' })
+  const ok = checkAlignment(en, id)
+  assert.equal(ok.aligned, true) // the trailing empty paragraph is no content
+  assert.match(ok.reason, /sejajar/)
+
+  // the case seen in production: other sections in each language
+  const four = doc(...['A', 'B', 'C', 'D'].flatMap((h) => [H(h), P(`Text about ${h}, long enough to read.`)]))
+  const five = doc(...['V', 'W', 'X', 'Y', 'Z'].flatMap((h) => [H(h), P(`Teks tentang ${h}, cukup panjang.`)]))
+  const bad = checkAlignment(four, five)
+  assert.equal(bad.aligned, false)
+  assert.match(bad.reason, /EN 4 bagian, ID 5 bagian/)
+  assert.match(bad.reason, /EN 8 blok isi, ID 10 blok isi/)
+
+  const swapped = checkAlignment(doc(H('A'), P('one two three'), L('x')), doc(H('A'), L('x'), P('satu dua tiga')))
+  assert.equal(swapped.aligned, false)
+  assert.match(swapped.reason, /urutan isi berbeda mulai blok ke-2 \(EN paragraf, ID daftar\)/)
+
+  const long = 'Kalimat yang cukup panjang untuk mengisi satu paragraf penuh. '.repeat(10)
+  const short = checkAlignment(doc(H('A'), P(long.slice(0, 200))), doc(H('A'), P(long)))
+  assert.equal(short.aligned, false)
+  assert.match(short.reason, /teks EN hanya \d+% dari panjang teks ID/)
+  assert.equal(checkAlignment(doc(H('A'), P(long.slice(0, 500))), doc(H('A'), P(long))).aligned, true) // within 60%
+  assert.equal(checkAlignment(doc(H('A', 3), P('x')), doc(H('A'), P('x'))).reason.includes('subjudul'), true)
+})
+
+const SITE_TOPICS = [{ en: 'Open Studio', id: 'Open Studio' }, { en: 'Project', id: 'Proyek' }, { en: 'Publication', id: 'Publikasi' }, { en: 'Studio', id: 'Studio' }, { en: 'Talk', id: 'Talk' }]
+const words = (title, excerpt = '', body = '') => ({ title: [title], excerpt: [excerpt], body: [body] })
+
+await test('topic suggestion: plain keyword scoring over the website topics, with the words that led to it', () => {
+  const { recommendTopic } = pure
+  const pick = (w, topics = SITE_TOPICS) => recommendTopic(w, topics)
+  const project = pick(words('Desain Klinik Gigi di Sleman: Studi Kasus', 'Bagaimana proyek klinik ini dirancang.', 'Proyek ini dimulai dari survei. Klinik membutuhkan alur pasien yang jelas.'))
+  assert.deepEqual(project.topic, { en: 'Project', id: 'Proyek' })
+  assert.equal(project.fallback, false)
+  assert.match(project.reason, /“klinik” \(judul\)/)
+  assert.equal(pick(words('Bincang Desain: Seminar Arsitektur Tropis', '', 'Diskusi bersama arsitek muda.')).topic.en, 'Talk')
+  // "open studio" is the event, not two words for Studio
+  const open = pick(words('Open Studio Kadanglabo Bulan Ini', 'Konsultasi gratis dengan tim kami.', 'Datang ke open studio untuk konsultasi gratis.'))
+  assert.equal(open.topic.en, 'Open Studio')
+  assert.equal(pick(words('Di Balik Layar Studio Kadanglabo', '', 'Hari-hari tim di studio.')).topic.en, 'Studio')
+  assert.equal(pick(words('Panduan Memilih Material Lantai', 'Langkah dan tips memilih.', 'Cara memilih material: apa itu vinyl?')).topic.en, 'Publication')
+  // whole words only: "secara" is not "cara", "timur" is not "tim"
+  const none = pick(words('Biaya per Meter Persegi', '', 'Dihitung secara rinci di Jawa Timur.'))
+  assert.deepEqual([none.topic.en, none.fallback], ['Publication', true])
+  assert.match(none.reason, /Tidak ada kata kunci/)
+  // other topics: matched by their own names; no Publication and nothing found: no suggestion
+  const own = [{ en: 'Hospitality', id: 'Hospitality' }, { en: 'Insight', id: 'Wawasan' }]
+  assert.equal(pick(words('Desain Hotel Butik', '', 'Hospitality yang hangat.'), own).topic.en, 'Hospitality')
+  assert.equal(pick(words('Biaya per meter persegi'), own), null)
+  assert.equal(pick(words('anything'), []), null)
+  // the same article always gives the same answer; ties go to the first topic in the list
+  const w = words('Proyek talk', '', '')
+  assert.deepEqual(pick(w), pick(w))
+  assert.equal(pick(w).topic.en, 'Project')
+  // a tie with the guide topic goes to the guide: "Panduan" in the title weighs as much as "villa"
+  assert.equal(pick(words('Panduan Memilih Kontraktor Villa di Bali')).topic.en, 'Publication')
+})
+
+await test('topic suggestion reads both languages of a Tech article, without the call-to-action button', () => {
+  const { recommendTopic, articleWords } = pure
+  const v = (title, blocks) => ({ title, excerpt: '', metaDescription: '', directAnswer: '', blocks })
+  const w = articleWords([
+    v('Choosing floor tiles', [{ type: 'paragraph', runs: [{ text: 'A guide with ' }, { text: 'tips', bold: true }] }, { type: 'cta', label: 'Konsultasi gratis', href: '/contact' }]),
+    v('Memilih ubin lantai', [{ type: 'list', ordered: false, items: [[{ text: 'Langkah pertama' }]] }, { type: 'cta', label: 'Konsultasi gratis', href: '/contact' }]),
+  ])
+  assert.equal(w.body.join(' ').includes('Konsultasi'), false)
+  const r = recommendTopic(w, SITE_TOPICS)
+  assert.equal(r.topic.en, 'Publication')
+  assert.match(r.reason, /guide|tips|langkah/)
+})
+
+await test('overview and preview flag an article whose EN and ID from Tech are not the same article; publish still works', async () => {
+  const { api } = await setup()
+  // grp_2: Tech wrote the English separately, with a section the Indonesian does not have
+  const g = fake.state.groups.find((x) => x.groupId === 'grp_2')
+  const en = g.versions.find((v) => v.locale === 'en')
+  en.blocks = [...en.blocks, { type: 'heading', level: 2, text: 'Budget checklist' }, { type: 'paragraph', runs: [{ text: 'Plan the reserve before the build starts.' }] }]
+  let o = await api('GET', '/api/articleflow/overview')
+  const of = (g) => o.items.find((i) => i.groupId === g)
+  // before any preview: read from Tech's own versions
+  assert.equal(of('grp_2').alignment.aligned, false)
+  assert.match(of('grp_2').alignment.reason, /EN 2 bagian, ID 1 bagian/)
+  assert.equal(of('grp_1').alignment.aligned, true)
+  assert.equal(of('grp_3').alignment, null) // one language only: nothing to compare
+  // the preview's draft says the same, and the list then reads it from the draft
+  const { result } = await importGroup(api, 'grp_2')
+  assert.equal(result.local.alignment.aligned, false)
+  assert.equal((await importGroup(api, 'grp_3')).result.local.alignment, null)
+  o = await api('GET', '/api/articleflow/overview')
+  assert.equal(of('grp_2').local.alignment.aligned, false)
+  assert.equal(of('grp_2').alignment.aligned, false)
+  // only a warning: the client may still publish after confirming
+  assert.equal((await pub(api, 'grp_2')).state, 'published')
+  await reset()
+})
+
 await fake.close()
 console.log(`\nArticleFlow: ${passed} tests passed`)
 process.exit(0)

@@ -1,4 +1,6 @@
+import type { Doc } from '../../../shared/content'
 import { now } from '../../worker/env'
+import { checkAlignment } from './align'
 import type { LocalInfo, LocalState, TechItem, TechLocale, TopicTag, ViewStatus } from '../types'
 import type { FlowBindings } from './tech-client'
 
@@ -101,11 +103,13 @@ function newVersionOf(row: ItemRow | null | undefined, item: TechItem | null): b
 
 export function localInfo(row: ItemRow | null | undefined, item: TechItem | null, slug: string | null): LocalInfo {
   const newVersion = newVersionOf(row, item)
-  if (!row) return { state: 'none', articleId: null, slug: null, newVersion, singleLang: null, assets: {}, cover: null, tag: null, withdrawnAt: null }
-  const draft = parse<{ cover?: string; tag?: unknown } | null>(row.draft, null)
+  if (!row) return { state: 'none', articleId: null, slug: null, newVersion, singleLang: null, assets: {}, cover: null, tag: null, withdrawnAt: null, alignment: null }
+  const draft = parse<{ cover?: string; tag?: unknown; body?: { en?: Doc; id?: Doc } } | null>(row.draft, null)
   return {
     state: row.state, articleId: row.article_id, slug, newVersion, singleLang: row.single_lang, assets: parse(row.assets, {}),
     cover: draft?.cover || null, tag: tagOf(draft?.tag), withdrawnAt: row.withdrawn_at ?? null,
+    // one language from Tech fills both: nothing to compare
+    alignment: draft?.body && !row.single_lang ? checkAlignment(draft.body.en, draft.body.id) : null,
   }
 }
 

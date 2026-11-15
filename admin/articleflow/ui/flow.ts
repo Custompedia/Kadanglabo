@@ -1,7 +1,7 @@
 import { api, ApiError } from '../../src/lib/api'
 import { uploadImage } from '../../src/lib/image'
 import { mutate } from '../../src/lib/useFetch'
-import type { FlowDetail, FlowItem, ImportResult, PublishResult, TopicTag, ViewStatus } from '../types'
+import type { Alignment, FlowDetail, FlowItem, ImportResult, PublishResult, TopicTag, ViewStatus } from '../types'
 
 /* What the ArticleFlow page does, in one place: prepare a preview, publish, ask for changes, and the words it uses. */
 
@@ -60,6 +60,10 @@ export const languages = (item: FlowItem) => {
   const has = item.locales.map((l) => l.locale)
   return has.includes('en') && has.includes('id') ? 'EN dan ID' : has.includes('en') ? 'hanya EN' : 'hanya ID'
 }
+/** The warning for an article whose EN and ID from Tech are not the same article (see worker/align.ts). */
+export const misalignedText = (a: Alignment) =>
+  `Versi Inggris dan Indonesia dari Tech tidak sejajar (${a.reason}). Satu artikel seharusnya sama isinya di dua bahasa. Sebaiknya Minta revisi ke Tech.`
+
 export const versionsOf = (item: FlowItem) => Object.fromEntries(item.locales.map((l) => [l.articleId, l.versionId]))
 
 export const message = (e: unknown, fallback = 'Terjadi kesalahan. Coba lagi.') => (e instanceof ApiError || e instanceof Error ? e.message || fallback : fallback)

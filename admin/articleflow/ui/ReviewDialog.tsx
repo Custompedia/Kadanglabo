@@ -1,16 +1,21 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Banner, Button, Dialog, LinkButton, Loader } from '@cloudflare/kumo'
-import { ArrowSquareOut, CheckCircle, DesktopTower, DeviceMobile, WarningCircle, X } from '@phosphor-icons/react'
+import { ArrowSquareOut, CheckCircle, DesktopTower, DeviceMobile, Lightbulb, WarningCircle, X } from '@phosphor-icons/react'
+import { useConfirm } from '../../src/components/Confirm'
 import { TopicSelect } from '../../src/components/TopicSelect'
 import { dateTime } from '../../src/lib/format'
+import { useFetch } from '../../src/lib/useFetch'
 import type { FlowItem, TopicTag } from '../types'
-import { canPublish, longDate, message, newKey, prepare, requestChanges, viewLabel, type Prepared } from './flow'
+import { canPublish, longDate, message, misalignedText, newKey, prepare, requestChanges, viewLabel, type Prepared } from './flow'
+import { articleWords, recommendTopic } from './recommend'
 
 /*
  * One article from Tech: the website's own page with this draft in it (the same preview the Artikel menu has) and,
  * on the right, why it was written, with the topic, Publish and Minta revisi. Opening it brings the article here as a
  * draft. The topic is the website's own (the same list as the article editor) and must be chosen before Publish:
- * Tech does not choose it. An article that is already here keeps its topic unless another is picked.
+ * Tech does not choose it. An article that is already here keeps its topic unless another is picked. A suggested
+ * topic (recommend.ts) is shown under the picker with the words that led to it; it is only picked by a click.
+ * When Tech's EN and ID are not the same article (worker/align.ts), the panel says so and Publish asks first.
  */
 const NO_TAG: TopicTag = { en: '', id: '' }
 export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, onChanged }: {
@@ -30,6 +35,9 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
   const [asking, setAsking] = useState(false)
   const [tag, setTag] = useState<TopicTag>(NO_TAG)
   const run = useRef(0)
+  const { confirm, dialog } = useConfirm()
+  // the website's topics (the same list, and cache, as the picker)
+  const topics = useFetch<{ topics: TopicTag[] }>(item ? '/topics' : null).data?.topics
 
   const load = (groupId: string) => {
     const n = ++run.current
@@ -65,6 +73,21 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
   const url = ready?.result.previewUrl ?? null
   const noTopic = !tag.en.trim()
   const inArtikel = !!item?.local.articleId && (item.view === 'published' || item.view === 'taken_down' || item.view === 'withdrawn')
+  // compared on the draft just prepared (Tech's current version)
+  const alignment = ready?.result.local.alignment ?? null
+  const misaligned = alignment?.aligned === false
+  const suggestion = useMemo(() => (detail && topics ? recommendTopic(articleWords(detail.versions), topics) : null), [detail, topics])
+  const suggested = !!suggestion && suggestion.topic.en.toLowerCase() === tag.en.trim().toLowerCase()
+
+  const publish = async () => {
+    if (!item || !ready || noTopic) return
+    if (misaligned && !(await confirm({
+      title: 'Publish meski bahasa tidak sejajar?',
+      body: `${misalignedText(alignment!)} Pengunjung bisa membaca isi yang berbeda di halaman Inggris dan Indonesia.`,
+      action: 'Tetap publish',
+    }))) return
+    onPublish(item, ready, tag)
+  }
 
   return (
     <Dialog.Root open={!!item} onOpenChange={(o) => !o && !publishing && onClose()}>
@@ -120,6 +143,7 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
               {single && (
                 <Banner variant="alert" size="sm" className="mt-4" description={`Tech hanya mengirim versi bahasa ${single === 'id' ? 'Indonesia' : 'Inggris'}. Teks yang sama dipakai untuk kedua bahasa di website.`} />
               )}
+              {misaligned && <Banner variant="alert" size="sm" className="mt-4" title="Bahasa tidak sejajar" description={misalignedText(alignment!)} />}
               {issues.length > 0 && <Banner variant="error" size="sm" className="mt-4" title="Belum bisa tayang" description={`Belum lengkap: ${issues.join(', ')}. Minta tim Tech melengkapinya lewat Minta revisi.`} />}
               {item?.local.newVersion && (
                 <Banner size="sm" className="mt-4" description={item.local.articleId ? 'Ini versi baru dari artikel yang sudah ada di website. Publish mengganti isi artikel di alamat yang sama.' : 'Ini versi baru yang dikirim tim Tech setelah Minta revisi.'} />
@@ -132,6 +156,22 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
               {actionable && ready && (
                 <div className="mt-5 rounded-xl bg-kumo-recessed/60 p-3.5 ring-1 ring-kumo-hairline">
                   <TopicSelect value={tag} onChange={setTag} />
+                  {suggestion && (
+                    <div className="mt-3 border-t border-kumo-hairline pt-3">
+                      <p className="flex flex-wrap items-center gap-x-1.5 text-[13px] text-kumo-default">
+                        <Lightbulb size={14} className="shrink-0 text-kumo-subtle" aria-hidden="true" />
+                        <span className="text-kumo-subtle">Rekomendasi:</span>
+                        {suggested ? (
+                          <span className="font-medium text-kumo-strong">{suggestion.topic.id || suggestion.topic.en} <span className="font-normal text-kumo-subtle">(dipilih)</span></span>
+                        ) : (
+                          <button type="button" onClick={() => setTag(suggestion.topic)} title="Pilih topik ini" className="font-medium text-kumo-link hover:underline">
+                            {suggestion.topic.id || suggestion.topic.en}
+                          </button>
+                        )}
+                      </p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-kumo-subtle">{suggestion.reason}</p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -175,17 +215,19 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
               {actionable ? (
                 <>
                   <div className="flex flex-col gap-2.5 max-lg:flex-row-reverse">
-                  <Button variant="primary" className="w-full justify-center max-lg:flex-1" size="lg" disabled={disabled || !ready || issues.length > 0 || noTopic || asking} loading={publishing} onClick={() => item && ready && !noTopic && onPublish(item, ready, tag)}>
+                  <Button variant="primary" className="w-full justify-center max-lg:flex-1" size="lg" disabled={disabled || !ready || issues.length > 0 || noTopic || asking} loading={publishing} onClick={() => void publish()}>
                     {item?.local.newVersion ? 'Publish versi baru' : 'Publish ke website'}
                   </Button>
                   <Button className="w-full justify-center max-lg:flex-1" size="lg" disabled={disabled || publishing} onClick={() => setAsking(true)}>Minta revisi</Button>
                   </div>
-                  <p className={`mt-3 text-xs leading-relaxed text-kumo-subtle ${disabled || (ready && noTopic) ? '' : 'max-lg:hidden'}`}>
+                  <p className={`mt-3 text-xs leading-relaxed ${misaligned && !disabled && !noTopic ? 'text-kumo-warning' : 'text-kumo-subtle'} ${disabled || (ready && noTopic) || misaligned ? '' : 'max-lg:hidden'}`}>
                     {disabled
                       ? 'Custompedia Tech sedang tidak bisa dihubungi. Publish dan Minta revisi dibuka lagi setelah tersambung.'
                       : ready && noTopic
                         ? 'Pilih topik artikel di panel ini dulu, lalu Publish.'
-                        : 'Minta revisi wajib menyertakan alasan. Alasan dikirim ke tim Tech dan tercatat di riwayat artikel.'}
+                        : misaligned
+                          ? 'Versi Inggris dan Indonesia tidak sejajar. Sebaiknya Minta revisi; Publish tetap bisa setelah konfirmasi.'
+                          : 'Minta revisi wajib menyertakan alasan. Alasan dikirim ke tim Tech dan tercatat di riwayat artikel.'}
                   </p>
                 </>
               ) : inArtikel && item ? (
@@ -214,6 +256,7 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
           </aside>
         </div>
 
+        {dialog}
         {item && <ReasonDialog open={asking} item={item} onClose={() => setAsking(false)} onSent={() => (setAsking(false), onChanged(), onClose())} />}
       </Dialog>
     </Dialog.Root>

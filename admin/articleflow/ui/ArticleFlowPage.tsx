@@ -12,7 +12,7 @@ import type { FlowItem, FlowOverview, PublishResult, TopicTag } from '../types'
 import { AnalyticsCards } from './AnalyticsCards'
 import { ArticleQueue } from './ArticleQueue'
 import { ExpiredDialog } from './ExpiredDialog'
-import { OVERVIEW, STATUS, longDate, message, prepare, publish, refreshAll, shortDate, type Prepared } from './flow'
+import { OVERVIEW, STATUS, longDate, message, misalignedText, prepare, publish, refreshAll, shortDate, type Prepared } from './flow'
 import { ReviewDialog } from './ReviewDialog'
 import './articleflow.css'
 
@@ -55,6 +55,8 @@ export default function ArticleFlowPage() {
       }
       // no website topic on the draft (any more): it is picked in the preview first
       if (!tag && !ready.result.local.tag) return setOpen(item)
+      // from the row, EN and ID turned out not to match only now (the list did not know yet): the preview shows why first
+      if (!prepared && ready.result.local.alignment?.aligned === false && item.alignment?.aligned !== false) return setOpen(item)
       const done = await publish(item.groupId, tag)
       report(done, item)
       setOpen(null)
@@ -74,7 +76,11 @@ export default function ArticleFlowPage() {
   // the row's Publish skips the preview, except when the topic still has to be chosen there
   const publishFromRow = async (item: FlowItem) => {
     if (!item.local.tag) return setOpen(item)
-    if (await confirm({ title: item.local.newVersion ? 'Publish versi baru?' : 'Publish artikel ini?', body: `"${item.title}" langsung tayang di halaman Artikel website${item.local.newVersion ? ', menggantikan versi yang sekarang' : ''}.`, action: 'Publish' })) await act(item)
+    const live = `"${item.title}" langsung tayang di halaman Artikel website${item.local.newVersion ? ', menggantikan versi yang sekarang' : ''}.`
+    const ok = item.alignment?.aligned === false
+      ? await confirm({ title: 'Publish meski bahasa tidak sejajar?', body: `${misalignedText(item.alignment)} ${live}`, action: 'Tetap publish' })
+      : await confirm({ title: item.local.newVersion ? 'Publish versi baru?' : 'Publish artikel ini?', body: live, action: 'Publish' })
+    if (ok) await act(item)
   }
 
   const retry = async () => {

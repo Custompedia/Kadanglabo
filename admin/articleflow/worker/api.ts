@@ -6,10 +6,11 @@ import { newToken } from '../../worker/crypto'
 import { now, type AppEnv } from '../../worker/env'
 import { allTopics } from '../../worker/pages'
 import { articleSchema, firstError } from '../../worker/validate'
-import type { FlowDetail, FlowItem, FlowOverview, FlowStatus, ImportResult, PublishResult, TechAnalytics, TechDetail, TechItem, TechList, TechStatus, TopicTag, Trouble } from '../types'
+import type { Alignment, FlowDetail, FlowItem, FlowOverview, FlowStatus, ImportResult, PublishResult, TechAnalytics, TechDetail, TechItem, TechList, TechStatus, TopicTag, Trouble } from '../types'
+import { checkAlignment } from './align'
 import { neededAssets, toArticle } from './convert'
 import { drain, enqueueStatement, finishLocal, freeSlug, pendingJobs, retryNow } from './outbox'
-import { GROUP_ID, allItems, busy, dropCache, getItem, localInfo, parse, readCache, ready, slugOf, tagOf, viewOf, writeCache, type ItemRow } from './store'
+import { GROUP_ID, allItems, busy, dropCache, getItem, localInfo, parse, readCache, ready, sameVersions, slugOf, tagOf, techVersions, viewOf, writeCache, type ItemRow } from './store'
 import { applyTechList } from './sync'
 import { configured, failureMessage, tech, techMedia, type FlowBindings, type TechFailure, type TechResult } from './tech-client'
 
@@ -70,30 +71,45 @@ async function markExpired(env: FlowBindings) {
   else if (!cached) await dropCache(env, 'status')
 }
 
-const fold = async (env: FlowBindings, items: TechItem[], rows: Map<string, ItemRow>, heroes = false): Promise<FlowItem[]> => {
+const fold = async (env: FlowBindings, items: TechItem[], rows: Map<string, ItemRow>, fromTech = false): Promise<FlowItem[]> => {
   const folded: FlowItem[] = await Promise.all(items.map(async (item) => {
     const row = rows.get(item.groupId)
-    return { ...item, local: localInfo(row, item, await slugOf(env, row?.article_id ?? null)), view: viewOf(item, row) }
+    const local = localInfo(row, item, await slugOf(env, row?.article_id ?? null))
+    // EN and ID compared on the draft, while that draft is still Tech's current version
+    const current = !!row?.draft && sameVersions(parse(row.versions, {}), techVersions(item))
+    return { ...item, local, view: viewOf(item, row), ...(current ? { alignment: local.alignment } : {}) }
   }))
-  if (!heroes) return folded
-  // An article not previewed here yet has no banner in Media: the list shows Tech's own (a few at a time, remembered per version)
-  const missing = folded.filter((item) => !item.local.cover).slice(0, 12)
-  await Promise.all(missing.map(async (item) => { item.heroUrl = await heroUrl(env, item) }))
+  if (!fromTech) return folded
+  // Not previewed here (yet, or not this version): the list reads Tech's own banner and compares Tech's EN and ID
+  // (a few at a time, remembered per version)
+  const missing = folded.filter((item) => !item.local.cover || (item.alignment === undefined && (item.view === 'waiting' || item.view === 'approved'))).slice(0, 12)
+  await Promise.all(missing.map(async (item) => {
+    const card = await cardOf(env, item)
+    if (!item.local.cover) item.heroUrl = card.asset ? mediaUrl(item, card.asset) : null
+    if (item.alignment === undefined && card.alignment !== undefined) item.alignment = card.alignment
+  }))
   return folded
 }
 
-/** Tech's banner of this version of the item, as this Worker's media address; the asset id is cached per version. null without one. */
-async function heroUrl(env: FlowBindings, item: TechItem): Promise<string | null> {
-  const key = `hero:${item.groupId}:${item.locales.map((l) => l.versionId).sort().join(',')}`
-  const url = (asset: string) => `/api/articleflow/items/${encodeURIComponent(item.groupId)}/media/${encodeURIComponent(asset)}`
-  const cached = await readCache<{ asset: string | null }>(env, key).catch(() => null)
-  if (cached) return cached.value.asset ? url(cached.value.asset) : null
+const mediaUrl = (item: TechItem, asset: string) => `/api/articleflow/items/${encodeURIComponent(item.groupId)}/media/${encodeURIComponent(asset)}`
+
+/**
+ * What the list needs from Tech's detail of this version of the item: its banner's asset id and EN and ID compared
+ * (null with one language). Cached per version. Nothing known when Tech cannot be read.
+ */
+async function cardOf(env: FlowBindings, item: TechItem): Promise<{ asset: string | null; alignment?: Alignment | null }> {
+  const key = `card:${item.groupId}:${item.locales.map((l) => l.versionId).sort().join(',')}`
+  const cached = await readCache<{ asset: string | null; alignment: Alignment | null }>(env, key).catch(() => null)
+  if (cached) return cached.value
   const res = await tech<TechDetail>(env, `/articles/${encodeURIComponent(item.groupId)}`)
-  if (!res.ok || !Array.isArray(res.data?.versions)) return null
+  if (!res.ok || !Array.isArray(res.data?.versions)) return { asset: null }
   const versions = res.data.versions, lead = versions.find((v) => v.locale === 'id') ?? versions[0]
   const asset = (lead?.hero ?? versions.find((v) => v.hero)?.hero)?.assetId ?? null
-  await writeCache(env, key, { asset }).catch(() => undefined)
-  return asset ? url(asset) : null
+  // the pictures are not in Media yet: each stands in for itself, so the outline counts them like the draft will
+  const converted = toArticle(res.data, Object.fromEntries(neededAssets(res.data).map((a) => [a, a])))
+  const alignment = converted && !converted.singleLang ? checkAlignment(converted.content.body.en, converted.content.body.id) : null
+  await writeCache(env, key, { asset, alignment }).catch(() => undefined)
+  return { asset, alignment }
 }
 
 /* ---- topics: the website's own, never Tech's ---------------------------------------------------------------------- */
