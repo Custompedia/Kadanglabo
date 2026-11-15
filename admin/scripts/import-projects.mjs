@@ -4,8 +4,8 @@
 //   node scripts/import-projects.mjs --data <dir> --remote   the same, then uploads to R2 and writes to the real D1
 //
 // <dir> holds:
-//   plan.json        [{ slug, title, category, year, city, region, status, landArea, buildingArea, manifest?, drive?, keepCopy? }]
-//                    (`drive` = the folder in drive/ when it is not named after the slug)
+//   plan.json        [{ slug, title, category, year, city, region, status, landArea, buildingArea, manifest?, drive?, keepCopy?, draft? }]
+//                    (`drive` = the folder in drive/ when it is not named after the slug; `draft` = import but keep it off the site)
 //                    (one entry per project; `manifest` is a file name in manifests/, absent = no photos → draft)
 //   manifests/*.json { cover, hero, gallery: blocks with photo file names, alt: {file: {en,id}}, copy: {...} | null }
 //   drive/<slug>/*   the photos the manifests name
@@ -140,7 +140,7 @@ for (const p of plan) {
   const parsed = projectSchema.safeParse(c)
   if (!parsed.success) throw new Error(`${p.slug}: ${parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`)
   const issues = publishIssues('project', c)
-  const live = issues.length === 0 && !c.archiveOnly
+  const live = issues.length === 0 && !c.archiveOnly && !(p.draft && row?.state !== 'published')
   // a live project that would lose its page stays as it is (never take something down here)
   const state = live ? 'published' : row?.state === 'published' ? 'published' : 'draft'
   if (row?.state === 'published' && !live) throw new Error(`${p.slug} is live but would not pass publishing: ${issues.join(', ')}`)
