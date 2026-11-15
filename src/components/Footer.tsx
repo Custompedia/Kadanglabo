@@ -93,7 +93,12 @@ export function Footer({ cta }: { cta: FooterCtaProps }) {
         <span>
           © {year} {company.name}. {t(company.vision)}.
         </span>
-        <span>Sleman, D.I. Yogyakarta, Indonesia</span>
+        <span>
+          <TLink to="/editorial-policy" className="link-line">
+            {tr('Editorial policy', 'Kebijakan redaksi')}
+          </TLink>
+          {' · '}Sleman, D.I. Yogyakarta, Indonesia
+        </span>
       </div>
       <FooterCta {...cta} />
     </footer>

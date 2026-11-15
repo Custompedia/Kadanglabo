@@ -5827,3 +5827,9 @@ html[data-preview]::after {
 .art-body .rich-list__p { margin: 0; }
 .art-body .rich-list__p + .rich-list__p { margin-top: .6em; }
 .art-body .rich-list .rich-list { margin-top: .6em; font-size: inherit; }
+
+/* Editorial policy page: readable text column */
+.editorial { padding-block: 24px 96px; display: grid; gap: 48px; }
+.editorial__block { max-width: 72ch; }
+.editorial__text { margin-top: 14px; opacity: 0.85; }
+.editorial__note { max-width: 72ch; opacity: 0.7; }
