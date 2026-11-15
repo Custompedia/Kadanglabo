@@ -123,7 +123,12 @@ export interface LocalInfo {
 
 /** What the page shows for an item: Tech's row plus the local state, folded into one simple status. */
 export type ViewStatus = 'waiting' | 'approved' | 'changes' | 'updating' | 'finishing' | 'published' | 'taken_down' | 'withdrawn' | 'other'
-export interface FlowItem extends TechItem { local: LocalInfo; view: ViewStatus }
+export interface FlowItem extends TechItem {
+  local: LocalInfo
+  view: ViewStatus
+  /** Tech's banner through this Worker (/api/articleflow/items/…/media/…), for the list before the article was previewed here */
+  heroUrl?: string | null
+}
 export interface FlowDetail extends TechDetail { local: LocalInfo; view: ViewStatus }
 
 /** Why Tech could not be read just now (null = fine). */
