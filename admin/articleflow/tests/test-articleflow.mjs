@@ -738,7 +738,7 @@ await test('take out: with the two connector files emptied the Worker builds and
 
 const pure = await (async () => {
   const out = await build({
-    stdin: { resolveDir: root, loader: 'ts', contents: `export { checkAlignment } from './admin/articleflow/worker/align.ts'\nexport { recommendTopic, articleWords } from './admin/articleflow/ui/recommend.ts'` },
+    stdin: { resolveDir: root, loader: 'ts', contents: `export { checkAlignment } from './admin/articleflow/worker/align.ts'\nexport { guessLang, wrongLanguage, ctaLabel } from './admin/articleflow/worker/language.ts'\nexport { ctaHref } from './admin/articleflow/worker/convert.ts'\nexport { recommendTopic, articleWords } from './admin/articleflow/ui/recommend.ts'` },
     bundle: true, platform: 'node', format: 'esm', write: false,
   })
   const file = join(await mkdtemp(join(tmpdir(), 'kadang-af-pure-')), 'pure.mjs')
@@ -776,7 +776,8 @@ await test('alignment: a translation is aligned; other sections, other blocks, o
   const short = checkAlignment(doc(H('A'), P(long.slice(0, 200))), doc(H('A'), P(long)))
   assert.equal(short.aligned, false)
   assert.match(short.reason, /teks EN hanya \d+% dari panjang teks ID/)
-  assert.equal(checkAlignment(doc(H('A'), P(long.slice(0, 500))), doc(H('A'), P(long))).aligned, true) // within 60%
+  const longEn = 'A sentence long enough to fill one whole paragraph of text. '.repeat(10) // each slot in its own language
+  assert.equal(checkAlignment(doc(H('A'), P(longEn.slice(0, 500))), doc(H('A'), P(long))).aligned, true) // within 60%
   assert.equal(checkAlignment(doc(H('A', 3), P('x')), doc(H('A'), P('x'))).reason.includes('subjudul'), true)
 })
 
@@ -852,5 +853,29 @@ await test('overview and preview flag an article whose EN and ID from Tech are n
 })
 
 await fake.close()
+
+await test('language cross-check: Indonesian left in the English version is flagged, the CTA is put right and goes to the contact page', () => {
+  const { guessLang, wrongLanguage, ctaLabel, ctaHref, checkAlignment } = pure
+  assert.equal(guessLang('Konsultasikan proyek Anda dengan Kadanglabo'), 'id')
+  assert.equal(guessLang('Discuss your project with Kadanglabo'), 'en')
+  assert.equal(guessLang('Kadanglabo'), null) // too few words: no verdict
+  assert.equal(ctaLabel('Konsultasikan proyek Anda dengan Kadanglabo', 'en'), 'Discuss your project with Kadanglabo')
+  assert.equal(ctaLabel('Discuss your project with Kadanglabo', 'id'), 'Konsultasikan proyek Anda dengan Kadanglabo')
+  assert.equal(ctaLabel('Book a free site visit with the team', 'en'), 'Book a free site visit with the team') // right language: kept
+  for (const home of ['https://kadanglabo.com/', 'https://kadanglabo.com', 'https://www.kadanglabo.com/', '/']) assert.equal(ctaHref(home), 'https://kadanglabo.com/contact')
+  assert.equal(ctaHref('https://kadanglabo.com/work/klinik-uii'), 'https://kadanglabo.com/work/klinik-uii')
+  assert.equal(ctaHref(''), '')
+  const cta = (label) => ({ type: 'articleCard', attrs: { data: { kind: 'cta', label, href: 'https://kadanglabo.com/contact' } } })
+  const en = doc(H('What drives the cost'), P('Area, materials and the detailing of the house.'), cta('Konsultasikan proyek Anda dengan Kadanglabo'))
+  const id = doc(H('Apa yang menentukan biaya'), P('Luas, material, dan detail dari rumah ini.'), cta('Konsultasikan proyek Anda dengan Kadanglabo'))
+  assert.deepEqual(wrongLanguage(en, 'en'), ['tombol ajakan “Konsultasikan proyek Anda dengan Kadanglabo”'])
+  assert.deepEqual(wrongLanguage(id, 'id'), [])
+  const r = checkAlignment(en, id)
+  assert.equal(r.aligned, false)
+  assert.ok(r.reason.includes('versi EN berisi teks berbahasa Indonesia'), r.reason)
+  const enPara = doc(H('What drives the cost'), P('Biaya bergantung pada luas dan material yang dipilih untuk rumah ini.'))
+  assert.ok(checkAlignment(enPara, doc(H('Apa yang menentukan biaya'), P('Biaya bergantung pada luas dan material yang dipilih untuk rumah ini.'))).reason.includes('paragraf'))
+})
+
 console.log(`\nArticleFlow: ${passed} tests passed`)
 process.exit(0)

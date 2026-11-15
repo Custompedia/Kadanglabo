@@ -1,5 +1,6 @@
 import { docText, type Block, type Doc } from '../../../shared/content'
 import type { Alignment } from '../types'
+import { wrongLanguage } from './language'
 
 /*
  * Are the two languages of one article the same article? Tech sometimes sends an English and an Indonesian version
@@ -50,6 +51,11 @@ export function checkAlignment(en: Doc | null | undefined, id: Doc | null | unde
     const [short, other] = len < lid ? ['EN', 'ID'] : ['ID', 'EN']
     reasons.push(`teks ${short} hanya ${Math.round((Math.min(len, lid) / long) * 100)}% dari panjang teks ${other}`)
   }
+
+  // each language must also be written in that language (Tech once left Indonesian in the English version)
+  const [inId, inEn] = [wrongLanguage(en, 'en'), wrongLanguage(id, 'id')]
+  if (inId.length) reasons.push(`versi EN berisi teks berbahasa Indonesia: ${inId.slice(0, 2).join(', ')}${inId.length > 2 ? ` dan ${inId.length - 2} lagi` : ''}`)
+  if (inEn.length) reasons.push(`versi ID berisi teks berbahasa Inggris: ${inEn.slice(0, 2).join(', ')}${inEn.length > 2 ? ` dan ${inEn.length - 2} lagi` : ''}`)
 
   return reasons.length ? { aligned: false, reason: reasons.join('; ') } : { aligned: true, reason: 'Struktur dan panjang kedua bahasa sejajar.' }
 }

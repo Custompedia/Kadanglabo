@@ -1,5 +1,6 @@
 import type { ArticleContent, Block, Doc, Inline, Lang, ListItem, Mark } from '../../../shared/content'
 import type { TechBlock, TechDetail, TechLocale, TechRun, TechVersion } from '../types'
+import { ctaLabel } from './language'
 
 /*
  * A Tech article (blocks per language) as a Kadanglabo article (one Tiptap document per language). The result
@@ -26,10 +27,13 @@ function inline(runs: unknown): Inline[] {
   }
   return out
 }
+/** A call to action ends in a conversation: Tech's buttons pointing at the home page go to the contact page instead. */
+export const CONTACT_URL = 'https://kadanglabo.com/contact'
+export const ctaHref = (href: string) => (/^(https?:\/\/(www\.)?kadanglabo\.com)?\/?$/i.test(href) && href ? CONTACT_URL : href)
 const para = (content: Inline[]): Block => (content.length ? { type: 'paragraph', content } : { type: 'paragraph' })
 const plain = (s: string): Inline[] => (s ? [{ type: 'text', text: s }] : [])
 
-function block(b: TechBlock, assets: Record<string, string>): Block[] {
+function block(b: TechBlock, assets: Record<string, string>, lang: Lang): Block[] {
   switch (b?.type) {
     case 'heading': {
       const t = text(b.text, 300)
@@ -67,8 +71,8 @@ function block(b: TechBlock, assets: Record<string, string>): Block[] {
       return id ? [{ type: 'image', attrs: { id, caption: text(b.caption, 300), alt: text(b.alt, 500), layout: b.layout === 'WIDE' ? 'wide' : b.layout === 'FULL' ? 'full' : 'normal' } }] : []
     }
     case 'cta': {
-      const label = text(b.label, 200)
-      const href = text(b.href, 1000)
+      const label = ctaLabel(text(b.label, 200), lang)
+      const href = ctaHref(text(b.href, 1000))
       return label && href ? [{ type: 'articleCard', attrs: { data: { kind: 'cta', label, href } } }] : []
     }
     case 'divider':
@@ -95,9 +99,9 @@ const words = (b: Block | undefined) => (b?.type === 'paragraph' ? (b.content ??
  * short") is neither stored by the article routes nor rendered by the site any more. Tech blocks that already open
  * with the same sentence are not doubled.
  */
-function body(v: TechVersion, assets: Record<string, string>): Doc {
+function body(v: TechVersion, assets: Record<string, string>, lang: Lang): Doc {
   const content: Block[] = []
-  for (const b of Array.isArray(v.blocks) ? v.blocks : []) content.push(...block(b, assets))
+  for (const b of Array.isArray(v.blocks) ? v.blocks : []) content.push(...block(b, assets, lang))
   const lead = text(v.directAnswer, 4000)
   if (lead && words(content[0]) !== lead) content.unshift(para(plain(lead)))
   return { type: 'doc', content: content.length ? content : [{ type: 'paragraph' }] }
@@ -143,7 +147,8 @@ export function toArticle(detail: TechDetail, assets: Record<string, string>): C
     excerpt: each((v) => text(v.excerpt || v.metaDescription, 600)),
     cover: (hero?.assetId && assets[hero.assetId]) || '',
     ...(caption.en && caption.id ? { coverCaption: caption } : {}),
-    body: each((v) => body(v, assets)),
+    // a version's CTA label follows the language the version is written in (one language sent: it fills both slots)
+    body: each((v, lang) => body(v, assets, v.locale === 'en' || v.locale === 'id' ? v.locale : lang)),
   }
   return {
     content,
