@@ -77,7 +77,12 @@ export function ArticleQueue({ items, disabled, working, onOpen, onPublish }: {
             <ul className="divide-y divide-kumo-hairline">
               {rows.map((item) => (
                 <li key={item.groupId} className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4">
-                  <Thumb id={item.local.cover} className="h-11 w-16 rounded-md max-sm:hidden" />
+                  {/* the banner once previewed here (Media), Tech's own before that */}
+                  {!item.local.cover && item.heroUrl ? (
+                    <img src={item.heroUrl} alt="" loading="lazy" draggable={false} className="h-11 w-16 shrink-0 rounded-md bg-kumo-recessed object-cover max-sm:hidden" />
+                  ) : (
+                    <Thumb id={item.local.cover} className="h-11 w-16 rounded-md max-sm:hidden" />
+                  )}
                   <div className="min-w-0 flex-1 basis-64">
                     <p className="text-sm font-semibold text-kumo-strong">{item.title}</p>
                     <p className="mt-0.5 text-[13px] text-kumo-subtle">

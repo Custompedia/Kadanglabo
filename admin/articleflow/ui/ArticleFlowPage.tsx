@@ -158,7 +158,7 @@ export default function ArticleFlowPage() {
         </>
       )}
 
-      <ReviewDialog item={open} disabled={offline} publishing={!!open && working === open.groupId} onClose={() => setOpen(null)} onPublish={(item, prepared, tag) => void act(item, prepared, tag)} onChanged={() => (toasts.add({ variant: 'success', title: 'Alasan revisi terkirim', description: 'Tim Tech merevisi artikel ini.' }), refreshAll())} />
+      <ReviewDialog item={open} disabled={offline} publishing={!!open && working === open.groupId} onClose={() => (setOpen(null), refreshAll())} onPublish={(item, prepared, tag) => void act(item, prepared, tag)} onChanged={() => (toasts.add({ variant: 'success', title: 'Alasan revisi terkirim', description: 'Tim Tech merevisi artikel ini.' }), refreshAll())} />
       {data && <ExpiredDialog open={popup} onClose={() => setPopup(false)} status={data} />}
     </Page>
   )

@@ -70,11 +70,31 @@ async function markExpired(env: FlowBindings) {
   else if (!cached) await dropCache(env, 'status')
 }
 
-const fold = async (env: FlowBindings, items: TechItem[], rows: Map<string, ItemRow>): Promise<FlowItem[]> =>
-  Promise.all(items.map(async (item) => {
+const fold = async (env: FlowBindings, items: TechItem[], rows: Map<string, ItemRow>, heroes = false): Promise<FlowItem[]> => {
+  const folded: FlowItem[] = await Promise.all(items.map(async (item) => {
     const row = rows.get(item.groupId)
     return { ...item, local: localInfo(row, item, await slugOf(env, row?.article_id ?? null)), view: viewOf(item, row) }
   }))
+  if (!heroes) return folded
+  // An article not previewed here yet has no banner in Media: the list shows Tech's own (a few at a time, remembered per version)
+  const missing = folded.filter((item) => !item.local.cover).slice(0, 12)
+  await Promise.all(missing.map(async (item) => { item.heroUrl = await heroUrl(env, item) }))
+  return folded
+}
+
+/** Tech's banner of this version of the item, as this Worker's media address; the asset id is cached per version. null without one. */
+async function heroUrl(env: FlowBindings, item: TechItem): Promise<string | null> {
+  const key = `hero:${item.groupId}:${item.locales.map((l) => l.versionId).sort().join(',')}`
+  const url = (asset: string) => `/api/articleflow/items/${encodeURIComponent(item.groupId)}/media/${encodeURIComponent(asset)}`
+  const cached = await readCache<{ asset: string | null }>(env, key).catch(() => null)
+  if (cached) return cached.value.asset ? url(cached.value.asset) : null
+  const res = await tech<TechDetail>(env, `/articles/${encodeURIComponent(item.groupId)}`)
+  if (!res.ok || !Array.isArray(res.data?.versions)) return null
+  const versions = res.data.versions, lead = versions.find((v) => v.locale === 'id') ?? versions[0]
+  const asset = (lead?.hero ?? versions.find((v) => v.hero)?.hero)?.assetId ?? null
+  await writeCache(env, key, { asset }).catch(() => undefined)
+  return asset ? url(asset) : null
+}
 
 /* ---- topics: the website's own, never Tech's ---------------------------------------------------------------------- */
 
@@ -143,7 +163,7 @@ flowApi.get('/overview', async (c) => {
     numbers = analytics.data
     await writeCache(c.env, 'analytics', numbers)
   } else numbers = (await readCache<TechAnalytics>(c.env, 'analytics'))?.value ?? null
-  return c.json({ ...status, pendingJobs: await pendingJobs(c.env), analytics: numbers, items: await fold(c.env, list.data.items, await allItems(c.env)) } satisfies FlowOverview)
+  return c.json({ ...status, pendingJobs: await pendingJobs(c.env), analytics: numbers, items: await fold(c.env, list.data.items, await allItems(c.env), true) } satisfies FlowOverview)
 })
 
 const groupOf = (c: Context<FlowEnv>) => {

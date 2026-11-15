@@ -112,13 +112,18 @@ await test('the sidebar status is cached for a short while; the page always read
 })
 
 await test('overview: numbers and the list, folded with the local state; empty analytics stays clean', async () => {
-  const { api } = await setup()
+  const { api, c } = await setup()
   const o = await api('GET', '/api/articleflow/overview')
   assert.equal(o.analytics.totals.clicks, 1284)
   assert.equal(o.analytics.daily.length, 28)
   assert.deepEqual(o.items.map((i) => i.view), ['waiting', 'waiting', 'waiting', 'approved', 'changes'])
   assert.ok(o.items.every((i) => i.local.state === 'none' && i.local.articleId === null))
   assert.equal(o.items[2].locales.length, 1)
+  // not previewed yet: the list shows Tech's banner through this Worker, and it really is a picture
+  const first = o.items[0]
+  assert.equal(first.heroUrl, `/api/articleflow/items/${first.groupId}/media/asset_1_hero`)
+  const pic = await c.request('GET', first.heroUrl)
+  assert.equal(pic.status, 200)
   control({ emptyAnalytics: true })
   const e = await api('GET', '/api/articleflow/overview')
   assert.deepEqual([e.analytics.connected, e.analytics.daily, e.analytics.ai], [false, [], null])
