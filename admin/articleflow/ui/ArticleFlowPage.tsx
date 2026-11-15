@@ -3,6 +3,7 @@ import { Badge, Banner, Button, Empty, LayerCard, Loader } from '@cloudflare/kum
 import { ArrowClockwise, LockSimple, PlugsConnected } from '@phosphor-icons/react'
 import { useConfirm } from '../../src/components/Confirm'
 import { useToasts } from '../../src/components/Toaster'
+import { useContentActions } from '../../src/lib/actions'
 import { Page } from '../../src/layout/Page'
 import { api, ApiError } from '../../src/lib/api'
 import { dateTime } from '../../src/lib/format'
@@ -23,6 +24,8 @@ export default function ArticleFlowPage() {
   const { data, error, loading, reload } = useFetch<FlowOverview>(OVERVIEW)
   const toasts = useToasts()
   const { confirm, dialog } = useConfirm()
+  // take down / put back: the same calls (and confirmation) as in Artikel; the Worker keeps ArticleFlow and Tech in step
+  const articles = useContentActions('article')
   const [open, setOpen] = useState<FlowItem | null>(null)
   const [working, setWorking] = useState<string | null>(null)
   const [retrying, setRetrying] = useState(false)
@@ -99,6 +102,16 @@ export default function ArticleFlowPage() {
   ) : null
 
   const window_ = data?.analytics?.window
+  async function liveAction(item: FlowItem, run: (id: number, title: string) => Promise<unknown>) {
+    if (!item.local.articleId) return
+    setWorking(item.groupId)
+    try {
+      if (await run(item.local.articleId, item.title)) refreshAll()
+    } finally {
+      setWorking(null)
+    }
+  }
+
   return (
     <Page
       wide
@@ -115,6 +128,7 @@ export default function ArticleFlowPage() {
       }
     >
       {dialog}
+      {articles.dialog}
       {!data ? (
         error ? (
           <Empty title="ArticleFlow tidak bisa dibuka" description={error.message} contents={<Button onClick={() => void reload()}>Coba lagi</Button>} />
@@ -154,7 +168,7 @@ export default function ArticleFlowPage() {
             />
           )}
           <AnalyticsCards data={data.analytics} />
-          <ArticleQueue items={data.items} disabled={offline} working={working} onOpen={setOpen} onPublish={publishFromRow} />
+          <ArticleQueue items={data.items} disabled={offline} working={working} onOpen={setOpen} onPublish={publishFromRow} onTakedown={(item) => void liveAction(item, articles.takedown)} onRepublish={(item) => void liveAction(item, articles.publish)} />
         </>
       )}
 

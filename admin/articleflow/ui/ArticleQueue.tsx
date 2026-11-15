@@ -31,7 +31,7 @@ const EMPTY: Record<Tab, string> = {
   published: 'Belum ada artikel dari ArticleFlow yang tayang.',
 }
 
-export function ArticleQueue({ items, disabled, working, onOpen, onPublish }: {
+export function ArticleQueue({ items, disabled, working, onOpen, onPublish, onTakedown, onRepublish }: {
   items: FlowItem[]
   /** Tech cannot be reached: looking is fine, acting is not */
   disabled: boolean
@@ -39,6 +39,10 @@ export function ArticleQueue({ items, disabled, working, onOpen, onPublish }: {
   working: string | null
   onOpen: (item: FlowItem) => void
   onPublish: (item: FlowItem) => void
+  /** take a live article off the website (it stays in Artikel, Tech is told) */
+  onTakedown: (item: FlowItem) => void
+  /** put a taken-down article back on the website */
+  onRepublish: (item: FlowItem) => void
 }) {
   const count = (t: Tab) => items.filter((i) => tabOf(i.view) === t).length
   const [tab, setTab] = useState<Tab>(() => TABS.find(([t]) => count(t) > 0)?.[0] ?? 'waiting')
@@ -115,6 +119,11 @@ export function ArticleQueue({ items, disabled, working, onOpen, onPublish }: {
                     {canPublish(item.view) && (
                       <Button size="sm" variant="primary" disabled={disabled || working !== null} loading={working === item.groupId} onClick={() => onPublish(item)} className="justify-center max-sm:flex-1">Publish</Button>
                     )}
+                    {item.view === 'published' && item.local.articleId ? (
+                      <Button size="sm" variant="secondary" disabled={working !== null} loading={working === item.groupId} onClick={() => onTakedown(item)} className="justify-center max-md:min-h-11 max-sm:flex-1">Turunkan</Button>
+                    ) : item.view === 'taken_down' && item.local.articleId ? (
+                      <Button size="sm" variant="primary" disabled={working !== null} loading={working === item.groupId} onClick={() => onRepublish(item)} className="justify-center max-md:min-h-11 max-sm:flex-1">Tayangkan lagi</Button>
+                    ) : null}
                   </div>
                 </li>
               ))}
