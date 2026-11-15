@@ -23,6 +23,7 @@ const pages = {
   news: () => import('./pages/News'),
   article: () => import('./pages/NewsDetail'),
   contact: () => import('./pages/Contact'),
+  editorial: () => import('./pages/EditorialPolicy'),
   notFound: () => import('./pages/NotFound'),
 }
 
@@ -36,6 +37,7 @@ const Archive = lazy(pages.archive)
 const News = lazy(pages.news)
 const NewsDetail = lazy(pages.article)
 const Contact = lazy(pages.contact)
+const EditorialPolicy = lazy(pages.editorial)
 const NotFound = lazy(pages.notFound)
 
 const workThumbs = projects.slice(0, 8).map((p) => p.cover)
@@ -124,6 +126,8 @@ function Layout() {
           <Route path="/news" element={<Navigate to="/articles" replace />} />
           <Route path="/news/:slug" element={<OldArticle />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/editorial-policy" element={<EditorialPolicy />} />
+          <Route path="/kebijakan-redaksi" element={<Navigate to="/editorial-policy?lang=id" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer key={`footer:${location.pathname}`} cta={footerCta(location.pathname)} />
