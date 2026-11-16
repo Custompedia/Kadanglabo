@@ -77,8 +77,8 @@ const moreFrom = (p: Project): ImgKey[] =>
 const intro = () => {
   const n = Math.floor(archive.length / 10) * 10
   return tr(
-    `More than ${n} projects since 2020, from family homes and housing estates to resorts, offices and healthcare facilities.`,
-    `Lebih dari ${n} proyek sejak 2020, dari rumah tinggal dan perumahan sampai resort, kantor, dan fasilitas kesehatan.`,
+    `More than ${n} projects since 2020, from family homes and housing estates to resorts, restaurants and healthcare facilities.`,
+    `Lebih dari ${n} proyek sejak 2020, dari rumah tinggal dan perumahan sampai resort, restoran, dan fasilitas kesehatan.`,
   )
 }
 

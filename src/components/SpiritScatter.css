@@ -226,10 +226,15 @@
 }
 
 @media (max-width: 767px) {
-  /* phones: every photo, moving as on desktop, large enough to see and kept inside the screen */
+  /* phones: the photos move as on desktop, large enough to see and kept inside the screen */
   .sp__photo {
     left: clamp(10px, var(--x), calc(100% - var(--pw) - 10px));
     width: var(--pw);
+  }
+
+  /* half of the near photos on a phone, so they do not pile up (the far ones all stay) */
+  .sp__photos--near .sp__photo:nth-child(2n) {
+    display: none;
   }
 
   .sp__title {

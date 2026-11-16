@@ -35,7 +35,7 @@ const figures = () => [
   {
     value: `${Math.floor(archive.length / 10) * 10}+`,
     label: tr('Projects', 'Proyek'),
-    note: tr('Homes, estates, resorts, restaurants, offices and clinics', 'Rumah, perumahan, resort, restoran, kantor, dan klinik'),
+    note: tr('Homes, estates, resorts, restaurants, clinics and foundations', 'Rumah, perumahan, resort, restoran, klinik, dan yayasan'),
   },
   { value: String(areaStats.length), label: tr('Regions', 'Wilayah'), note: areaStats.map((a) => a.label).join(' · ') },
   { value: String(categoryOrder.length), label: tr('Sectors', 'Sektor'), note: categoryOrder.map((c) => categoryLabel[c]).join(' · ') },
