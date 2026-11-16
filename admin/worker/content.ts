@@ -6,6 +6,7 @@ import { now, type AppEnv, type Env } from './env'
 import { articleSchema, firstError, projectSchema } from './validate'
 import { newToken } from './crypto'
 import { projectReferenceUpdates } from './pages'
+import { forgetInBanner } from './banner'
 
 /** Today in Yogyakarta (WIB), as YYYY-MM-DD. */
 const today = () => new Date(Date.now() + 7 * 3600_000).toISOString().slice(0, 10)
@@ -171,6 +172,8 @@ function contentRoutes(kind: Kind) {
     if (!row) return c.json({ error: 'not_found', message: `${label} tidak ditemukan.` }, 404)
     if (row.state !== 'trashed') return c.json({ error: 'not_trashed', message: 'Pindahkan ke Trash dulu sebelum menghapus permanen.' }, 400)
     await c.env.CONTENT_DB.prepare(`DELETE FROM ${table} WHERE id = ?`).bind(id).run()
+    // gone for good: its pin (or its place among those kept out) of the Articles banner goes too
+    if (kind === 'article') await forgetInBanner(c.env, c.get('user').username, id).catch((e) => console.error('banner forget', e))
     return c.json({ ok: true })
   })
 

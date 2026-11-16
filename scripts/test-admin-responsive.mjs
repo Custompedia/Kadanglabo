@@ -94,7 +94,7 @@ try {
         await page.getByRole('heading', { name: 'Halo, Custompedia', exact: true }).waitFor()
         loggedIn = true
       }
-      for (const path of ['/', '/projects', '/articles', `/projects/${pid}`, '/projects/new', `/articles/${aid}`, '/articles/new', '/media', '/pages/work', '/pages/commercial', '/pages/hospitality', '/pages/residential', '/locations', '/users', '/monitoring', '/profile', '/articleflow']) {
+      for (const path of ['/', '/projects', '/articles', `/projects/${pid}`, '/projects/new', `/articles/${aid}`, '/articles/new', '/media', '/pages/work', '/pages/commercial', '/pages/hospitality', '/pages/residential', '/pages/articles', '/locations', '/users', '/monitoring', '/profile', '/articleflow']) {
         await page.goto(servers.admin + path)
         await page.locator('.admin-page main h1').waitFor()
         await check(`${width}px ${path}`)

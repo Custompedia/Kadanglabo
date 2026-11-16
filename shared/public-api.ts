@@ -1,4 +1,4 @@
-import { normalizeArticle, type AreaDef, type MediaMeta, type PageSettings, type ProjectContent, type PublicContent } from './content'
+import { normalizeArticle, type AreaDef, type BannerChoice, type BannerSettings, type MediaMeta, type PageSettings, type ProjectContent, type PublicContent } from './content'
 
 /*
  * What the public site reads from the CMS, read-only:
@@ -17,7 +17,7 @@ export interface PublicEnv {
 }
 
 /** Bump when the shape of the content answer changes, so cached copies from older code are not served. */
-const SCHEMA = 2
+const SCHEMA = 3
 
 const json = (body: unknown, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json; charset=utf-8', ...headers } })
@@ -54,15 +54,17 @@ async function content(env: PublicEnv, req: Request, ctx: ExecutionContext) {
   if (hit) return withEtag(hit, etag)
 
   // one round trip for everything the site needs
-  const [p, a, areas, cities, settings] = await env.CONTENT_DB.batch([
+  const [p, a, areas, cities, settings, bannerRow] = await env.CONTENT_DB.batch([
     env.CONTENT_DB.prepare(`SELECT published FROM projects WHERE state = 'published' AND published IS NOT NULL ORDER BY position, id`),
-    env.CONTENT_DB.prepare(`SELECT published FROM articles WHERE state = 'published' AND published IS NOT NULL ORDER BY date DESC, id DESC`),
+    env.CONTENT_DB.prepare(`SELECT id, published FROM articles WHERE state = 'published' AND published IS NOT NULL ORDER BY date DESC, id DESC`),
     env.CONTENT_DB.prepare(`SELECT id, key, label FROM areas ORDER BY position, id`),
     env.CONTENT_DB.prepare(`SELECT name, area_id FROM cities ORDER BY name COLLATE NOCASE`),
     env.CONTENT_DB.prepare(`SELECT value FROM settings WHERE key = 'pages'`),
+    env.CONTENT_DB.prepare(`SELECT value FROM settings WHERE key = 'banner'`),
   ])
+  const articleRows = a.results as { id: number; published: string }[]
   const projects = (p.results as { published: string }[]).map((r) => JSON.parse(r.published) as ProjectContent)
-  const articles = (a.results as { published: string }[]).map((r) => normalizeArticle(JSON.parse(r.published)))
+  const articles = articleRows.map((r) => normalizeArticle(JSON.parse(r.published)))
   const cityRows = cities.results as { name: string; area_id: number }[]
   const areaDefs: AreaDef[] = (areas.results as { id: number; key: string; label: string }[]).map((x) => ({
     key: x.key,
@@ -71,10 +73,23 @@ async function content(env: PublicEnv, req: Request, ctx: ExecutionContext) {
   }))
   const pagesRow = (settings.results as { value: string }[])[0]
   const pages = pagesRow ? (JSON.parse(pagesRow.value) as PageSettings) : null
-  const body: PublicContent = { projects, articles, areas: areaDefs, pages, media: await mediaFor(env, [...projects, ...articles, pages]), version }
+  const body: PublicContent = { projects, articles, areas: areaDefs, pages, banner: bannerChoice((bannerRow.results as { value: string }[])[0]?.value, articleRows.map((r, i) => [r.id, articles[i].slug])), media: await mediaFor(env, [...projects, ...articles, pages]), version }
   const res = json(body, { 'cache-control': 'public, max-age=0, must-revalidate', etag })
   ctx.waitUntil(cache.put(key, new Response(res.clone().body, { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=86400' } })))
   return res
+}
+
+/** The banner as the site needs it: ids turned into the live addresses; articles that are not live are left out. */
+function bannerChoice(raw: string | undefined, live: [number, string][]): BannerChoice | null {
+  if (!raw) return null
+  try {
+    const s = JSON.parse(raw) as Partial<BannerSettings>
+    const slugOf = new Map(live)
+    const slugs = (ids: unknown) => (Array.isArray(ids) ? ids : []).map((id) => slugOf.get(Number(id))).filter((x): x is string => !!x)
+    return { pinned: slugs(s.pinned), hidden: slugs(s.hidden) }
+  } catch {
+    return null
+  }
 }
 
 function withEtag(res: Response, etag: string) {

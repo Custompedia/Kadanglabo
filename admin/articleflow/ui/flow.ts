@@ -13,6 +13,7 @@ export function refreshAll() {
   mutate(OVERVIEW)
   mutate(STATUS)
   mutate('/articles')
+  mutate('/banner') // the Articles banner follows what is live (core, src/components/BannerControl.tsx)
 }
 
 export const nf = new Intl.NumberFormat('id-ID')

@@ -468,6 +468,9 @@ await test('deleted in Tech (every language): the article leaves the website for
   const { api, env } = await setup()
   await importGroup(api, 'grp_1')
   const { articleId } = await pub(api, 'grp_1')
+  // an ArticleFlow article is an ordinary article for the banner of the Articles page
+  await api('PUT', `/api/banner/articles/${articleId}`, { mode: 'pinned' })
+  assert.equal((await publicContent(env)).banner.pinned.length, 1)
   await importGroup(api, 'grp_2') // previewed only, never published
   // missing from the list is not deleted: only what Tech names under `removed`
   const kept = fake.state.groups.splice(1, 1)
@@ -485,6 +488,7 @@ await test('deleted in Tech (every language): the article leaves the website for
   assert.deepEqual(articleRows(env), [])
   assert.equal((await api('GET', `/api/articles/${articleId}`, undefined, 404)).error, 'not_found')
   assert.deepEqual((await publicContent(env)).articles, [])
+  assert.deepEqual((await api('GET', '/api/banner')).settings, { pinned: [], hidden: [] }) // the pin went with it
   assert.ok(!(await sitemap(env)).includes('cafe-interior-design-cost'))
   assert.deepEqual([fake.state.live.length, fake.state.takenDown.length], reports) // Tech's own news: nothing reported back
   assert.deepEqual([o.pendingJobs, openJobs(env)], [0, []])
@@ -731,6 +735,15 @@ await test('take out: with the two connector files emptied the Worker builds and
   const cookie = login.headers.get('set-cookie').split(';')[0]
   assert.equal((await call('GET', '/api/articles', undefined, cookie)).status, 200)
   assert.equal((await call('GET', '/api/articleflow/status', undefined, cookie)).status, 404)
+  // articles written by hand and the banner of the Articles page keep working without it
+  const tx = (t) => ({ en: t, id: t })
+  const doc = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Teks' }] }] }
+  const made = await call('POST', '/api/articles', { content: { slug: 'tulis-manual', type: 'news', tag: tx('Talk'), title: tx('Tulis manual'), date: '', excerpt: tx('Ringkas'), cover: 'image-fixture', body: { en: doc, id: doc } } }, cookie)
+  assert.equal(made.status, 201)
+  const { id } = await made.json()
+  assert.equal((await call('POST', `/api/articles/${id}/publish`, undefined, cookie)).status, 200)
+  assert.equal((await call('PUT', `/api/banner/articles/${id}`, { mode: 'pinned' }, cookie)).status, 200)
+  assert.deepEqual((await (await call('GET', '/api/public/content')).json()).banner, { pinned: ['tulis-manual'], hidden: [] })
   await worker.scheduled({}, env, { waitUntil() {} })
 })
 

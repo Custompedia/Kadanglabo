@@ -1,7 +1,7 @@
 import type { ArticleContent, MediaMeta, ProjectContent, PublicContent } from '../../shared/content'
 import { registerMedia } from '../components/Img'
 import { setProjects, type Project } from '../data/projects'
-import { setNews, type NewsItem } from '../data/news'
+import { setBanner, setNews, type NewsItem } from '../data/news'
 import { setPages } from '../data/pages'
 
 /*
@@ -51,9 +51,9 @@ const toProject = (p: ProjectContent): Project => ({
 
 const toNews = (a: ArticleContent): NewsItem => ({ ...a })
 
-function apply(projects: ProjectContent[], articles: ArticleContent[], media: Record<string, MediaMeta>, extra?: Pick<PublicContent, 'areas' | 'pages'>) {
+function apply(projects: ProjectContent[], articles: ArticleContent[], media: Record<string, MediaMeta>, extra?: Pick<PublicContent, 'areas' | 'pages' | 'banner'>) {
   registerMedia(media)
-  if (extra) setPages(extra.pages)
+  if (extra) (setPages(extra.pages), setBanner(extra.banner ?? null))
   setProjects(
     projects.filter((p) => !p.archiveOnly).map(toProject),
     projects.filter((p) => p.archiveOnly).map((p) => [p.title, p.category, p.region, p.year, p.status, p.cover || undefined]),
@@ -96,5 +96,5 @@ export async function loadContent() {
     else articles = articles.some((a) => a.slug === draft.content.slug) ? articles.map((a) => (a.slug === draft.content.slug ? draft.content : a)) : [draft.content, ...articles]
     document.documentElement.dataset.preview = ''
   }
-  apply(projects, articles, { ...live!.media, ...draft?.media }, { areas: live!.areas, pages: live!.pages })
+  apply(projects, articles, { ...live!.media, ...draft?.media }, { areas: live!.areas, pages: live!.pages, banner: live!.banner })
 }

@@ -7,6 +7,7 @@ import { mediaApi } from './media'
 import { handlePublic } from '../../shared/public-api'
 import { storageApi } from './storage'
 import { locationsApi, pagesApi, topicsApi } from './pages'
+import { bannerApi } from './banner'
 import { cleanupMedia } from './media'
 import { monitorApi, recordCleanup } from './monitor'
 import { integrations } from './integrations'
@@ -32,6 +33,7 @@ api.use('/users/*', requireUser)
 api.use('/pages/*', requireUser)
 api.use('/locations/*', requireUser)
 api.use('/topics/*', requireUser)
+api.use('/banner/*', requireUser)
 for (const integration of integrations) integration.mount(api, requireUser) // optional add-ons (worker/integrations.ts)
 api.route('/projects', projectsApi)
 api.route('/articles', articlesApi)
@@ -42,6 +44,7 @@ api.route('/users', users)
 api.route('/pages', pagesApi)
 api.route('/locations', locationsApi)
 api.route('/topics', topicsApi)
+api.route('/banner', bannerApi)
 api.notFound((c) => c.json({ error: 'not_found', message: 'Tidak ditemukan.' }, 404))
 api.onError((err, c) => {
   console.error(err)

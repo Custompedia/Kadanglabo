@@ -155,7 +155,7 @@ export default function WorkSettings() {
   )
 }
 
-const SiteLink = ({ path }: { path: string }) => (
+export const SiteLink = ({ path }: { path: string }) => (
   <a href={`${PUBLIC_SITE}${path}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[13px] font-medium ring-1 ring-kumo-line transition hover:bg-kumo-tint">
     {path} <ArrowSquareOut size={12} />
   </a>

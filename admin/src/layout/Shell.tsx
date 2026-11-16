@@ -76,6 +76,7 @@ export function Shell({ children }: { children: ReactNode }) {
                           ['/pages/commercial', 'Commercial'],
                           ['/pages/hospitality', 'Hospitality'],
                           ['/pages/residential', 'Residential'],
+                          ['/pages/articles', 'Artikel'],
                           ['/locations', 'Lokasi'],
                         ] as const
                       ).map(([to, label]) => (

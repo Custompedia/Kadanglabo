@@ -105,3 +105,27 @@ export interface Monitor {
   } | null
   nextCleanup: string
 }
+
+/** GET /api/banner: the banner at the top of the Articles page (worker/banner.ts) */
+export type BannerMode = 'auto' | 'pinned' | 'hidden'
+export interface BannerArticle {
+  id: number
+  slug: string
+  title: { en: string; id: string }
+  cover: string
+  date: string
+  tag: { en: string; id: string }
+  mode: BannerMode
+  /** its place in the banner now (1…max), or null when it does not show */
+  position: number | null
+}
+export interface BannerOverview {
+  max: number
+  settings: { pinned: number[]; hidden: number[] }
+  /** ids of the live articles the banner shows now, in order */
+  shown: number[]
+  /** every live article: pinned first in their order, then newest first */
+  articles: BannerArticle[]
+  updated_by: string | null
+  updated_at: string | null
+}

@@ -16,6 +16,7 @@ import { PublishPanel } from '../components/PublishPanel'
 import { StateBadge } from '../components/StateBadge'
 import { LeaveDialog } from '../components/LeaveDialog'
 import { TopicSelect } from '../components/TopicSelect'
+import { ArticleBannerControl, BANNER } from '../components/BannerControl'
 
 /*
  * An article, written like on Medium: one flat page that reads like the published article (title, short
@@ -87,6 +88,11 @@ export default function ArticleEditor() {
             </FieldShell>
           )}
         </div>
+        {e.meta?.state !== 'trashed' && (
+          <div className="border-t border-kumo-hairline pt-4">
+            <ArticleBannerControl id={e.meta?.id ?? null} />
+          </div>
+        )}
       </div>
     </AsideSection>
   )
@@ -120,7 +126,7 @@ export default function ArticleEditor() {
               draft={e.draft}
               publishedAt={e.meta?.published_at ?? null}
               onSave={() => e.save()}
-              onStateChange={(s, at) => (e.setState(s, at ? { published_at: at, dirty: 0, published: d } : {}), mutate('/articles'))}
+              onStateChange={(s, at) => (e.setState(s, at ? { published_at: at, dirty: 0, published: d } : {}), mutate('/articles'), mutate(BANNER))}
               extra={settings}
             />
           }

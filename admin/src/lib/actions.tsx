@@ -26,6 +26,7 @@ export function useContentActions(kind: Kind) {
   const refresh = () => {
     mutate(base)
     mutate('/storage')
+    if (kind === 'article') mutate('/banner') // what the Articles banner shows follows what is live
   }
   const fail = (e: unknown) => toasts.add({ title: 'Gagal', description: (e as ApiError).message, variant: 'error' })
 

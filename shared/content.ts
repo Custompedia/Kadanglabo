@@ -179,6 +179,8 @@ export interface PublicContent {
   areas: AreaDef[]
   /** what Our Work and the category pages show (CMS "Our Work"); null until first saved */
   pages: PageSettings | null
+  /** the featured articles at the top of the Articles page (CMS "Halaman website › Artikel"), as live slugs; null until first saved */
+  banner: BannerChoice | null
   /** every media id the content uses */
   media: Record<string, MediaMeta>
   /** ISO time of the newest publish, for cache busting */
@@ -246,6 +248,41 @@ export interface CategorySettings {
 
 export interface PageSettings {
   categories: Record<Category, CategorySettings>
+}
+
+/* ---- the banner of the Articles page --------------------------------------------------------------------------- */
+
+/** How many articles the banner at the top of the Articles page shows. */
+export const BANNER_MAX = 5
+
+/**
+ * What the CMS keeps for the banner, by article id (an id never changes, unlike the address): the articles pinned
+ * to the front, in order, and the ones kept out. Every other live article is "automatic": the newest fill what is
+ * left. Kept even while an article is not live, so taking it down and putting it back keeps its place.
+ */
+export interface BannerSettings {
+  pinned: number[]
+  hidden: number[]
+}
+/** The same, as the public site gets it: the live addresses of those articles. */
+export interface BannerChoice {
+  pinned: string[]
+  hidden: string[]
+}
+export type BannerMode = 'auto' | 'pinned' | 'hidden'
+
+/**
+ * The articles the banner shows, in order: the pinned ones that are live, then the newest of the rest that are not
+ * kept out, up to BANNER_MAX. `live` is newest first. Used by the site and by the dashboard's preview of it, so both
+ * always agree.
+ */
+export function bannerPick<T>(live: T[], key: (x: T) => string | number, choice: { pinned: (string | number)[]; hidden: (string | number)[] } | null, max = BANNER_MAX): T[] {
+  if (!choice) return live.slice(0, max)
+  const hidden = new Set(choice.hidden)
+  const byKey = new Map(live.map((x) => [key(x), x]))
+  const pinned = [...new Set(choice.pinned)].filter((k) => !hidden.has(k)).map((k) => byKey.get(k)).filter((x): x is T => !!x)
+  const taken = new Set(pinned.map(key))
+  return [...pinned, ...live.filter((x) => !taken.has(key(x)) && !hidden.has(key(x)))].slice(0, max)
 }
 
 /** An area of the Location filter, and the cities / regencies in it. */

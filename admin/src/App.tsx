@@ -9,7 +9,6 @@ import { Overview } from './pages/Overview'
 import { ContentList } from './pages/ContentList'
 import { integrations } from './integrations'
 
-// the editors carry Tiptap and drag-and-drop: loaded when first opened
 const pages = {
   project: () => import('./pages/ProjectEditor'),
   article: () => import('./pages/ArticleEditor'),
@@ -17,6 +16,7 @@ const pages = {
   users: () => import('./pages/Users'),
   profile: () => import('./pages/Profile'),
   pages: () => import('./pages/WorkSettings'),
+  articlesPage: () => import('./pages/ArticlesPage'),
   locations: () => import('./pages/Locations'),
   monitoring: () => import('./pages/Monitoring'),
 }
@@ -26,6 +26,7 @@ const Media = lazyPage(pages.media)
 const Users = lazyPage(pages.users)
 const Profile = lazyPage(pages.profile)
 const WorkSettings = lazyPage(pages.pages)
+const ArticlesPage = lazyPage(pages.articlesPage)
 const Locations = lazyPage(pages.locations)
 const Monitoring = lazyPage(pages.monitoring)
 
@@ -33,7 +34,7 @@ const Monitoring = lazyPage(pages.monitoring)
 function usePrefetchPages(on: boolean) {
   useEffect(() => {
     if (!on) return
-    const run = () => [...Object.values(pages), ...integrations.flatMap((i) => (i.preload ? [i.preload] : []))].forEach((load) => void load().catch(() => {}))
+    const run = () => [...Object.values(pages), ...integrations.flatMap((i) => (i.preload ? [i.preload] : []))].forEach((load) => void load().catch(() => { }))
     const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1))
     const id = setTimeout(() => idle(run, { timeout: 4000 }), 800)
     return () => clearTimeout(id)
@@ -56,6 +57,7 @@ export function App() {
           <Route path="/articles/:id" element={<ArticleEditor />} />
           <Route path="/media" element={<Media />} />
           <Route path="/pages" element={<Navigate to="/pages/work" replace />} />
+          <Route path="/pages/articles" element={<ArticlesPage />} />
           <Route path="/pages/:view" element={<WorkSettings />} />
           <Route path="/locations" element={<Locations />} />
           <Route path="/monitoring" element={user.role === 'admin' ? <Monitoring /> : <Navigate to="/" replace />} />

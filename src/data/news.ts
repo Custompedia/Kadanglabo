@@ -1,5 +1,5 @@
 import { locale } from '../lib/i18n'
-import type { ArticleContent } from '../../shared/content'
+import { bannerPick, type ArticleContent, type BannerChoice } from '../../shared/content'
 import { articles } from './articles'
 
 /*
@@ -22,6 +22,12 @@ export function setNews(next: NewsItem[]) {
   news.splice(0, news.length, ...next)
   sortedNews = sortByDate()
 }
+
+/* What the banner on the Articles page shows, as chosen in the CMS (Halaman website › Artikel). Without a choice
+   (the CMS is unreachable, or nothing was saved yet) it is the newest articles. */
+let banner: BannerChoice | null = null
+export const setBanner = (b: BannerChoice | null) => void (banner = b)
+export const bannerNews = () => bannerPick(sortedNews, (n) => n.slug, banner)
 
 export const getNews = (slug: string) => news.find((n) => n.slug === slug)
 

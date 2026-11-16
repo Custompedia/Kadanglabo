@@ -65,6 +65,7 @@ export function SearchPalette({ open, onOpenChange }: { open: boolean; onOpenCha
       { key: 'p:/pages/commercial', label: 'Commercial', kind: 'Halaman website', to: '/pages/commercial', icon: SquaresFour },
       { key: 'p:/pages/hospitality', label: 'Hospitality', kind: 'Halaman website', to: '/pages/hospitality', icon: SquaresFour },
       { key: 'p:/pages/residential', label: 'Residential', kind: 'Halaman website', to: '/pages/residential', icon: SquaresFour },
+      { key: 'p:/pages/articles', label: 'Artikel (banner)', kind: 'Halaman website', to: '/pages/articles', icon: SquaresFour },
       { key: 'p:/locations', label: 'Lokasi', kind: 'Halaman website', to: '/locations', icon: MapPinArea },
       ...(user?.role === 'admin'
         ? [

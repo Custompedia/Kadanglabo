@@ -3,6 +3,7 @@ import { Banner, Button, Dialog, LinkButton, Loader } from '@cloudflare/kumo'
 import { ArrowSquareOut, CheckCircle, DesktopTower, DeviceMobile, Lightbulb, WarningCircle, X } from '@phosphor-icons/react'
 import { useConfirm } from '../../src/components/Confirm'
 import { TopicSelect } from '../../src/components/TopicSelect'
+import { ArticleBannerControl } from '../../src/components/BannerControl'
 import { dateTime } from '../../src/lib/format'
 import { useFetch } from '../../src/lib/useFetch'
 import type { FlowItem, TopicTag } from '../types'
@@ -174,6 +175,15 @@ export function ReviewDialog({ item, disabled, publishing, onClose, onPublish, o
                   )}
                 </div>
               )}
+
+              {/* the banner of the Articles page: the core's own setting (also in Artikel and Halaman website › Artikel) */}
+              {item?.local.articleId && item.view !== 'finishing' ? (
+                <div className="mt-5 rounded-xl bg-kumo-recessed/60 p-3.5 ring-1 ring-kumo-hairline">
+                  <ArticleBannerControl id={item.local.articleId} onNavigate={onClose} />
+                </div>
+              ) : actionable && ready ? (
+                <p className="mt-3 text-xs leading-relaxed text-kumo-subtle">Setelah tayang, artikel ini otomatis masuk banner halaman Artikel sebagai yang terbaru. Untuk menyematkan atau menyembunyikannya, buka lagi pratinjaunya di tab Tayang, atau atur di Halaman website › Artikel.</p>
+              ) : null}
 
               <h3 className="mt-5 text-sm font-semibold text-kumo-strong">Kenapa artikel ini</h3>
               <p className="mt-0.5 text-[13px] text-kumo-subtle">Ringkasan riset dari tim Custompedia Tech.</p>

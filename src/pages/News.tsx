@@ -10,7 +10,7 @@ import { ArrowRight, Plus, Search } from '../components/Icons'
 import { usePageAnimations } from '../lib/anim'
 import { gsap, ScrollTrigger, reducedMotion } from '../lib/gsap'
 import { TLink } from '../lib/transition'
-import { formatDate, sortedNews } from '../data/news'
+import { bannerNews, formatDate, sortedNews } from '../data/news'
 import { waHello, waLink } from '../data/site'
 import { locale, t, tr } from '../lib/i18n'
 
@@ -98,8 +98,8 @@ export default function News() {
           )}
         />
 
-        {/* the latest articles, one at a time, moving on by themselves */}
-        <NewsBanner items={sortedNews.slice(0, 5)} />
+        {/* the articles chosen in the CMS (else the latest), one at a time, moving on by themselves */}
+        <NewsBanner items={bannerNews()} />
 
         <section className="news wrap" data-theme="light">
           {/* Search + filters: right column on desktop, above the cards on small screens.
