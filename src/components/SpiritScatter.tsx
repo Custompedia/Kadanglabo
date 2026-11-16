@@ -298,10 +298,20 @@ function Photos({ list, layer }: { list: typeof field; layer: 'far' | 'near' }) 
           key={ph.id}
           className="sp__photo"
           data-speed={ph.s}
-          style={{ '--x': `${ph.x}%`, '--y': `${ph.y}%`, '--w': ph.w, '--ar': ph.ar, '--o': ph.s < 0.95 ? 0.5 : 1 } as CSSProperties}
+          style={
+            {
+              '--x': `${ph.x}%`,
+              '--y': `${ph.y}%`,
+              '--w': ph.w,
+              // phones: a third of a phone's width for the large photos, a quarter for the far ones (SpiritScatter.css)
+              '--pw': ph.s < 1 ? '27vw' : ph.w.startsWith('clamp(130') ? '40vw' : '33vw',
+              '--ar': ph.ar,
+              '--o': ph.s < 0.95 ? 0.5 : 1,
+            } as CSSProperties
+          }
         >
           <div className="sp__frame">
-            <Img id={ph.id} sizes="(min-width: 768px) 17vw, 34vw" />
+            <Img id={ph.id} sizes="(min-width: 768px) 17vw, 40vw" />
           </div>
         </div>
       ))}

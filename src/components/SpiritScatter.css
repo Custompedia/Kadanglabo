@@ -217,11 +217,20 @@
   align-self: start;
 }
 
-@media (max-width: 767px) {
-  /* small photos on a phone: they drift through the free space above and below the words (the script fades each
-     one out as it nears the words), so they must fit in it */
+/* tablets: the photos' desktop minimum (80 to 130px) reads small on a 768 to 1024px screen; a third larger, inside the screen */
+@media (min-width: 768px) and (max-width: 1099px) {
   .sp__photo {
-    width: calc(var(--w) * 0.8);
+    left: clamp(12px, var(--x), calc(100% - var(--w) * 1.3 - 12px));
+    width: calc(var(--w) * 1.3);
+  }
+}
+
+@media (max-width: 767px) {
+  /* phones: photos large enough to see (a third of the width or more), kept inside the screen. They drift through
+     the free space above and below the words; the script fades each one out as it nears the words */
+  .sp__photo {
+    left: clamp(12px, var(--x), calc(100% - var(--pw) - 12px));
+    width: var(--pw);
   }
 
   /* a third of the photos on a phone, so the words keep room to breathe */
