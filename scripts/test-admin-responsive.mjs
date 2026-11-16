@@ -98,6 +98,8 @@ try {
         await page.goto(servers.admin + path)
         await page.locator('.admin-page main h1').waitFor()
         await check(`${width}px ${path}`)
+        // SHOTS=1: a full-page picture of every route at every width, to look the layouts over by eye
+        if (process.env.SHOTS) await page.screenshot({ path: join(screenshotDir, `${name}-${width}${path.replace(/\//g, '_') || '_'}.png`), fullPage: true })
       }
       if (width < 768) {
         await page.getByRole('button', { name: 'Buka navigasi', exact: true }).click()

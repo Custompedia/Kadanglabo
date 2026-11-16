@@ -236,7 +236,7 @@ export default function Work() {
                 style={{ '--x': `${sp.x}%`, '--y': `${sp.y}%`, '--w': sp.w, '--ar': sp.ar, '--o': sp.s < 0.95 ? 0.5 : 1 } as CSSProperties}
               >
                 <div className="arch-intro__frame" data-reveal>
-                  <Img id={sp.id} sizes="(min-width: 768px) 17vw, 34vw" />
+                  <Img id={sp.id} sizes="(min-width: 768px) 17vw, 48vw" />
                 </div>
               </div>
             ))}
