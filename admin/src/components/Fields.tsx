@@ -43,11 +43,10 @@ function LangTag({ lang }: { lang: Lang }) {
 }
 
 /**
- * Which language the editor is filling in: one tab bar under the editor's title, always in view. An orange dot
- * marks a language that still has empty fields.
+ * Which language the editor is filling in: one tab bar under the editor's title, always in view. What is still
+ * missing is listed once, in the publish panel ("Lengkapi sebelum tayang"), not marked on the tabs.
  */
-export function LangTabs({ lang, setLang, issues = [] }: { lang: Lang; setLang: (l: Lang) => void; issues?: string[] }) {
-  const missing = (l: Lang) => issues.some((i) => i.includes('Indonesia & Inggris') || i.includes(`bahasa ${l === 'id' ? 'Indonesia' : 'Inggris'} belum`))
+export function LangTabs({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void; issues?: string[] }) {
   return (
     <div className="flex flex-wrap items-end gap-x-4 gap-y-2 border-b border-kumo-line" role="tablist" aria-label="Bahasa isian">
       {(
@@ -66,7 +65,6 @@ export function LangTabs({ lang, setLang, issues = [] }: { lang: Lang; setLang: 
         >
           <span className="rounded bg-kumo-recessed px-1.5 py-px text-[11px] font-semibold tracking-wide text-kumo-subtle">{l.toUpperCase()}</span>
           {name}
-          {missing(l) && <span className="size-1.5 rounded-full bg-kumo-brand" title="Masih ada yang belum diisi" />}
         </button>
       ))}
       <span className="flex-1" />

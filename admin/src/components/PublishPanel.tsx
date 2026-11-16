@@ -125,12 +125,21 @@ export function PublishPanel({
         {!isNew && issues.length > 0 && state !== 'trashed' && (
           <div className="mt-4 rounded-lg bg-kumo-warning-tint px-3.5 py-3 text-sm">
             <p className="font-medium text-kumo-strong">Lengkapi sebelum tayang</p>
-            <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-kumo-default">
-              {issues.slice(0, 8).map((i) => (
-                <li key={i}>{i}</li>
+            <div className="mt-2 grid gap-2.5">
+              {groupIssues(issues).map((g) => (
+                <div key={g.title}>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-kumo-subtle">{g.title}</p>
+                  <ul className="mt-1 grid gap-0.5 text-kumo-default">
+                    {g.items.map((i) => (
+                      <li key={i} className="flex gap-2">
+                        <span aria-hidden="true" className="mt-[0.55em] size-1 shrink-0 rounded-full bg-kumo-subtle" />
+                        {i}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-              {issues.length > 8 && <li>dan {issues.length - 8} lainnya</li>}
-            </ul>
+            </div>
           </div>
         )}
 
@@ -173,4 +182,34 @@ export function PublishPanel({
       {actions.dialog}
     </>
   )
+}
+
+/**
+ * What still stops Publish, grouped so a long list reads at a glance: the photos (the gallery's empty slots counted
+ * as one line), the texts that need both languages, and the rest. Every issue is shown, nothing is cut off.
+ */
+function groupIssues(issues: string[]): { title: string; items: string[] }[] {
+  const photos: string[] = []
+  const texts: string[] = []
+  const other: string[] = []
+  let slots = 0
+  const blocks: number[] = []
+  for (const i of issues) {
+    const g = /^Galeri blok (\d+): (dua foto|foto)$/.exec(i)
+    if (g) {
+      slots += g[2] === 'dua foto' ? 2 : 1
+      blocks.push(Number(g[1]))
+    } else if (i.startsWith('Foto')) photos.push(i)
+    else if (i.endsWith('(Indonesia & Inggris)')) texts.push(i.replace(/ \(Indonesia & Inggris\)$/, ''))
+    else other.push(i)
+  }
+  if (slots) {
+    const range = blocks.length > 1 ? `blok ${Math.min(...blocks)}–${Math.max(...blocks)}` : `blok ${blocks[0]}`
+    photos.push(`Galeri: ${slots} foto belum diisi (${range})`)
+  }
+  return [
+    { title: 'Foto', items: photos },
+    { title: 'Teks · Indonesia & Inggris', items: texts },
+    { title: 'Lainnya', items: other },
+  ].filter((g) => g.items.length)
 }
