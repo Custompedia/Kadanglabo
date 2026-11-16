@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useId, useState, type ReactNode } from 'react'
 import { type Lang, type RichTx, type Tx } from '../../../shared/content'
 import { Check, Eye, EyeSlash, MapPin, PencilSimple, X } from '@phosphor-icons/react'
 import { RichEditor } from './RichEditor'
@@ -73,20 +73,34 @@ export function LangTabs({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => 
   )
 }
 
-export function FieldShell({ label, hint, right, children, required }: { label: ReactNode; hint?: ReactNode; right?: ReactNode; children: ReactNode; required?: boolean }) {
+/**
+ * A label, the control(s) and a hint. The label names what is inside for screen readers: a plain input passes
+ * `labelId` and points its own aria-labelledby at it; anything else (a select, a photo slot, a group of buttons) is
+ * wrapped in a group named by the label.
+ */
+export function FieldShell({ label, hint, right, children, required, labelId }: { label: ReactNode; hint?: ReactNode; right?: ReactNode; children: ReactNode; required?: boolean; labelId?: string }) {
+  const own = useId()
+  const id = labelId ?? own
+  const hintId = `${id}-hint`
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-1.5" {...(labelId ? {} : { role: 'group', 'aria-labelledby': id, ...(hint ? { 'aria-describedby': hintId } : {}) })}>
       <div className="flex min-h-6 items-center justify-between gap-3">
-        <span className="text-sm font-medium text-kumo-default">
+        <span id={id} className="text-sm font-medium text-kumo-default">
           {label}
-          {required && <span className="ml-0.5 text-kumo-subtle">*</span>}
+          {required && <span className="ml-0.5 text-kumo-subtle" aria-hidden="true">*</span>}
         </span>
         {right}
       </div>
       {children}
-      {hint && <p className="text-xs text-kumo-subtle">{hint}</p>}
+      {hint && <p id={hintId} className="text-xs text-kumo-subtle">{hint}</p>}
     </div>
   )
+}
+
+/** The attributes that tie a plain input to its FieldShell label (and hint). */
+function useLabelled(hint: unknown, required?: boolean) {
+  const id = useId()
+  return { labelId: id, input: { 'aria-labelledby': id, ...(hint ? { 'aria-describedby': `${id}-hint` } : {}), ...(required ? { 'aria-required': true } : {}) } }
 }
 
 const inputCls =
@@ -97,8 +111,10 @@ export function TxField({ label, value, onChange, hint, placeholder, multiline, 
   const [lang] = useFieldLang()
   const ph = typeof placeholder === 'string' ? placeholder : placeholder?.[lang]
   const v = value[lang]
+  const l = useLabelled(hint, required)
   return (
     <FieldShell
+      labelId={l.labelId}
       label={label}
       required={required}
       hint={hint}
@@ -114,9 +130,9 @@ export function TxField({ label, value, onChange, hint, placeholder, multiline, 
       }
     >
       {multiline ? (
-        <textarea lang={lang} className={`${inputCls} min-h-24 resize-y py-2.5 leading-relaxed`} value={v} placeholder={ph} maxLength={max} onChange={(e) => onChange({ ...value, [lang]: e.target.value })} />
+        <textarea {...l.input} lang={lang} className={`${inputCls} min-h-24 resize-y py-2.5 leading-relaxed`} value={v} placeholder={ph} maxLength={max} onChange={(e) => onChange({ ...value, [lang]: e.target.value })} />
       ) : (
-        <input lang={lang} className={`${inputCls} h-10`} value={v} placeholder={ph} maxLength={max} onChange={(e) => onChange({ ...value, [lang]: e.target.value })} />
+        <input {...l.input} lang={lang} className={`${inputCls} h-10`} value={v} placeholder={ph} maxLength={max} onChange={(e) => onChange({ ...value, [lang]: e.target.value })} />
       )}
     </FieldShell>
   )
@@ -134,11 +150,12 @@ export function RichField({ label, value, onChange, hint, placeholder, required 
 
 /** A plain single-language input with the same look. */
 export function TextField({ label, value, onChange, hint, placeholder, required, prefix, type = 'text', right, list }: { label: ReactNode; value: string; onChange: (v: string) => void; hint?: ReactNode; placeholder?: string; required?: boolean; prefix?: string; type?: string; right?: ReactNode; list?: string }) {
+  const l = useLabelled(hint, required)
   return (
-    <FieldShell label={label} hint={hint} required={required} right={right}>
+    <FieldShell labelId={l.labelId} label={label} hint={hint} required={required} right={right}>
       <span className="flex items-stretch overflow-hidden rounded-lg ring-1 ring-kumo-line focus-within:ring-[1.5px] focus-within:ring-kumo-focus/60">
         {prefix && <span className="flex shrink-0 items-center whitespace-nowrap bg-kumo-recessed px-3 text-sm text-kumo-subtle">{prefix}</span>}
-        <input type={type} list={list} className="h-10 w-full min-w-0 bg-kumo-base px-3 text-[15px] outline-none placeholder:text-kumo-placeholder" value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
+        <input {...l.input} type={type} list={list} className="h-10 w-full min-w-0 bg-kumo-base px-3 text-[15px] outline-none placeholder:text-kumo-placeholder" value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
       </span>
     </FieldShell>
   )
@@ -147,10 +164,12 @@ export function TextField({ label, value, onChange, hint, placeholder, required,
 /** A password, hidden by default, with an eye button to show what was typed (the same as on the sign-in page). */
 export function PasswordField({ label, value, onChange, hint, autoComplete }: { label: ReactNode; value: string; onChange: (v: string) => void; hint?: ReactNode; autoComplete: 'current-password' | 'new-password' }) {
   const [show, setShow] = useState(false)
+  const l = useLabelled(hint)
   return (
-    <FieldShell label={label} hint={hint}>
+    <FieldShell labelId={l.labelId} label={label} hint={hint}>
       <span className="flex items-stretch overflow-hidden rounded-lg ring-1 ring-kumo-line focus-within:ring-[1.5px] focus-within:ring-kumo-focus/60">
         <input
+          {...l.input}
           type={show ? 'text' : 'password'}
           autoComplete={autoComplete}
           className="h-10 w-full min-w-0 bg-kumo-base px-3 text-[15px] outline-none placeholder:text-kumo-placeholder"
@@ -234,7 +253,7 @@ export function SlugField({ label, prefix, value, onChange, hint, live }: { labe
   }
   const iconBtn = 'grid size-8 shrink-0 place-items-center rounded-md text-kumo-subtle transition hover:bg-kumo-tint hover:text-kumo-default'
   return (
-    <FieldShell label={label} hint={editing && live ? 'Sudah tayang: mengganti alamat membuat link lama tidak bisa dibuka lagi.' : hint}>
+    <FieldShell label={label} hint={editing && live ? 'Sudah tayang: link lama tetap bisa dibuka dan otomatis dialihkan ke alamat baru setelah ditayangkan.' : hint}>
       <span className={`flex min-h-11 items-stretch overflow-hidden rounded-lg ring-1 ${editing ? 'ring-[1.5px] ring-kumo-focus/60' : 'ring-kumo-line'}`}>
         <span className="flex shrink-0 items-center whitespace-nowrap bg-kumo-recessed px-3 text-sm text-kumo-subtle">{prefix}</span>
         {editing ? (

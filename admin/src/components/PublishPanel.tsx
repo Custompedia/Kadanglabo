@@ -99,7 +99,7 @@ export function PublishPanel({
   return (
     <>
       {missingDialog}
-      <AsideSection title="Publikasi" extra={!isNew && <StateBadge state={state} dirty={dirty} />}>
+      <AsideSection title="Publikasi" extra={!isNew && <StateBadge state={state} dirty={dirty || unsaved} />}>
         <p className="mb-4 flex items-center gap-1.5 text-sm text-kumo-subtle" aria-live="polite">
           {saving ? (
             <>

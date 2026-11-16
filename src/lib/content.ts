@@ -3,6 +3,7 @@ import { registerMedia } from '../components/Img'
 import { setProjects, type Project } from '../data/projects'
 import { setBanner, setNews, type NewsItem } from '../data/news'
 import { setPages } from '../data/pages'
+import { setRedirects } from '../data/redirects'
 
 /*
  * The content the CMS has published (admin.kadanglabo.com), loaded once before the app renders (src/main.tsx).
@@ -51,9 +52,9 @@ const toProject = (p: ProjectContent): Project => ({
 
 const toNews = (a: ArticleContent): NewsItem => ({ ...a })
 
-function apply(projects: ProjectContent[], articles: ArticleContent[], media: Record<string, MediaMeta>, extra?: Pick<PublicContent, 'areas' | 'pages' | 'banner'>) {
+function apply(projects: ProjectContent[], articles: ArticleContent[], media: Record<string, MediaMeta>, extra?: Pick<PublicContent, 'areas' | 'pages' | 'banner' | 'redirects'>) {
   registerMedia(media)
-  if (extra) (setPages(extra.pages), setBanner(extra.banner ?? null))
+  if (extra) (setPages(extra.pages), setBanner(extra.banner ?? null), setRedirects(extra.redirects))
   setProjects(
     projects.filter((p) => !p.archiveOnly).map(toProject),
     projects.filter((p) => p.archiveOnly).map((p) => [p.title, p.category, p.region, p.year, p.status, p.cover || undefined]),
@@ -96,5 +97,5 @@ export async function loadContent() {
     else articles = articles.some((a) => a.slug === draft.content.slug) ? articles.map((a) => (a.slug === draft.content.slug ? draft.content : a)) : [draft.content, ...articles]
     document.documentElement.dataset.preview = ''
   }
-  apply(projects, articles, { ...live!.media, ...draft?.media }, { areas: live!.areas, pages: live!.pages, banner: live!.banner })
+  apply(projects, articles, { ...live!.media, ...draft?.media }, { areas: live!.areas, pages: live!.pages, banner: live!.banner, redirects: live!.redirects })
 }

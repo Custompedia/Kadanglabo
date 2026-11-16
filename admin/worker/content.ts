@@ -7,6 +7,7 @@ import { articleSchema, firstError, projectSchema } from './validate'
 import { newToken } from './crypto'
 import { projectReferenceUpdates } from './pages'
 import { forgetInBanner } from './banner'
+import { forgetRedirects, redirectUpdates } from './redirects'
 
 /** Today in Yogyakarta (WIB), as YYYY-MM-DD. */
 const today = () => new Date(Date.now() + 7 * 3600_000).toISOString().slice(0, 10)
@@ -122,6 +123,8 @@ function contentRoutes(kind: Kind) {
     const references = kind === 'project' && previousSlug && previousSlug !== raw.slug
       ? await projectReferenceUpdates(c.env, previousSlug, raw.slug)
       : []
+    // the address it leaves keeps working (it leads here); the one it takes stops leading elsewhere
+    references.push(...(await redirectUpdates(c.env, kind, id, previousSlug, raw.slug)))
     await c.env.CONTENT_DB.batch([
       ...stamp,
       ...references,
@@ -174,6 +177,7 @@ function contentRoutes(kind: Kind) {
     await c.env.CONTENT_DB.prepare(`DELETE FROM ${table} WHERE id = ?`).bind(id).run()
     // gone for good: its pin (or its place among those kept out) of the Articles banner goes too
     if (kind === 'article') await forgetInBanner(c.env, c.get('user').username, id).catch((e) => console.error('banner forget', e))
+    await forgetRedirects(c.env, kind, id).catch((e) => console.error('redirects forget', e))
     return c.json({ ok: true })
   })
 

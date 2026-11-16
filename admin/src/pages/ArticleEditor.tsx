@@ -104,7 +104,7 @@ export default function ArticleEditor() {
           wide
         responsiveAside
           title={d.title[lang] || d.title[other] || 'Artikel baru'}
-          pill={e.meta && <StateBadge state={e.meta.state} dirty={!!e.meta.dirty} />}
+          pill={e.meta && <StateBadge state={e.meta.state} dirty={!!e.meta.dirty || e.unsaved} />}
           back={{ label: 'Artikel', href: '/articles' }}
           sticky
           tabs={<LangTabs lang={lang} setLang={setLang} issues={e.issues} />}

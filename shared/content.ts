@@ -181,6 +181,8 @@ export interface PublicContent {
   pages: PageSettings | null
   /** the featured articles at the top of the Articles page (CMS "Halaman website › Artikel"), as live slugs; null until first saved */
   banner: BannerChoice | null
+  /** old addresses that lead to a live page: { project: { oldSlug: liveSlug }, article: { … } } */
+  redirects: SlugRedirects
   /** every media id the content uses */
   media: Record<string, MediaMeta>
   /** ISO time of the newest publish, for cache busting */
@@ -249,6 +251,9 @@ export interface CategorySettings {
 export interface PageSettings {
   categories: Record<Category, CategorySettings>
 }
+
+/** Old address → current live address, per kind (a link shared before an address changed still opens the page). */
+export type SlugRedirects = { project: Record<string, string>; article: Record<string, string> }
 
 /* ---- the banner of the Articles page --------------------------------------------------------------------------- */
 

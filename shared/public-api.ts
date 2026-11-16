@@ -1,4 +1,4 @@
-import { normalizeArticle, type AreaDef, type BannerChoice, type BannerSettings, type MediaMeta, type PageSettings, type ProjectContent, type PublicContent } from './content'
+import { normalizeArticle, type AreaDef, type BannerChoice, type BannerSettings, type MediaMeta, type PageSettings, type ProjectContent, type PublicContent, type SlugRedirects } from './content'
 
 /*
  * What the public site reads from the CMS, read-only:
@@ -17,7 +17,7 @@ export interface PublicEnv {
 }
 
 /** Bump when the shape of the content answer changes, so cached copies from older code are not served. */
-const SCHEMA = 3
+const SCHEMA = 4
 
 const json = (body: unknown, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json; charset=utf-8', ...headers } })
@@ -54,16 +54,18 @@ async function content(env: PublicEnv, req: Request, ctx: ExecutionContext) {
   if (hit) return withEtag(hit, etag)
 
   // one round trip for everything the site needs
-  const [p, a, areas, cities, settings, bannerRow] = await env.CONTENT_DB.batch([
-    env.CONTENT_DB.prepare(`SELECT published FROM projects WHERE state = 'published' AND published IS NOT NULL ORDER BY position, id`),
+  const [p, a, areas, cities, settings, bannerRow, redirectRow] = await env.CONTENT_DB.batch([
+    env.CONTENT_DB.prepare(`SELECT id, published FROM projects WHERE state = 'published' AND published IS NOT NULL ORDER BY position, id`),
     env.CONTENT_DB.prepare(`SELECT id, published FROM articles WHERE state = 'published' AND published IS NOT NULL ORDER BY date DESC, id DESC`),
     env.CONTENT_DB.prepare(`SELECT id, key, label FROM areas ORDER BY position, id`),
     env.CONTENT_DB.prepare(`SELECT name, area_id FROM cities ORDER BY name COLLATE NOCASE`),
     env.CONTENT_DB.prepare(`SELECT value FROM settings WHERE key = 'pages'`),
     env.CONTENT_DB.prepare(`SELECT value FROM settings WHERE key = 'banner'`),
+    env.CONTENT_DB.prepare(`SELECT value FROM settings WHERE key = 'redirects'`),
   ])
   const articleRows = a.results as { id: number; published: string }[]
-  const projects = (p.results as { published: string }[]).map((r) => JSON.parse(r.published) as ProjectContent)
+  const projectRows = p.results as { id: number; published: string }[]
+  const projects = projectRows.map((r) => JSON.parse(r.published) as ProjectContent)
   const articles = articleRows.map((r) => normalizeArticle(JSON.parse(r.published)))
   const cityRows = cities.results as { name: string; area_id: number }[]
   const areaDefs: AreaDef[] = (areas.results as { id: number; key: string; label: string }[]).map((x) => ({
@@ -73,7 +75,13 @@ async function content(env: PublicEnv, req: Request, ctx: ExecutionContext) {
   }))
   const pagesRow = (settings.results as { value: string }[])[0]
   const pages = pagesRow ? (JSON.parse(pagesRow.value) as PageSettings) : null
-  const body: PublicContent = { projects, articles, areas: areaDefs, pages, banner: bannerChoice((bannerRow.results as { value: string }[])[0]?.value, articleRows.map((r, i) => [r.id, articles[i].slug])), media: await mediaFor(env, [...projects, ...articles, pages]), version }
+  const body: PublicContent = { projects, articles, areas: areaDefs, pages, banner: bannerChoice((bannerRow.results as { value: string }[])[0]?.value, articleRows.map((r, i) => [r.id, articles[i].slug])),
+    redirects: slugRedirects((redirectRow.results as { value: string }[])[0]?.value, {
+      // only projects with a page of their own can be led to
+      project: projectRows.flatMap((r, i) => (projects[i].archiveOnly ? [] : [[r.id, projects[i].slug] as [number, string]])),
+      article: articleRows.map((r, i) => [r.id, articles[i].slug] as [number, string]),
+    }),
+    media: await mediaFor(env, [...projects, ...articles, pages]), version }
   const res = json(body, { 'cache-control': 'public, max-age=0, must-revalidate', etag })
   ctx.waitUntil(cache.put(key, new Response(res.clone().body, { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=86400' } })))
   return res
@@ -90,6 +98,26 @@ function bannerChoice(raw: string | undefined, live: [number, string][]): Banner
   } catch {
     return null
   }
+}
+
+/** Old addresses as the site needs them: each to the live address of its record, none to a page that is not live. */
+function slugRedirects(raw: string | undefined, live: Record<'project' | 'article', [number, string][]>): SlugRedirects {
+  const out: SlugRedirects = { project: {}, article: {} }
+  if (!raw) return out
+  try {
+    const map = JSON.parse(raw) as Partial<Record<'project' | 'article', Record<string, number>>>
+    for (const kind of ['project', 'article'] as const) {
+      const slugOf = new Map(live[kind])
+      const liveSlugs = new Set(live[kind].map(([, s]) => s))
+      for (const [from, id] of Object.entries(map[kind] ?? {})) {
+        const to = slugOf.get(Number(id))
+        if (to && to !== from && !liveSlugs.has(from)) out[kind][from] = to
+      }
+    }
+  } catch {
+    /* a broken value redirects nothing */
+  }
+  return out
 }
 
 function withEtag(res: Response, etag: string) {

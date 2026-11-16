@@ -15,7 +15,7 @@ import {
   type Block,
   type Project,
 } from '../data/projects'
-import NotFound from './NotFound'
+import { MovedOrMissing } from './MovedOrMissing'
 import { t, tr } from '../lib/i18n'
 
 /** the four facts worth saying big: what, where, how large, and the state it is in */
@@ -114,7 +114,7 @@ function GalleryBlock({ b }: { b: Block }) {
 export default function ProjectDetail() {
   const { slug } = useParams()
   const p = slug ? getProject(slug) : undefined
-  if (!p) return <NotFound />
+  if (!p) return <MovedOrMissing kind="project" base="/work/" slug={slug} />
   return <ProjectView p={p} />
 }
 

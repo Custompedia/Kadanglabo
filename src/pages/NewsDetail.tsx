@@ -10,7 +10,7 @@ import { TLink } from '../lib/transition'
 import { formatDate, getNews, sortedNews, type NewsItem } from '../data/news'
 import { getProject } from '../data/projects'
 import { t, tr } from '../lib/i18n'
-import NotFound from './NotFound'
+import { MovedOrMissing } from './MovedOrMissing'
 
 /*
  * One article, laid out like a magazine page (after custompedia.agency/artikel): breadcrumb, topic, a large title,
@@ -21,7 +21,7 @@ import NotFound from './NotFound'
 export default function NewsDetail() {
   const { slug } = useParams()
   const n = slug ? getNews(slug) : undefined
-  if (!n) return <NotFound />
+  if (!n) return <MovedOrMissing kind="article" base="/articles/" slug={slug} />
   return <Article key={n.slug} n={n} />
 }
 

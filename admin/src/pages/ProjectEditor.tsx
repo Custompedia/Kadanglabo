@@ -102,7 +102,7 @@ export default function ProjectEditor() {
         wide
         responsiveAside
         title={d.title || 'Projek baru'}
-        pill={e.meta && <StateBadge state={e.meta.state} dirty={!!e.meta.dirty} />}
+        pill={e.meta && <StateBadge state={e.meta.state} dirty={!!e.meta.dirty || e.unsaved} />}
         back={{ label: 'Projek', href: '/projects' }}
         sticky
         tabs={<LangTabs lang={lang} setLang={setLang} issues={e.issues} />}
