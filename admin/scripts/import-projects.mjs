@@ -46,6 +46,9 @@ const q = (v) => (v === null || v === undefined ? 'NULL' : typeof v === 'number'
 const slugify = (s) => s.replace(/\.[a-z0-9]+$/i, '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'image'
 const shortId = () => crypto.randomBytes(4).toString('hex').slice(0, 6)
 const blank = { en: '', id: '' }
+// the same starting point as a new project in the editor: Architecture, and the gallery rhythm of the live pages
+const ARCH = { en: 'Architecture', id: 'Arsitektur' }
+const galleryTemplate = () => [{ t: 'full', img: '' }, { t: 'pair', imgs: ['', ''] }, { t: 'offset', img: '', side: 'right' }, { t: 'pair', imgs: ['', ''] }, { t: 'full', img: '' }]
 const filled = (t) => !!(t && t.en?.trim() && t.id?.trim())
 
 const plan = JSON.parse(fs.readFileSync(path.join(data, 'plan.json'), 'utf8'))
@@ -96,7 +99,7 @@ for (const p of plan) {
   const row = existing.get(p.slug)
   const base = row?.draft ?? {
     slug: p.slug, title: p.title, category: p.category, archiveOnly: false, typology: blank, location: null, region: null, year: null, status: null,
-    scope: [], color: '#1B2238', accent: '#EC6434', tagline: blank, summary: txToRich(blank), story: [], hero: '', cover: '', gallery: [],
+    scope: [ARCH], color: '#1B2238', accent: '#EC6434', tagline: blank, summary: txToRich(blank), story: [], hero: '', cover: '', gallery: galleryTemplate(),
   }
   const c = structuredClone(base)
   // facts: the sheet decides the category; everything else only fills what is empty
@@ -134,7 +137,9 @@ for (const p of plan) {
     if (m.copy?.galleryText && filled(m.copy.galleryText.label) && filled(m.copy.galleryText.body)) {
       blocks.splice(Math.min(2, blocks.length), 0, { t: 'text', label: m.copy.galleryText.label, body: txToRich(m.copy.galleryText.body) })
     }
-    c.gallery = [...c.gallery, ...blocks]
+    // blocks still empty from the template give way to the real photos
+    const empty = (b) => (b.t === 'full' || b.t === 'offset' ? !b.img : b.t === 'pair' ? !b.imgs[0] && !b.imgs[1] : false)
+    c.gallery = [...(blocks.length ? c.gallery.filter((b) => !empty(b)) : c.gallery), ...blocks]
   }
 
   const parsed = projectSchema.safeParse(c)

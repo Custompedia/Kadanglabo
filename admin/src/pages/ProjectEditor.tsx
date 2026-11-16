@@ -10,6 +10,7 @@ import {
   projectThemes,
   scopeOptions,
   statusLabel,
+  type GalleryBlock,
   type Lang,
   type ProjectContent,
   type Tx,
@@ -31,6 +32,19 @@ import { mutate } from '../lib/useFetch'
 const tx = (): Tx => ({ en: '', id: '' })
 const rich = () => ({ en: emptyDoc(), id: emptyDoc() })
 
+/**
+ * The gallery every new project starts with: the rhythm of the live project pages (a wide photo, a pair, an offset
+ * detail, a pair, a wide photo), with the photo slots still empty. Blocks can be added, moved or removed as usual;
+ * empty slots only need filling before Publish.
+ */
+const galleryTemplate = (): GalleryBlock[] => [
+  { t: 'full', img: '' },
+  { t: 'pair', imgs: ['', ''] },
+  { t: 'offset', img: '', side: 'right' },
+  { t: 'pair', imgs: ['', ''] },
+  { t: 'full', img: '' },
+]
+
 function blank(): ProjectContent {
   return {
     slug: '',
@@ -50,7 +64,7 @@ function blank(): ProjectContent {
     story: [],
     hero: '',
     cover: '',
-    gallery: [],
+    gallery: galleryTemplate(),
   }
 }
 
