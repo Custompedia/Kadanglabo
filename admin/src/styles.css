@@ -269,9 +269,14 @@ button:not(:disabled), [role='button']:not([aria-disabled='true']) { cursor: poi
   .admin-project-pick > img, .admin-project-pick > span:nth-child(3) { width: 40px; }
 }
 
-/* "Tunjukkan" from the Publish popup: the empty field it brought the user to, for a moment */
+/* "Tunjukkan" / a row of "hal lagi sebelum tayang": the empty field it brought the user to, for a moment */
 .reveal-missing {
-  border-radius: 0.75rem;
-  box-shadow: 0 0 0 2px var(--color-kumo-brand, #d34614), 0 0 0 6px color-mix(in srgb, var(--color-kumo-brand, #d34614) 18%, transparent);
-  transition: box-shadow 0.3s ease;
+  border-radius: 0.625rem;
+  outline: 1px solid color-mix(in srgb, var(--color-kumo-brand, #d34614) 70%, transparent);
+  outline-offset: 6px;
+  animation: reveal-missing 1.8s ease-out forwards;
+}
+@keyframes reveal-missing {
+  0%, 70% { outline-color: color-mix(in srgb, var(--color-kumo-brand, #d34614) 70%, transparent); }
+  100% { outline-color: transparent; }
 }

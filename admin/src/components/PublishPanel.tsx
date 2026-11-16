@@ -9,7 +9,8 @@ import type { Kind } from '../lib/types'
 import { StateBadge } from './StateBadge'
 import { useConfirm } from './Confirm'
 import { useFieldLang } from './Fields'
-import { reveal } from '../lib/reveal'
+import { issueText, reveal } from '../lib/reveal'
+import { useToasts } from './Toaster'
 
 /*
  * The editor's right-hand panel: where the item stands, Save / Publish / Take down / Preview, and what is still
@@ -60,7 +61,13 @@ export function PublishPanel({
 }) {
   const actions = useContentActions(kind)
   const { confirm, dialog: missingDialog } = useConfirm()
-  const [, setLang] = useFieldLang()
+  const [lang, setLang] = useFieldLang()
+  const toasts = useToasts()
+  const goTo = (issue: string) => {
+    const to = reveal(issue, draft, lang, setLang)
+    if (to) toasts.add({ title: `Beralih ke ${to === 'en' ? 'English' : 'Bahasa Indonesia'}`, description: `Isian ${lang === 'en' ? 'English' : 'Bahasa Indonesia'} tetap ada; bagian ini yang masih kosong.` })
+  }
+  const rows = issueRows(issues, draft)
   const live = state === 'published'
   const shownSlug = live && liveSlug ? liveSlug : slug
   const url = `${PUBLIC_SITE}/${kind === 'project' ? 'work' : 'articles'}/${shownSlug}`
@@ -68,7 +75,7 @@ export function PublishPanel({
   async function publish() {
     if (!id) return
     if (issues.length) {
-      const lines = issueRows(issues).map((r) => r.text)
+      const lines = rows.map((r) => r.text)
       const go = await confirm({
         title: 'Belum bisa ditayangkan',
         body: (
@@ -81,7 +88,7 @@ export function PublishPanel({
         ),
         action: 'Tunjukkan',
       })
-      if (go) reveal(issues[0], draft, setLang)
+      if (go) goTo(rows[0].issue)
       return
     }
     if (unsaved && !(await onSave())) return
@@ -154,13 +161,13 @@ export function PublishPanel({
           <div className="mt-5 border-t border-kumo-hairline pt-4">
             {issues.length ? (
               <>
-                <p className="text-sm font-medium text-kumo-strong">{issueRows(issues).length} hal lagi sebelum tayang</p>
+                <p className="text-sm font-medium text-kumo-strong">{rows.length} hal lagi sebelum tayang</p>
                 <ul className="mt-2 -mx-2 grid">
-                  {issueRows(issues).map((r) => (
+                  {rows.map((r) => (
                     <li key={r.text}>
                       <button
                         type="button"
-                        onClick={() => reveal(r.issue, draft, setLang)}
+                        onClick={() => goTo(r.issue)}
                         className="group flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm text-kumo-default transition hover:bg-kumo-tint"
                       >
                         <Circle size={14} className="shrink-0 text-kumo-subtle" />
@@ -224,7 +231,7 @@ export function PublishPanel({
  * What still stops Publish, one row each and all of them: the gallery's empty photo slots counted in one row, and
  * "(ID & EN)" for the texts that need both languages. Each row keeps the issue it stands for, to go to its field.
  */
-function issueRows(issues: string[]): { text: string; issue: string }[] {
+function issueRows(issues: string[], draft: unknown): { text: string; issue: string }[] {
   const out: { text: string; issue: string }[] = []
   let slots = 0
   const blocks: number[] = []
@@ -235,7 +242,7 @@ function issueRows(issues: string[]): { text: string; issue: string }[] {
       slots += g[2] === 'dua foto' ? 2 : 1
       blocks.push(Number(g[1]))
       firstSlot ||= i
-    } else out.push({ text: i.replace(/ \(Indonesia & Inggris\)$/, ' (ID & EN)'), issue: i })
+    } else out.push({ text: issueText(i, draft), issue: i })
   }
   if (slots) {
     const range = blocks.length > 1 ? `blok ${Math.min(...blocks)}–${Math.max(...blocks)}` : `blok ${blocks[0]}`
