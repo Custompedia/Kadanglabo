@@ -61,6 +61,7 @@ export function useRecordEditor<T extends { slug: string }>(kind: Kind, id: stri
         if (isNew) {
           const r = await api<{ id: number }>(base, { body: { content: d } })
           setUnsaved(false)
+          setSaveError(null) // a failed try before this one is over
           mutate(base)
           toasts.add({ title: 'Draft tersimpan', description: 'Belum tampil di website sampai ditayangkan.', variant: 'success' })
           navigate(`${base}/${r.id}`, { replace: true })

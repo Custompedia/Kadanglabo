@@ -39,6 +39,8 @@ export function emptyLangs(issue: string, draft: unknown): Lang[] {
 
 /** The issue as a row: "Tipologi: EN belum diisi", "Tagline: ID & EN belum diisi", "Foto cover". */
 export function issueText(issue: string, draft: unknown): string {
+  // the topic is picked from a list (both languages at once), not typed per language
+  if (labelOf(issue) === 'Topik') return 'Topik belum dipilih'
   const langs = emptyLangs(issue, draft)
   if (!langs.length) return issue
   return `${labelOf(issue)}: ${langs.length === 2 ? 'ID & EN' : langs[0].toUpperCase()} belum diisi`

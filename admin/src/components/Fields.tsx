@@ -137,7 +137,7 @@ export function TextField({ label, value, onChange, hint, placeholder, required,
   return (
     <FieldShell label={label} hint={hint} required={required} right={right}>
       <span className="flex items-stretch overflow-hidden rounded-lg ring-1 ring-kumo-line focus-within:ring-[1.5px] focus-within:ring-kumo-focus/60">
-        {prefix && <span className="flex items-center bg-kumo-recessed px-3 text-sm text-kumo-subtle">{prefix}</span>}
+        {prefix && <span className="flex shrink-0 items-center whitespace-nowrap bg-kumo-recessed px-3 text-sm text-kumo-subtle">{prefix}</span>}
         <input type={type} list={list} className="h-10 w-full min-w-0 bg-kumo-base px-3 text-[15px] outline-none placeholder:text-kumo-placeholder" value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
       </span>
     </FieldShell>
@@ -236,11 +236,12 @@ export function SlugField({ label, prefix, value, onChange, hint, live }: { labe
   return (
     <FieldShell label={label} hint={editing && live ? 'Sudah tayang: mengganti alamat membuat link lama tidak bisa dibuka lagi.' : hint}>
       <span className={`flex min-h-11 items-stretch overflow-hidden rounded-lg ring-1 ${editing ? 'ring-[1.5px] ring-kumo-focus/60' : 'ring-kumo-line'}`}>
-        <span className="flex items-center bg-kumo-recessed px-3 text-sm text-kumo-subtle">{prefix}</span>
+        <span className="flex shrink-0 items-center whitespace-nowrap bg-kumo-recessed px-3 text-sm text-kumo-subtle">{prefix}</span>
         {editing ? (
           <>
             <input
               autoFocus
+              aria-label="Alamat halaman"
               className="w-full min-w-0 bg-kumo-base px-3 text-[15px] outline-none"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}

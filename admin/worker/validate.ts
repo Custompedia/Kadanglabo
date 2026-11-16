@@ -82,7 +82,10 @@ const tx = z.object({ en: z.string().max(2000), id: z.string().max(2000) })
 const rich = z.object({ en: doc, id: doc })
 const mediaId = z.string().regex(/^[a-z0-9-]{1,80}$/)
 const imgRef = z.union([mediaId, z.literal('')])
-export const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug: huruf kecil, angka dan tanda hubung').max(100)
+export const slug = z.string()
+  .min(1, 'Alamat halaman masih kosong. Isi judul dulu, alamatnya terisi otomatis dari judul.')
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Alamat halaman hanya boleh huruf kecil, angka, dan tanda hubung (mis. rumah-kaliurang).')
+  .max(100, 'Alamat halaman paling panjang 100 huruf.')
 
 const block = z.discriminatedUnion('t', [
   z.object({ t: z.literal('full'), img: imgRef, caption: tx.optional() }),
@@ -137,5 +140,7 @@ export const role = z.enum(['admin', 'editor'])
 /** First error message of a failed parse, for a toast or a field. */
 export const firstError = (e: z.ZodError) => {
   const i = e.issues[0]
-  return i ? `${i.path.length ? i.path.join('.') + ': ' : ''}${i.message}` : 'Data tidak valid'
+  // the address explains itself; other fields keep their path so the message says which one
+  const named = i && i.path.length && !(i.path.length === 1 && i.path[0] === 'slug')
+  return i ? `${named ? i.path.join('.') + ': ' : ''}${i.message}` : 'Data tidak valid'
 }
