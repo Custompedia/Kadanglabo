@@ -226,16 +226,10 @@
 }
 
 @media (max-width: 767px) {
-  /* phones: photos large enough to see (a third of the width or more), kept inside the screen. They drift through
-     the free space above and below the words; the script fades each one out as it nears the words */
+  /* phones: every photo, moving as on desktop, large enough to see and kept inside the screen */
   .sp__photo {
-    left: clamp(12px, var(--x), calc(100% - var(--pw) - 12px));
+    left: clamp(10px, var(--x), calc(100% - var(--pw) - 10px));
     width: var(--pw);
-  }
-
-  /* a third of the photos on a phone, so the words keep room to breathe */
-  .sp__photo:not(:nth-child(3n + 1)) {
-    display: none;
   }
 
   .sp__title {

@@ -3760,11 +3760,9 @@
     width: calc(var(--w) * 1.4);
   }
 
-  /* the paper glow covers the whole band of words on a phone, so the photos pass behind it */
+  /* no paper glow behind the words on a phone (it read as a white band over the photos) */
   .arch-intro__stage::before {
-    width: 120vw;
-    height: min(440px, 64svh);
-    background: radial-gradient(closest-side, var(--color-paper) 72%, rgb(243 240 234 / 0) 100%);
+    display: none;
   }
 
   /* fewer photos on a phone */
