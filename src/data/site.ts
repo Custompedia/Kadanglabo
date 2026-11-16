@@ -161,8 +161,8 @@ export const sectors: {
     img: 'klinik-hero',
     imgAlt: { en: 'Klinik UII - secondary-skin facade', id: 'Klinik UII - fasad secondary skin' },
     desc: {
-      en: 'New builds, renovations and expansions for businesses and institutions, from coffee shops to healthcare facilities.',
-      id: 'Bangunan baru, renovasi, dan pengembangan untuk usaha dan institusi, dari coffee shop hingga fasilitas kesehatan.',
+      en: 'New builds, renovations and expansions for businesses and institutions, from foundation buildings to healthcare facilities.',
+      id: 'Bangunan baru, renovasi, dan pengembangan untuk usaha dan institusi, dari gedung yayasan hingga fasilitas kesehatan.',
     },
     typologies: [
       { en: 'Restaurants & Coffee Shops', id: 'Restoran & Coffee Shop' },
@@ -226,8 +226,8 @@ export const sectors: {
     img: 'labarka-bird',
     imgAlt: { en: 'La Barka Resort - aerial view by the Progo River', id: 'La Barka Resort - tampak udara di tepi Kali Progo' },
     desc: {
-      en: 'Resorts, villas, homestays and boarding houses designed around their setting and the people who stay.',
-      id: 'Resort, villa, homestay, dan rumah kos yang selaras dengan tapak dan kebutuhan tamu.',
+      en: 'Resorts, villas, restaurants and guest houses designed around their setting and the people who visit.',
+      id: 'Resort, villa, restoran, dan guest house yang selaras dengan tapak dan kebutuhan tamunya.',
     },
     typologies: [
       { en: 'Resorts & Villas', id: 'Resort & Villa' },
@@ -364,32 +364,32 @@ export const workLanding: Record<
   commercial: {
     headline: { en: 'Buildings that put your business on the map.', id: 'Bangunan yang membuat bisnis Anda dilirik.' },
     sub: {
-      en: 'Clinics, shophouses, offices and coffee shops, designed to welcome customers and to work hard every single day.',
-      id: 'Klinik, ruko, kantor, hingga coffee shop yang dirancang untuk menyambut pelanggan dan bekerja keras setiap hari.',
+      en: 'Clinics, foundation buildings, shops and offices, designed to welcome people and to work hard every single day.',
+      id: 'Klinik, gedung yayasan, toko, hingga kantor yang dirancang untuk menyambut pengunjung dan bekerja keras setiap hari.',
     },
     statement: {
       en: 'A good commercial building [[klinik-front]] sells before anyone walks in, makes [[klinik-waiting]] every visit easy, and gives your business [[klinik-plaza]] room to grow.',
       id: 'Bangunan komersial yang baik [[klinik-front]] sudah menjual sebelum orang masuk, memudahkan [[klinik-waiting]] setiap kunjungan, dan memberi bisnis Anda [[klinik-plaza]] ruang untuk tumbuh.',
     },
     projectsIntro: {
-      en: 'From a campus clinic to a row of shophouses, each one designed around how the business really runs.',
-      id: 'Dari klinik kampus hingga deretan ruko, semuanya dirancang mengikuti cara bisnis itu benar-benar berjalan.',
+      en: 'From a campus clinic in Yogyakarta to a foundation compound in Bali, each one designed around how the place really runs.',
+      id: 'Dari klinik kampus di Yogyakarta hingga kompleks yayasan di Bali, semuanya dirancang mengikuti cara tempat itu benar-benar berjalan.',
     },
     typologyImgs: ['labarka-teppanyaki', 'hamzah-street', 'klinik-front', 'klinik-tree'],
   },
   hospitality: {
     headline: { en: 'Places to stay that feel born from their landscape.', id: 'Tempat menginap yang terasa lahir dari alamnya.' },
     sub: {
-      en: 'Resorts, villas, homestays and boarding houses that turn the character of a site into the reason guests book and come back.',
-      id: 'Resort, villa, homestay, hingga rumah kos yang menjadikan karakter tapak sebagai alasan tamu memesan kamar, lalu datang kembali.',
+      en: 'Resorts, villas, restaurants and guest houses that turn the character of a site into the reason guests book and come back.',
+      id: 'Resort, villa, restoran, hingga guest house yang menjadikan karakter tapak sebagai alasan tamu datang, lalu kembali lagi.',
     },
     statement: {
       en: 'From a riverside resort [[labarka-river]] to a villa and restaurant [[balecatur-pool]] built around its pool, we design places to stay where every arrival [[labarka-path]] feels like a welcome.',
       id: 'Dari resort di tepi sungai [[labarka-river]] hingga villa dan restoran [[balecatur-pool]] yang berpusat pada kolamnya, kami merancang tempat menginap yang menyambut tamu [[labarka-path]] sejak langkah pertama.',
     },
     projectsIntro: {
-      en: 'Resorts, villas and guest houses where architecture, landscape and interior are planned as one.',
-      id: 'Resort, villa, dan guest house dengan arsitektur, lanskap, dan interior yang direncanakan sebagai satu kesatuan.',
+      en: 'Resorts, villas, restaurants and guest houses where architecture, landscape and interior are planned as one.',
+      id: 'Resort, villa, restoran, dan guest house dengan arsitektur, lanskap, dan interior yang direncanakan sebagai satu kesatuan.',
     },
     typologyImgs: ['labarka-bird', 'balecatur-front', 'hamzah-front', 'muji-front'],
   },
@@ -404,8 +404,8 @@ export const workLanding: Record<
       id: 'Rumah dimulai dari [[hmw-dining]] cara Anda berkumpul, beristirahat [[hmw-bedroom]] dan menyambut tamu, lalu menjadi hunian [[hmw-facade-day]] yang terasa milik Anda sejak hari pertama.',
     },
     projectsIntro: {
-      en: 'Private houses and estates in and around Yogyakarta, each planned for light, air and everyday life.',
-      id: 'Rumah tinggal dan kawasan hunian di Yogyakarta dan sekitarnya, dirancang dengan memperhatikan cahaya, udara, dan keseharian penghuninya.',
+      en: 'Private houses and estates in Yogyakarta and well beyond it, each planned for light, air and everyday life.',
+      id: 'Rumah tinggal dan kawasan hunian di Yogyakarta hingga kota-kota lain di Indonesia, dirancang dengan memperhatikan cahaya, udara, dan keseharian penghuninya.',
     },
     typologyImgs: ['hmw-facade-day', 'giripeni-aerial', 'hmw-kitchen'],
   },
