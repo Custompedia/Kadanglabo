@@ -148,6 +148,7 @@ function BlockCard({ block, n, count, onChange, onRemove, onMove }: { block: Key
   return (
     <li
       ref={setNodeRef}
+      data-gallery-block={n + 1}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`rounded-xl bg-kumo-base ring-1 ring-kumo-line ${isDragging ? 'relative z-10 shadow-xl ring-kumo-fill' : ''}`}
     >

@@ -12,7 +12,7 @@ const LangCtx = createContext<{ lang: Lang; setLang: (l: Lang) => void }>({ lang
 export const EditLangProvider = LangCtx.Provider
 
 /** One language for the whole editor: switching it on any field switches every field, so they never disagree. */
-function useFieldLang() {
+export function useFieldLang() {
   const { lang, setLang } = useContext(LangCtx)
   return [lang, setLang] as const
 }

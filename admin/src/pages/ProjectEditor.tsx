@@ -121,6 +121,7 @@ export default function ProjectEditor() {
             savedAt={e.savedAt}
             saveError={e.saveError}
             issues={e.issues}
+            draft={e.draft}
             publishedAt={e.meta?.published_at ?? null}
             onSave={() => e.save()}
             onStateChange={(s, at) => (e.setState(s, at ? { published_at: at, dirty: 0, published: d } : {}), mutate('/projects'))}
