@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useToasts } from '../components/Toaster'
 import { useBlocker, useNavigate } from 'react-router'
-import type { RecordState } from '../../../shared/content'
+import type { ArticleContent, ProjectContent, RecordState } from '../../../shared/content'
+import { publishIssues } from '../../../shared/publish'
 import { api, ApiError } from './api'
 import { mutate } from './useFetch'
 import type { Kind, Record } from './types'
@@ -26,9 +27,10 @@ export function useRecordEditor<T extends { slug: string }>(kind: Kind, id: stri
   const [unsaved, setUnsaved] = useState(false)
   const [saving, setSaving] = useState(false)
   const [savedAt, setSavedAt] = useState<string | null>(null)
-  const [issues, setIssues] = useState<string[]>([])
   const [saveError, setSaveError] = useState<string | null>(null)
   const latest = useRef<T | null>(draft)
+  // what still stops Publish, from what is on screen now (the same rules the Worker checks), so it follows typing
+  const issues = useMemo(() => (draft ? publishIssues(kind, draft as unknown as ProjectContent | ArticleContent) : []), [draft, kind])
   const version = useRef(0)
 
   useEffect(() => {
@@ -41,7 +43,6 @@ export function useRecordEditor<T extends { slug: string }>(kind: Kind, id: stri
         setDraftState(d)
         latest.current = d
         setMeta(m)
-        setIssues(r.issues)
         setSavedAt(r.updated_at)
       })
       .catch((e) => !gone && setError(e))
@@ -68,7 +69,6 @@ export function useRecordEditor<T extends { slug: string }>(kind: Kind, id: stri
         const r = await api<{ updated_at: string; dirty: boolean; issues: string[] }>(`${base}/${id}`, { method: 'PUT', body: { content: d } })
         if (v === version.current) setUnsaved(false)
         setSavedAt(r.updated_at)
-        setIssues(r.issues)
         setSaveError(null)
         setMeta((m) => (m ? { ...m, dirty: r.dirty ? 1 : 0, updated_at: r.updated_at } : m))
         mutate(base)

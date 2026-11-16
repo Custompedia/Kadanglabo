@@ -102,7 +102,7 @@ export function PublishPanel({
                   Tayang · tidak ada perubahan
                 </Button>
               ) : (
-                <Button className="w-full justify-center" variant="primary" icon={RocketLaunch} disabled={isNew || (issues.length > 0 && !unsaved)} title={issues.length && !unsaved ? 'Lengkapi isian di bawah dulu' : undefined} onClick={() => void publish()}>
+                <Button className="w-full justify-center" variant="primary" icon={RocketLaunch} disabled={isNew || issues.length > 0} title={issues.length ? 'Lengkapi isian di bawah dulu' : undefined} onClick={() => void publish()}>
                   {live ? 'Tayangkan perubahan' : 'Tayangkan di website'}
                 </Button>
               )}
@@ -123,23 +123,16 @@ export function PublishPanel({
         )}
 
         {!isNew && issues.length > 0 && state !== 'trashed' && (
-          <div className="mt-4 rounded-lg bg-kumo-warning-tint px-3.5 py-3 text-sm">
+          <div className="mt-5 text-sm">
             <p className="font-medium text-kumo-strong">Lengkapi sebelum tayang</p>
-            <div className="mt-2 grid gap-2.5">
-              {groupIssues(issues).map((g) => (
-                <div key={g.title}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-kumo-subtle">{g.title}</p>
-                  <ul className="mt-1 grid gap-0.5 text-kumo-default">
-                    {g.items.map((i) => (
-                      <li key={i} className="flex gap-2">
-                        <span aria-hidden="true" className="mt-[0.55em] size-1 shrink-0 rounded-full bg-kumo-subtle" />
-                        {i}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            <ul className="mt-2 grid gap-1.5 text-kumo-default">
+              {issueLines(issues).map((i) => (
+                <li key={i} className="flex gap-2.5">
+                  <span aria-hidden="true" className="mt-[0.6em] size-1 shrink-0 rounded-full bg-kumo-subtle" />
+                  {i}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 
@@ -185,13 +178,11 @@ export function PublishPanel({
 }
 
 /**
- * What still stops Publish, grouped so a long list reads at a glance: the photos (the gallery's empty slots counted
- * as one line), the texts that need both languages, and the rest. Every issue is shown, nothing is cut off.
+ * What still stops Publish, one line each and all of them: the gallery's empty photo slots counted in one line, and
+ * "(ID & EN)" for the texts that need both languages.
  */
-function groupIssues(issues: string[]): { title: string; items: string[] }[] {
-  const photos: string[] = []
-  const texts: string[] = []
-  const other: string[] = []
+function issueLines(issues: string[]): string[] {
+  const out: string[] = []
   let slots = 0
   const blocks: number[] = []
   for (const i of issues) {
@@ -199,17 +190,12 @@ function groupIssues(issues: string[]): { title: string; items: string[] }[] {
     if (g) {
       slots += g[2] === 'dua foto' ? 2 : 1
       blocks.push(Number(g[1]))
-    } else if (i.startsWith('Foto')) photos.push(i)
-    else if (i.endsWith('(Indonesia & Inggris)')) texts.push(i.replace(/ \(Indonesia & Inggris\)$/, ''))
-    else other.push(i)
+    } else out.push(i.replace(/ \(Indonesia & Inggris\)$/, ' (ID & EN)'))
   }
   if (slots) {
     const range = blocks.length > 1 ? `blok ${Math.min(...blocks)}–${Math.max(...blocks)}` : `blok ${blocks[0]}`
-    photos.push(`Galeri: ${slots} foto belum diisi (${range})`)
+    const at = out.findIndex((i) => !i.startsWith('Foto'))
+    out.splice(at < 0 ? out.length : at, 0, `Foto galeri: ${slots} belum diisi (${range})`)
   }
-  return [
-    { title: 'Foto', items: photos },
-    { title: 'Teks · Indonesia & Inggris', items: texts },
-    { title: 'Lainnya', items: other },
-  ].filter((g) => g.items.length)
+  return out
 }
