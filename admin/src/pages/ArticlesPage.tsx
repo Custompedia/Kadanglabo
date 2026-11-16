@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, MagnifyingGlass, Newspaper, PushPin } from '@phosph
 import { AsideSection, Page } from '../layout/Page'
 import { PUBLIC_SITE } from '../layout/Shell'
 import { api, ApiError } from '../lib/api'
-import { ago, date, matches } from '../lib/format'
+import { date, matches } from '../lib/format'
 import { mutate } from '../lib/useFetch'
 import type { BannerArticle, BannerMode, BannerOverview } from '../lib/types'
 import { Section } from '../components/Fields'
@@ -145,7 +145,6 @@ export default function ArticlesPage() {
                       )
                     })}
                   </ol>
-                  <p className="mt-2 text-xs text-kumo-subtle">Artikel yang disematkan tampil lebih dulu, urutannya bisa diubah dengan panah. Sisanya diisi artikel terbaru.</p>
                 </div>
               )}
 
@@ -181,10 +180,6 @@ export default function ArticlesPage() {
               </div>
             </>
           )}
-          <p className="text-xs text-kumo-subtle">
-            Setiap perubahan langsung tersimpan dan tayang.
-            {data.updated_at ? ` Terakhir diubah ${ago(data.updated_at)}${data.updated_by ? ` oleh ${data.updated_by}` : ''}.` : ''} Pilihan yang sama juga ada di editor artikel dan di pratinjau ArticleFlow.
-          </p>
         </Section>
       </div>
     </Page>
