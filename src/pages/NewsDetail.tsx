@@ -11,6 +11,8 @@ import { formatDate, getNews, sortedNews, type NewsItem } from '../data/news'
 import { getProject } from '../data/projects'
 import { t, tr } from '../lib/i18n'
 import { MovedOrMissing } from './MovedOrMissing'
+import { WaFloat } from '../components/WaFloat'
+import { waHello } from '../data/site'
 
 /*
  * One article, laid out like a magazine page (after custompedia.agency/artikel): breadcrumb, topic, a large title,
@@ -104,6 +106,7 @@ function Article({ n }: { n: NewsItem }) {
           </section>
         )}
       </article>
+      <WaFloat text={`${waHello()} (${t(n.title)})`} />
     </Page>
   )
 }
