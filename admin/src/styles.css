@@ -186,6 +186,11 @@ body { margin: 0; }
 .admin-topbar { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
 .admin-login { min-height: 100vh; min-height: 100dvh; padding-top: max(24px, env(safe-area-inset-top)); padding-bottom: max(24px, env(safe-area-inset-bottom)); }
 .admin-page { overflow-wrap: anywhere; }
+/* Sidebar icons: Kumo fades them all to 40%, so nothing reads as selected. Show them in black; the open page in brand orange. */
+.admin-shell [data-sidebar='menu-button'] svg { opacity: 1; color: var(--color-kumo-strong); transition: color 0.15s; }
+.admin-shell [data-sidebar='menu-button'][data-active] { color: var(--color-kumo-strong); background: color-mix(in srgb, var(--color-kumo-brand) 10%, transparent); }
+.admin-shell [data-sidebar='menu-button'][data-active] svg { opacity: 1; color: var(--color-kumo-brand); }
+.admin-shell [data-sidebar='menu-sub-button'][data-active] { color: var(--color-kumo-brand); }
 .admin-page input, .admin-page textarea, .admin-page .grid > * { min-width: 0; }
 .admin-page > main { container-type: inline-size; }
 .admin-savebar { padding-bottom: max(12px, env(safe-area-inset-bottom)); }

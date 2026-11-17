@@ -54,10 +54,6 @@ export function Shell({ children }: { children: ReactNode }) {
               <NavItem icon={Buildings} to="/projects" active={at('/projects')} label="Projek" />
               <NavItem icon={Newspaper} to="/articles" active={at('/articles')} label="Artikel" />
               <NavItem icon={ImagesSquare} to="/media" active={at('/media')} label="Media" />
-            </Sidebar.Menu>
-          </Sidebar.Group>
-          <Sidebar.Group>
-            <Sidebar.Menu>
               <Sidebar.MenuItem>
                 <Sidebar.Collapsible defaultOpen={at('/pages') || at('/locations')}>
                   <Sidebar.CollapsibleTrigger
@@ -157,14 +153,14 @@ function SearchButton({ onOpen }: { onOpen: () => void }) {
   const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform)
   if (!isMobile && state === 'collapsed')
     return (
-      <div className="flex justify-center pb-1 pt-3">
-        <button onClick={openSearch} className="grid size-8 place-items-center rounded-lg text-kumo-subtle ring-1 ring-kumo-line transition hover:bg-kumo-tint hover:text-kumo-default" aria-label="Cari cepat" title={`Cari cepat (${isMac ? '⌘' : 'Ctrl'} K)`}>
-            <MagnifyingGlass size={17} />
-          </button>
+      <div className="flex justify-center pb-2 pt-3">
+        <button onClick={openSearch} className="grid size-[34px] place-items-center rounded-lg text-kumo-strong transition hover:bg-kumo-tint" aria-label="Cari cepat" title={`Cari cepat (${isMac ? '⌘' : 'Ctrl'} K)`}>
+          <MagnifyingGlass size={16} />
+        </button>
       </div>
     )
   return (
-    <div className="pb-1 pt-3">
+    <div className="pb-2 pt-3">
       <button onClick={openSearch} className="flex h-8 w-full items-center gap-2 rounded-lg bg-kumo-base px-2.5 text-[13px] text-kumo-subtle ring-1 ring-kumo-line transition hover:ring-kumo-fill">
         <MagnifyingGlass size={14} />
         <span className="flex-1 text-left">Cari cepat…</span>
