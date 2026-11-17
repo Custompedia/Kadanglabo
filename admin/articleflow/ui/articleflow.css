@@ -2,9 +2,9 @@
  * ArticleFlow's own look, on top of Kumo. The sidebar item is the one place the dashboard uses the brand orange as
  * a fill: it marks the menu that Custompedia Tech writes into.
  */
-.af-nav--on { background: #fdeee7 !important; color: #a9370f !important; font-weight: 600; }
-.af-nav--on:hover { background: #fbe2d6 !important; }
-.af-nav--on svg { color: #d34614; }
+/* Orange text marks a running subscription; the orange box is left to the page that is open, like every other entry. */
+.af-nav--on { color: #a9370f !important; font-weight: 600; }
+.admin-shell [data-sidebar='menu-button'].af-nav--on svg { color: #d34614; }
 .af-nav--off { color: #737373 !important; }
 .af-nav--off svg { color: currentColor; }
 /* the count of waiting articles: a small solid circle (a pill from two digits), no ring */
