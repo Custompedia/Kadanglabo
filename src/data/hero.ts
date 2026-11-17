@@ -12,7 +12,6 @@ const heroImages: Partial<Record<ImgKey, ImgKey>> = {
 /** Projects shown in the home hero carousel (the first one is where the preloader lands). */
 const preferredProjects = [
   'hmw-house',
-  'bale-catur-villa-resto',
   'la-barka-resort',
   'klinik-uii',
   'perum-firlatata',
